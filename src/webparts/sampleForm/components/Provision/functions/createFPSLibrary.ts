@@ -1,4 +1,4 @@
-import { IJSPostReturn, doSpJsPost } from "./doSpJsPost";
+import { IJSPostReturn, doSpJsPost } from "../../doSpJsPost";
 
 import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";

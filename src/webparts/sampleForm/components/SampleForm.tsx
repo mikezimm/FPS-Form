@@ -1,6 +1,6 @@
 import * as React from 'react';
 import styles from './SampleForm.module.scss';
-import { ISampleFormProps, ISampleFormState } from './ISampleFormProps';
+import { ISampleFormProps, ISampleFormState } from './Provision/interfaces/ISampleFormProps';
 import { escape } from '@microsoft/sp-lodash-subset';
 
 import { ChoiceGroup, IChoiceGroupOption } from 'office-ui-fabric-react/lib/ChoiceGroup';
@@ -8,9 +8,13 @@ import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { TextField, MaskedTextField } from "office-ui-fabric-react";
 import { Toggle, } from 'office-ui-fabric-react/lib/Toggle';
 import { LabelExportJSON } from '../storedSecrets/AS303 Labels v3 - JSON Formatted';
-import { createFPSLibrary } from './createFPSLibrary';
-import { createLibraryPnpjs, requstLibraryLabel } from './createLibraryPnpjs';
-
+import { createFPSLibrary } from './Provision/functions/createFPSLibrary';
+import { createLibraryPnpjs } from "./Provision/functions/createLibraryPnpjs";
+import { requstLibraryLabel } from "./Requests/functions/requestLabel";
+import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
+import { LabelRequestSource, fetchLabelRequests, fetchMinimalLabelRequests } from './Requests/functions/fetchLabelRequests';
+import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
+import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 
 export default class SampleForm extends React.Component<ISampleFormProps, ISampleFormState> {
 
@@ -24,9 +28,10 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
 
   private DefaultLabel = this.LabelOptions[2].key;
 
-
   public constructor(props:ISampleFormProps){
     super(props);
+
+    const constId: string = makeid(5);
 
     this.state = {
         libraryUrl: ``,
@@ -35,7 +40,32 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
         libraryDescription: ``,
         libraryFullDescription: `Retention Label: [ ${this.DefaultLabel} ]}`,
         enableCreate: false,
+
+        created: [],
+
+        users : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null, },
+        sites : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null },
+        requests : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null },
+        allRequests : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null },
     };
+  }
+
+  public async componentDidMount(): Promise<void> {
+
+    const MockBannerProps = {
+      FPSUser: { Title: this.props.context.pageContext.user.displayName },
+      context: { pageContext: { site: {  serverRelativeUrl: this.props.context.pageContext.site.serverRelativeUrl }}}
+    }
+    const [ users, sites, requests ] = await fetchMinimalLabelRequests( MockBannerProps as any, null, [] );
+    const all = await fetchLabelRequests( MockBannerProps as any, LabelRequestSource as ISourceProps , null );
+
+    console.log( 'Found these Requests: users', users );
+    console.log( 'Found these Requests: sites', sites );
+    console.log( 'Found these Requests: requests', requests );
+    console.log( 'Found these Requests: all', all );
+
+    this.setState( { users: users, sites: sites, requests: requests, allRequests: all });
+
   }
 
   public render(): React.ReactElement<ISampleFormProps> {
@@ -119,11 +149,12 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
   }
 
   private async createLibrary( event: React.MouseEventHandler<HTMLButtonElement> ) : Promise<void> {
-    const results = await createLibraryPnpjs( this.props.context.pageContext.web.absoluteUrl, this.state.libraryTitle, this.state.libraryUrl, this.state.libraryFullDescription );
-    await requstLibraryLabel( results, this.state.libraryLabel );
-    console.log( 'createLibrary results:', results );
-
     this.setState({ enableCreate: false });
+    const results: IStateSource = await createLibraryPnpjs( this.props.context.pageContext.web.absoluteUrl, this.state.libraryTitle, this.state.libraryUrl, this.state.libraryFullDescription ) as IStateSource;
+    await requstLibraryLabel( results.item, this.state.libraryLabel );
+    console.log( 'createLibrary results:', results );
+    const created: IStateSource[] = [ results, ...this.state.created, ];
+    this.setState({ created: created });
 
   }
 

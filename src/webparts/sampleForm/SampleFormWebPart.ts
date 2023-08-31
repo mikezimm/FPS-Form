@@ -13,7 +13,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'SampleFormWebPartStrings';
 import SampleForm from './components/SampleForm';
-import { ISampleFormProps } from './components/ISampleFormProps';
+import { ISampleFormProps } from './components/Provision/interfaces/ISampleFormProps';
 
 export interface ISampleFormWebPartProps {
   description: string;
