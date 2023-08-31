@@ -1,291 +1,176 @@
-// import * as React from 'react';
-// import { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 
-// import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-// // import ReactJson from 'react-json-view';
+import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { TextField, MaskedTextField } from "office-ui-fabric-react";
 
-// // require('@mikezimm/fps-styles/dist/easypages.css');
+import styles from '../SampleForm.module.scss';
+import { doesNotStartNumber, toCamelCase } from './functions/strings';
 
-// // import { ILoadPerformance, IPerformanceOp, } from '../../../../../components/molecules/Performance/IPerformance';
-// // import { createPerformanceRows, createPerformanceTableVisitor, } from '../../../../../components/molecules/Performance/tables';
+import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
+import { createLibraryPnpjs } from './functions/createLibraryPnpjs';
+import { requstLibraryLabel } from '../Requests/functions/requestLabel';
+import { ICorpLabelsSource } from '../../storedSecrets/AS303 Labels v3 - JSON Formatted';
+import { ILoadPerformance, IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
+import { createPerformanceRows } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/tables';
 
-// // import { CustomPanel } from '../../../../../components/molecules/SourceList/Custom/CustomPanel';
+export interface IListProvisionHookProps {
+  context: WebPartContext;
+  labelItems: ICorpLabelsSource[];
 
-// // import { IStateSourceA, IZFetchedAnalytics, } from "../interfaces/IStateSourceA";
-// // import { getAnalyticsSummary } from "../functions/fetchAnalytics";
-// // import { createAnalyticsSourceProps } from "../interfaces/createAnalyticsSourceProps";
+}
 
-// // import { EasyPagesAnalTab,  } from '../../interfaces/epTypes';
+export type ITopButtons = 'Mine' | 'OtherPeeps' | 'ThisSite' | 'OtherSites';
+export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeeps', 'ThisSite', 'OtherSites' ];
 
-// // import { ISourceProps } from '../../../../../pnpjs/SourceItems/Interface';
-// // import { IEasyPagesSourceProps } from "../../interfaces/IEasyPagesPageProps";
-// // import { ISourceButtonRowProps, sourceButtonRow } from '../../../../../components/molecules/SourcePage/sourceButtonRow';
-// // import Accordion from '../../../../../components/molecules/Accordion/Accordion';
-// // import SourcePages from '../../../../../components/molecules/SourcePage/SourcePages';
-// // import { ezAnalyticsItemHeaders1, ezAnalyticsItemHeaders2, createItemsRow } from './Row';
-// // import { IAnalyticsSummary, IOjbectKeySummaryItem, easyAnalyticsSummary, } from '../functions/summarizeArrayByKey';
-// // import { createBarsRow, ezAnalyticsBarHeaders } from './RowBar';
-// // // import { makeid } from '../../fpsReferences';
-// // import { check4This } from "@mikezimm/fps-pnp2/lib/services/sp/CheckSearch";
-// // import { makeid } from '../../../../../logic/Strings/guids';
-// // import { PanelType } from 'office-ui-fabric-react/lib/Panel';
-// // import { getDeepestSplits } from '../../../../../logic/Arrays/getDeepKeys';
-// // import { checkDeepProperty } from '../../../../../logic/Objects/deep';
+/***
+ *    .d8888. d888888b  .d8b.  d8888b. d888888b      db   db  .d88b.   .d88b.  db   dD 
+ *    88'  YP `~~88~~' d8' `8b 88  `8D `~~88~~'      88   88 .8P  Y8. .8P  Y8. 88 ,8P' 
+ *    `8bo.      88    88ooo88 88oobY'    88         88ooo88 88    88 88    88 88,8P   
+ *      `Y8b.    88    88~~~88 88`8b      88         88~~~88 88    88 88    88 88`8b   
+ *    db   8D    88    88   88 88 `88.    88         88   88 `8b  d8' `8b  d8' 88 `88. 
+ *    `8888Y'    YP    YP   YP 88   YD    YP         YP   YP  `Y88P'   `Y88P'  YP   YD 
+ *                                                                                     
+ *                                                                                     
+ */
 
-// export interface IListProvisionHookProps {
-//   context: WebPartContext;
+const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
-// }
+  const { context, labelItems } = props;
 
-// export type ITopButtons = 'Mine' | 'OtherPeeps' | 'ThisSite' | 'OtherSites';
-// export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeeps', 'ThisSite', 'OtherSites' ];
+  const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
-// /***
-//  *    .d8888. d888888b  .d8b.  d8888b. d888888b      db   db  .d88b.   .d88b.  db   dD 
-//  *    88'  YP `~~88~~' d8' `8b 88  `8D `~~88~~'      88   88 .8P  Y8. .8P  Y8. 88 ,8P' 
-//  *    `8bo.      88    88ooo88 88oobY'    88         88ooo88 88    88 88    88 88,8P   
-//  *      `Y8b.    88    88~~~88 88`8b      88         88~~~88 88    88 88    88 88`8b   
-//  *    db   8D    88    88   88 88 `88.    88         88   88 `8b  d8' `8b  d8' 88 `88. 
-//  *    `8888Y'    YP    YP   YP 88   YD    YP         YP   YP  `Y88P'   `Y88P'  YP   YD 
-//  *                                                                                     
-//  *                                                                                     
-//  */
+  const [ libTitle, setLibTitle ] = useState< string >( );
+  const [ libUrl, setLibUrl ] = useState< string >( );
 
-// const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
+  const [ libDescription, setLibDescription ] = useState< string >( );
+  const [ libFullDescription, setLibFullDescription ] = useState< string >( );
+  const [ enableCreate, setenableCreate ] = useState< boolean >( false );
+  const [ created, setcreated ] = useState< IStateSource[] >( [] );
+  const[ libLabelOptions, setLibLabelOptions ] = useState< IDropdownOption[] >( labelItems.map( ( item ) => {
+    return {
+      key: item.RecordCode,
+      text: `${item.RecordCode}: ${item.RecordTitle}`,
+      title: item.RecordTitle,
+    }
+  }) );
 
-//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-//   const { context, } = props;
+  const [ libLabel, setLibLabel ] = useState< string >( labelItems.length > 0 ? labelItems[0].RecordCode : `` );
 
-//   // libraryTitle: string;
-//   // libraryUrl: string;
-//   // libraryLabel: string;
-//   // libraryDescription: string;
-//   // libraryFullDescription: string;
-//   // enableCreate: boolean;
+  /***
+   *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
+   *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 88'  YP 
+   *    88    88 88V8o 88      8P      88         88    8P      88,8P   `8bo.   
+   *    88    88 88 V8o88      8b      88         88    8b      88`8b     `Y8b. 
+   *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88. db   8D 
+   *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD `8888Y' 
+   *                                                                            
+   *                                                                            
+   */
 
-//   const [ libTitle, setLibTitle ] = useState< string >( );
-//   const [ libUrl, setLibUrl ] = useState< string >( );
-//   const [ libLabel, setLibLabel ] = useState< string >( );
-//   const [ libDescription, setLibDescription ] = useState< string >( );
-//   const [ libFullDescription, setLibFullDescription ] = useState< string >( );
-//   const [ enableCreate, setenableCreate ] = useState< boolean >( false );
+  const titleChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
+    console.log( `titleChange:`, event, newValue );
+    const libraryUrl = toCamelCase( newValue );
+    const enableCreate = libraryUrl.length > 0 && newValue.length > 0 && !doesNotStartNumber( libraryUrl ) ? true : false;
+    setLibUrl( libraryUrl );
+    setLibTitle( newValue );
+    setenableCreate( enableCreate );
+  }
 
-// /***
-//    *     .o88b. db    db d8888b. d8888b. d88888b d8b   db d888888b      .d8888. d888888b d888888b d88888b 
-//    *    d8P  Y8 88    88 88  `8D 88  `8D 88'     888o  88 `~~88~~'      88'  YP   `88'   `~~88~~' 88'     
-//    *    8P      88    88 88oobY' 88oobY' 88ooooo 88V8o 88    88         `8bo.      88       88    88ooooo 
-//    *    8b      88    88 88`8b   88`8b   88~~~~~ 88 V8o88    88           `Y8b.    88       88    88~~~~~ 
-//    *    Y8b  d8 88b  d88 88 `88. 88 `88. 88.     88  V888    88         db   8D   .88.      88    88.     
-//    *     `Y88P' ~Y8888P' 88   YD 88   YD Y88888P VP   V8P    YP         `8888Y' Y888888P    YP    Y88888P 
-//    *                                                                                                      
-//    *                                                                                                      
-//    */
+  const descChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
+    const libraryFullDescription = `${ newValue ? `${ newValue } - ` : '' }Retention Label: [ ${libLabel} ]`;
+    setLibDescription( newValue );
+    setLibFullDescription( libraryFullDescription );
+  }
 
-//   useEffect(() => {
-//     //  https://ultimatecourses.com/blog/using-async-await-inside-react-use-effect-hook
+  const labelChange = (event: React.FormEvent<HTMLDivElement>, option?: IDropdownOption, index?: number): void => {
+    console.log( `labelChange:`, event, option );
+    const libraryFullDescription = `${ libDescription ? `${ libDescription } - ` : '' }Retention Label: [ ${ option.key } ]`;
+    setLibLabel( option.key as `` );
+    setLibFullDescription( libraryFullDescription );
 
-//     if ( expandedState === true && fetched === false ) {
-//       const getItems = async (): Promise<void> => {
-//         const itemsResults: IStateSourceA = await getAnalyticsSummary( sourceProps, wpFilterProps );
+  }
 
-//         const EzSummary: IAnalyticsSummary = easyAnalyticsSummary( itemsResults.items,  wpFilterProps, );
+  const createLibrary = async ( event: React.MouseEventHandler<HTMLButtonElement> ) : Promise<void> => {
 
-//         setFetched( itemsResults.loaded );
-//         setStateSource( itemsResults );
-//         setFetchPerformance( itemsResults.unifiedPerformanceOps.fetch );
-//         setProcPerformance( EzSummary );
-//       };
+    setenableCreate( false );
+    const results: IStateSource = await createLibraryPnpjs( context.pageContext.web.absoluteUrl, libTitle, libUrl, libFullDescription ) as IStateSource;
+    await requstLibraryLabel( results.item, libLabel );
+    console.log( 'createLibrary results:', results );
+    const allCreated: IStateSource[] = [ results, ...created, ];
+    setcreated( allCreated );
 
-//       // eslint-disable-next-line no-void
-//       void getItems(); // run it, run it
+  }
 
-//       return () => {
-//         // this now gets called when the component unmounts
-//       };
-//     }
-
-//   }, [ expandedState, fetched ] );
-
-//   const panelJSON = panelItem && panelItem.performanceObj ? panelItem.performanceObj : undefined;
-
-//   // https://github.com/mikezimm/fps-library-v2/issues/78
-//   const FPSProps = panelItem && panelItem.FPSProps ? JSON.parse(panelItem.FPSProps) : undefined;
-//   const FPSPropsJSON = !FPSProps || showPanel !== true ? undefined : <ReactJson src={ FPSProps } name={ 'FPSProps' } collapsed={ 1 } displayDataTypes={ true } displayObjectSize={ true } enableClipboard={ true } style={{ padding: '10px 0px' }}/>
-
-//   const panelContent : JSX.Element = showPanel !== true ? undefined : CustomPanel({
-//     source: null,
-//     primarySource: sourceProps,
-
-//     customElement1: createPerformanceTableVisitor( panelJSON, [] ) ,
-
-//     item: panelItem,
-//     onClosePanel: () => { setShowPanel( false ) },
-//     customElement1B: FPSPropsJSON,
-
-//     showItemPanel: showPanel,
-//     search: null,
-
-//     searchText: '',
-
-//     refreshId: stateSource.refreshId,
-//     showCanvasContent1: false,
-//     showProperties: true,
-
-//     reactPanelType: PanelType.medium,
-
-//     showHeading: true,
-
-//   });
-
-//   const onParentCall = (command: 'GoToItems', Id: number, type: string, item: IOjbectKeySummaryItem ) : void => { // onParentCall( 'GoToItems', -1, '', item )
-
-//     if ( item.keyZ === 'createdAge' || ( item.primaryKey && item.primaryKey.indexOf('<< EMPTY') === 0 ) ||  command !== 'GoToItems' ) {
-//       console.log( 'Invalid onParentCall' );
-//       return
-//     }
-//     console.log( 'Prefiltering items: onParentCall', item );
-//     setButton1( item.primaryKey );
-//     setTab( 0 );
-//   }
-
-//   const setNewPanelItem = ( command: string, Id: number, type: IPanelOption, item: IZFetchedAnalytics ): void => {
-//     setPanelItem( item );
-//     setShowPanel( true );
-//   }
-
-//   const setTabClick = ( Id: number ) : void => { // onParentCall( 'GoToItems', -1, '', item )
-//     setButton1( '' );
-//     setTab( Id );
-//   }
-
-//   const setOptionClick = ( Id: number ) : void => { // onParentCall( 'GoToItems', -1, '', item )
-//     const newAnalyticsListX = `${analyticsListX}${ analyticsOptionsX[ Id ] }`;
-//     setSourceProps( createAnalyticsSourceProps( `${newAnalyticsListX}`, analyticsWebX ));
-//     setOption( Id );
-//     setFetched( false );
-//   }
-
-//   /***
-//  *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
-//  *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 88'  YP 
-//  *    88    88 88V8o 88      8P      88         88    8P      88,8P   `8bo.   
-//  *    88    88 88 V8o88      8b      88         88    8b      88`8b     `Y8b. 
-//  *    `8b  d8' 88  V888      Y8b  d8 88booo.   .88.   Y8b  d8 88 `88. db   8D 
-//  *     `Y88P'  VP   V8P       `Y88P' Y88888P Y888888P  `Y88P' YP   YD `8888Y' 
-//  *                                                                            
-//  *                                                                            
-//  */
+  /***
+ *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
+ *    88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
+ *    88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
+ *    88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
+ *    88.     88booo. 88.     88  88  88 88.     88  V888    88    
+ *    Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
+ *                                                                 
+ *                                                                 
+ */
 
 
-//   /***
-//  *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
-//  *    88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 
-//  *    88ooooo 88      88ooooo 88  88  88 88ooooo 88V8o 88    88    
-//  *    88~~~~~ 88      88~~~~~ 88  88  88 88~~~~~ 88 V8o88    88    
-//  *    88.     88booo. 88.     88  88  88 88.     88  V888    88    
-//  *    Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    
-//  *                                                                 
-//  *                                                                 
-//  */
+const ProvisionListElement: JSX.Element = <section className={``}>
+  <div className={ styles.requestForm }>
+    <div className={ styles.editFields }>
+      <TextField 
+        label={ `Library Title` }
+        disabled={ false }
+        placeholder={ 'Enter Title here' }
+        autoComplete='off'
+        onChange={titleChange.bind( this ) }
+        onGetErrorMessage={doesNotStartNumber.bind( this ) }
+        required={ true }
+      />
+      <Dropdown 
+        options={ libLabelOptions }
+        // styles={ { root: { width: '300px' } } }
+        // selectedKey={ LabelOptions[2].key }
+        defaultSelectedKey={ libLabelOptions[0].key }
+        onChange={labelChange.bind( this ) }
+        label="Label to apply"
+        required={true}
+      />
+      <TextField 
+        label={ `Library Description` }
+        disabled={ false }
+        placeholder={ 'Your Label will automatically be added to your Description :)' }
+        autoComplete='off'
+        onChange={ descChange.bind( this ) }
+        onGetErrorMessage={ doesNotStartNumber.bind( this ) }
+        required={ true }
+      />
+    </div>
 
-//   //https://github.com/mikezimm/Pnpjs-v2-Upgrade-sample/issues/56
-//   const classNames: string[] = [ 'source-page', 'ezAnalyticsSourcePage', 'bannerPillShapeSideMargin' ];
-//   if ( expandedState !== true ) classNames.push ( 'hide-source-page' );
+    <div className={ styles.displayFields } style={{ padding: '20px' }}>
+      <div className={ styles.divField }>
+        <div>Library Url:</div>
+        <div>{ libUrl ? libUrl : 'Enter Title first' }</div>
+      </div>
+      <div className={ styles.divField }>
+        <div>Library Description:</div>
+        <div>{ libFullDescription }</div>
+      </div>
+    </div>
 
-//   const OptionRowProps: ISourceButtonRowProps = option === null ? undefined : {
-//     title: '',
-//     heading: <div>Analytics Type</div>,
-//     rowCSS: { paddingTop: '0px' },
-//     Labels: analyticsOptionsX ? analyticsOptionsX : [] ,
-//     onClick: stateSource.loaded !== true ? undefined : setOptionClick.bind( this ),
-//     selected: option,
-//     infoEle: ``,
-//     selectedClass: props.easyAnalyticsProps.class1,
-//   }
+    <button className={ enableCreate === true ? styles.enabled : null }
+      disabled={ !enableCreate }
+      onClick={ createLibrary.bind( this ) }
+      >
+      Create Library
+    </button>
 
-//   const ButtonRowProps: ISourceButtonRowProps = {
-//     title: '',
-//     heading: <div>Summarize By</div>,
-//     rowCSS: { paddingTop: '0px' },
-//     Labels: xFilters ,
-//     onClick: stateSource.loaded !== true ? undefined : setTabClick.bind( this ),
-//     selected: tab,
-//     infoEle: ``,
-//     selectedClass: props.easyAnalyticsProps.class1,
-//   }
+  </div>
+</section>;
 
-//   // This should hide the procPerformance if it is less than 10ms
-//   const valProcPerformance = !procPerformance ? procPerformance : checkDeepProperty( procPerformance, [ 'unifiedPerformanceOps', 'process', 'ms' ], 'Actual' );
-//   const showProcPerformance = valProcPerformance && valProcPerformance > 10 ? true : false;
+  return ( ProvisionListElement );
 
-//   const MainContent: JSX.Element = <div className={ 'eZAnalyticsInfo' }style={{ cursor: 'default', padding: '5px 0px 5px 0px' }}>
-//     { sourceButtonRow( OptionRowProps ) }
-//     { sourceButtonRow( ButtonRowProps ) }
-//     { !fetchPerformance ? undefined : <div>{ createPerformanceRows( { ops: { fetch: fetchPerformance } } as ILoadPerformance, [ 'fetch' ] ) }</div> }
-//     { !showProcPerformance  ? undefined : <div>{ createPerformanceRows( { ops: { process0: procPerformance.unifiedPerformanceOps.process } } as ILoadPerformance, [ 'process0' ], 10 ) }</div> }
-//   </div>;
+}
 
-//   const accordionHeight: number = option === null ? 100 : 120;
-
-//   const InfoElement: JSX.Element = <Accordion 
-//     title = { `More information about this tab`}
-//     defaultIcon = 'Help'
-//     showAccordion = { true }
-//     content = { MainContent }
-//     refreshId={ makeid(5) }
-//     contentStylesVis = { { height: `${accordionHeight}px` } }
-//   />;
-
-//   const ezAnalyticsItemHeaders : string[] = [ ...ezAnalyticsItemHeaders1, ...hLeft, ...ezAnalyticsItemHeaders2, ...hRight ];
-
-//   const useTopButtons: string[] = tab === 0 ? [ button1, ...TopButtons.filter((str) => str !== button1 ), ...stateSource.meta2.filter((str) => str !== button1 ) ] : [];
-//   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//   const summaryKey = tab < AnalyticsTabs.length ? xFilters[ tab ] : `x${ ( tab - AnalyticsTabs.length ) }`;
-//   const useThisState: IStateSourceA = tab === 0 ? stateSource : { ...stateSource, ...{ items: procPerformance[ summaryKey as 'Sites' ].summaries } , refreshId: makeid( 5 ) } as any;
-//   const useHeaders: string[] = tab === 0 ? ezAnalyticsItemHeaders : ezAnalyticsBarHeaders;
-//   const useSgeSlider: boolean = tab === 0 ? true : false;
-//   const renderRowsAsThese = tab === 0 ? createItemsRow : createBarsRow;
-//   const onParentCallFunction = tab === 0 ? setNewPanelItem.bind(this) : onParentCall.bind(this);
-
-//   if ( check4This(`sourceResults=true`) === true ) console.log('sourceResults analyticsHookState:', xFilters[ tab ], tab, useThisState );
-
-//   const itemsElement = <SourcePages
-//     // source={ SourceInfo }
-//     primarySource={ sourceProps }
-//     itemsPerPage={ 20 }
-//     pageWidth={ 1000 }
-//     topButtons={ useTopButtons }
-//     stateSource={ useThisState }
-//     startQty={ 20 }
-//     showItemType={ false }
-//     debugMode={ null }
-
-//     tableHeaderElements={ useHeaders }
-//     tableClassName= { 'ezAnalyticsTable' } // styles.itemTable
-//     tableHeaderClassName= { [  ].join( ' ' )  } // stylesRow.genericItem
-//     selectedClass={ props.easyAnalyticsProps.class1 }
-
-//     renderRow={ renderRowsAsThese }
-//     optionalColumns1={ wpTDLeft }
-//     optionalColumns2={ wpTDRight }
-
-//     deepProps={ null } //this.state.deepProps
-
-//     onParentCall={ onParentCallFunction }
-//     headingElement={ InfoElement }
-//     ageSlider={ useSgeSlider }
-//     searchAgeOp={ 'show >' }
-//     searchAgeProp={ 'createdAge' }
-//   />;
-
-//   const EasyAnalyticsElement: JSX.Element = <div className = { classNames.join( ' ' ) } style={ styles }>
-//     { itemsElement }
-//     { panelContent }
-//   </div>;
-
-//   return ( EasyAnalyticsElement );
-
-// }
-
-// export default ListProvisionHook;
+export default ListProvisionHook;
