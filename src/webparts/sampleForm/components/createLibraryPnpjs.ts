@@ -18,12 +18,23 @@ export async function createLibraryPnpjs(siteUrl: string, libraryTitle: string, 
 
 }
 
+export const RequestWeb = `${window.location.origin}/sites/SP_GlobalItsRecordsAndInformationGovernanceSystem`;
+export const RequestList = `Label Provisioning Requests`;
+
+export const FPSLabelRequestCols: string[] = [
+  'Id', 'Title', 'Label', 'LibraryGuid', 'LibraryName', 'LibraryTitle', 'LibraryLink', 'SiteUrl', 'WebUrl', 'WorkflowComments', 'Status', 'CompleteTime',
+];
+
 export interface IFPSLabelRequest {
   Title: string;
   Label: string;
   LibraryGuid: string;
   LibraryName: string;
   LibraryTitle: string;
+  LibraryLink: {
+    Url: string;
+    Description?: string;
+  }
   SiteUrl: string;
   WebUrl: string;
   WorkflowComments?: string;
@@ -38,8 +49,7 @@ export interface IFPSLabelRequestRead extends IFPSLabelRequest {
 
 export async function requstLibraryLabel( list: IListInfo, label: string ): Promise<any> {
 
-  const requestWeb = `${window.location.origin}/sites/SP_GlobalItsRecordsAndInformationGovernanceSystem`;
-  const requestList = `Label Provisioning Requests`;
+
   const parentWeb: string[] = list.ParentWebUrl.split('/');
   const SiteUrl: string = parentWeb.slice(0, 3).join('/');
   const LabelRequest :IFPSLabelRequest = {
@@ -48,13 +58,17 @@ export async function requstLibraryLabel( list: IListInfo, label: string ): Prom
     LibraryGuid: list.Id,
     LibraryName: list.EntityTypeName,
     LibraryTitle: list.Title,
+    LibraryLink: {
+      Url: `${window.location.origin}${list.ParentWebUrl}/${list.EntityTypeName}`,
+      Description: `${list.ParentWebUrl.replace( '/sites/', '' )}/${list.EntityTypeName}`
+   },
     SiteUrl: SiteUrl,
     WebUrl: list.ParentWebUrl,
   }
 
   console.log( 'LabelRequest', LabelRequest );
 
-  const saveResult = await saveThisLogItemAsync( requestWeb, requestList, LabelRequest );
+  const saveResult = await saveThisLogItemAsync( RequestWeb, RequestList, LabelRequest );
   return saveResult;
 
 }

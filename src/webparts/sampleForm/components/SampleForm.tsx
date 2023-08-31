@@ -102,7 +102,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
   private titleChange(event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void {
     console.log( `titleChange:`, event, newValue );
     const libraryUrl = this.toCamelCase( newValue );
-    const enableCreate = libraryUrl.length > 0 && newValue.length > 0 ? true : false;
+    const enableCreate = libraryUrl.length > 0 && newValue.length > 0 && !this.doesNotStartNumber( libraryUrl ) ? true : false;
 
     this.setState({ libraryUrl: this.toCamelCase( newValue ), libraryTitle: newValue, enableCreate: enableCreate });
   }
@@ -150,7 +150,7 @@ For example, if you pass the string "this is a sentance" to this function, it wi
     }
 
     let newStr = str.toLowerCase().replace(/(?:^\w|[A-Z]|\b\w)/g, convert).replace(/\s+/g, '');
-    const special = /[*{}()[\].,\/\?<>-]/g;
+    const special = /[*{}()'"`=+&^%$#@!~|[\\\].,\/\?<>-]/g;
     newStr = newStr.replace( special, '' );
     return newStr;
   }
