@@ -1,5 +1,6 @@
 import { IListInfo } from "@pnp/sp/lists";
 import { saveThisLogItemAsync } from '@mikezimm/fps-pnp2/lib/services/sp/logging/saveThisLogItemAsync';
+import { IFPSItem } from "@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent";
 
 
 export const RequestWeb = `${window.location.origin}/sites/SP_GlobalItsRecordsAndInformationGovernanceSystem`;
@@ -10,6 +11,7 @@ export const FPSLabelRequestCols: string[] = [
 ];
 
 export interface IFPSLabelRequest {
+
   Title: string;
   Label: string;
   LibraryGuid: string;
@@ -26,13 +28,18 @@ export interface IFPSLabelRequest {
   };
   SiteUrl: string;
   WebUrl: string;
-  WorkflowComments?: string;
+
   Status?: string;
-  CompleteTime?: any;
+
 }
 
 export interface IFPSLabelRequestRead extends IFPSLabelRequest {
   Status: string;
+  Id?: number;
+  Created?: any;
+  CompleteTime?: any;
+  WorkflowComments?: string;
+  FPSItem: IFPSItem;
 }
 
 

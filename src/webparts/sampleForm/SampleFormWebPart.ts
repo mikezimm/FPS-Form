@@ -13,7 +13,7 @@ import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
 import * as strings from 'SampleFormWebPartStrings';
 import SampleForm from './components/SampleForm';
-import { ISampleFormProps } from './components/Provision/interfaces/ISampleFormProps';
+import { ISampleFormProps } from './components/SampleForm';
 
 export interface ISampleFormWebPartProps {
   description: string;
@@ -45,12 +45,6 @@ export default class SampleFormWebPart extends BaseClientSideWebPart<ISampleForm
     const element: React.ReactElement<ISampleFormProps> = React.createElement(
       SampleForm,
       {
-        description: this.properties.description,
-        isDarkTheme: this._isDarkTheme,
-        environmentMessage: this._environmentMessage,
-        hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName,
-
         context: this.context,
       }
     );

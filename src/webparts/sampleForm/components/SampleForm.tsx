@@ -1,6 +1,8 @@
 import * as React from 'react';
+import { WebPartContext } from "@microsoft/sp-webpart-base";
+
 import styles from './SampleForm.module.scss';
-import { ISampleFormProps, ISampleFormState } from './Provision/interfaces/ISampleFormProps';
+import { ISampleFormState } from './Provision/interfaces/ISampleFormProps';
 
 import { IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { LabelExportJSON } from '../storedSecrets/AS303 Labels v3 - JSON Formatted';
@@ -9,6 +11,11 @@ import { LabelRequestSource, fetchLabelRequests, fetchMinimalLabelRequests } fro
 import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
 
 import ListProvisionHook from './Provision/ListProvisionHook'
+import RequestsHook from './Requests/RequestsHook'
+
+export interface ISampleFormProps {
+  context: WebPartContext;
+}
 
 export default class SampleForm extends React.Component<ISampleFormProps, ISampleFormState> {
 
@@ -28,14 +35,6 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
     const constId: string = makeid(5);
 
     this.state = {
-        libraryUrl: ``,
-        libraryTitle: ``,
-        libraryLabel: this.DefaultLabel as ``,
-        libraryDescription: ``,
-        libraryFullDescription: `Retention Label: [ ${this.DefaultLabel} ]}`,
-        enableCreate: false,
-
-        created: [],
 
         users : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null, },
         sites : { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null },
@@ -64,10 +63,17 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
 
   public render(): React.ReactElement<ISampleFormProps> {
     return (
-      <ListProvisionHook 
-        context={ this.props.context }
-        labelItems={ LabelExportJSON }
-      />
+      <div>
+        <ListProvisionHook 
+          context={ this.props.context }
+          labelItems={ LabelExportJSON }
+        />
+        <RequestsHook 
+          context={ this.props.context }
+          expandedState={ true }
+        />
+      </div>
+
     );
   }
 }
