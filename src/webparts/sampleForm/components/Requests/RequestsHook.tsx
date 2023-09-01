@@ -21,7 +21,7 @@ import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
 import { LabelRequestSource, fetchLabelRequests, fetchMinimalLabelRequests } from './functions/fetchLabelRequests';
 import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
 import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
-import { createRequestsRow } from './Row';
+import { createRequestsRow, requestRowHeaders } from './Row';
 
 const constId: string = makeid(5);
 const EmptyState: IStateSource = { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null, };
@@ -33,8 +33,8 @@ export interface ILabelRequestProps {
 
 export type IPanelOption = 'performance' | 'item';  // Define what kinds of variants of the panel you want
 
-export type ITopButtons = 'Mine' | 'OtherPeeps' | 'ThisSite' | 'OtherSites';
-export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeeps', 'ThisSite', 'OtherSites' ];
+export type ITopButtons = 'Mine' | 'OtherPeople' | 'ThisSite' | 'OtherSites';
+export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeople', 'ThisSite', 'OtherSites' ];
 
 /***
  *    .d8888. d888888b  .d8b.  d8888b. d888888b      db   db  .d88b.   .d88b.  db   dD 
@@ -138,8 +138,14 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
   });
 
   const setNewPanelItem = ( command: string, Id: number, type: IPanelOption, item: IAnySourceItem ): void => {
-    setPanelItem( item );
-    setShowPanel( true );
+
+    if ( command === 'Filter' ) {
+      
+    } else {
+      setPanelItem( item );
+      setShowPanel( true );
+    }
+
   }
   
   /***
@@ -190,13 +196,13 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
     primarySource={ LabelRequestSource }
     itemsPerPage={ 20 }
     pageWidth={ 1000 }
-    topButtons={ TopButtons }
+    topButtons={ requests.meta1 ? requests.meta1 : [] }
     stateSource={ requests }
     startQty={ 20 }
     showItemType={ false }
     debugMode={ null }
 
-    tableHeaderElements={ LabelRequestSource.columns }
+    tableHeaderElements={ requestRowHeaders }
     tableClassName= { 'ezAnalyticsTable' } // styles.itemTable
     tableHeaderClassName= { [  ].join( ' ' )  } // stylesRow.genericItem
     selectedClass={ `` }
@@ -212,7 +218,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
     searchAgeProp={ 'createdAge' }
   />;
 
-  const FinalElement: JSX.Element = <div className = { [].join( ' ' ) } style={{ }}>
+  const FinalElement: JSX.Element = <div className = { [].join( ' ' ) } style={{ minHeight: '450px' }}>
   { itemsElement }
   { panelContent }
 </div>;

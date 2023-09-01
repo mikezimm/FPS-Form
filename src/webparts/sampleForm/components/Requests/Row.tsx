@@ -7,29 +7,35 @@ import { getHighlightedText } from '@mikezimm/fps-library-v2/lib/components/atom
 import { ISourceRowRender } from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/ISourceRowRender';
 import { IFPSLabelRequestRead } from './functions/requestLabel';
 
-// require ('@mikezimm/fps-styles/dist/easyAnalytics.css');
-// require ('@mikezimm/fps-styles/dist/fpsGeneralCSS.css');
+import styles from './RowStyles.module.scss';
+require ('@mikezimm/fps-styles/dist/fpsGeneralCSS.css');
 
-
-// export const requestRowHeaders: string[] = [ 'Link', 'Gulp', 'Age', 'Who', 'lang', 'Loc', 'Web','Page', 'perf', 'CodeVersion' ];
+export const requestRowHeaders: string[] = [ 'Id', 'Label', 'Library', 'WebUrl', 'Requested', 'Status', 'Completed' ];
 
 export function createRequestsRow( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
   const { item, onClick, searchText, onParentCall } = props; // details, showItemType, onOpenPanel
 
   const thisItem: IFPSLabelRequestRead = item as IFPSLabelRequestRead;
 
-  const { Title, Id, Created, Label, LibraryGuid, LibraryName, LibraryTitle, Author, LibraryLink, SiteUrl, WebUrl } = thisItem; // , BannerImageUrl, PromotedState
+  const { Title, Id, Created, Label, LibraryGuid, LibraryName, LibraryTitle, Author, LibraryLink, SiteUrl, WebUrl, Status, CompleteTime } = thisItem; // , BannerImageUrl, PromotedState
 
-  const age = thisItem.FPSItem && thisItem.FPSItem.Stamp && thisItem.FPSItem.Stamp.created ? thisItem.FPSItem.Stamp.created.age : null;
+  const created = thisItem?.FPSItem?.Stamp?.created;
 
-  const row = <tr className={ 'ezAnalyticsItem' } onClick = { () => onClick( Id, 'generic', item ) }>
+  const CreateDate = created ? created.dayYYYYMMDD : '';
+  const CreateAge = created ? created.age.toFixed( 1 ) : '';
 
-    <td onClick= { () => props.onParentCall( 'Item', item.Id, '', item ) } title={ null } >{ Id }</td>
-    <td title={ null } >{ getHighlightedText( Title, searchText ) }</td>
-    <td title={ null } >{ getHighlightedText( Label, searchText ) }</td>
-    <td title={ null } >{ getHighlightedText( LibraryTitle, searchText ) }</td>
-    <td title={ null } >{ getHighlightedText( WebUrl, searchText ) }</td>
-    <td title={ Created } >{ age ? age.toFixed( 2 ) : '' }</td>
+  const noWrap = `fps-gen-text-ellipse`;
+
+  const row = <tr className={ styles.requestsRow } onClick = { () => onClick( Id, 'generic', item ) }>
+
+    <td title={ null } onClick= { () => props.onParentCall( 'Item', item.Id, '', item ) }  >{ Id }</td>
+    {/* <td className = { noWrap } title={ null } >{ getHighlightedText( Title, searchText ) }</td> */}
+    <td className = { noWrap } title={ null } onClick= { () => { props.onPropFilter( 'Label', Label, ) }} >{ getHighlightedText( Label, searchText ) }</td>
+    <td className = { noWrap } title={ LibraryTitle } onClick= { () => {  window.open( LibraryLink.Url ,'_blank') }} >{ getHighlightedText( LibraryTitle, searchText ) }</td>
+    <td className = { noWrap } title={ WebUrl } onClick= { () => {  window.open( WebUrl ,'_blank') }} >{ getHighlightedText( WebUrl, searchText ) }</td>
+    <td className = { noWrap } title={ Created } >{ CreateDate } -{ CreateAge } days</td>
+    <td className = { noWrap } title={ null } >{ Status }</td>
+    <td className = { noWrap } title={ null } >{ CompleteTime }</td>
 
   </tr>;
 

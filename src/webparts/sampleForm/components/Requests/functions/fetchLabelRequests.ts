@@ -12,6 +12,9 @@ import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecule
 import { filterObjArrayByUniqueKey } from '@mikezimm/fps-library-v2/lib/logic/Arrays/searching/filterObjArrayByUniqueKey';
 
 import { FPSLabelRequestCols, RequestList, RequestWeb } from "./requestLabel";
+import { addMineSiteMeta } from './addMineSiteMeta';
+import { ICorpLabelsSource } from '../../../storedSecrets/AS303 Labels v3 - JSON Formatted';
+import { IAnySourceItemAny } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
 
 export const LabelRequestSource: ISourceProps = {
   fpsContentType: [ 'item' ],
@@ -44,23 +47,18 @@ export async function fetchMinimalLabelRequests( bannerProps: IWebpartBannerProp
     await fetchLabelRequests( bannerProps, { ...LabelRequestSource, ...{ restFilter: `SiteUrl eq '${bannerProps.context.pageContext.site.serverRelativeUrl}'`}} as ISourceProps, search, surpressKeys ),
   ]);
 
-  const bestState = users.status === 'Success' ? 'users' : 'sites';
-
-  const results = bestState === 'users' ? users : sites;
-  const others = bestState === 'users' ? sites : users;
-
-  results.items1 = [ ...results.items ];
-  results.items2 = [ ...others.items ];
-  results.items = filterObjArrayByUniqueKey( [ ...results.items, ...others.items ], 'Id'  );
-
-
-  // const results: IStateSource = await getSourceItems( { ...LabelRequestSource, ...{ restFilter: ``}} as ISourceProps, false, true ) as IStateSource;
+  const results = JSON.parse(JSON.stringify( users ));
 
   if (results.status !== 'Success') {
     results.itemsY = [ createErrorFPSTileItem( results, null ) ];
 
   } else {
-      results.itemsY = addSearchMeta1(results.items, LabelRequestSource as ISourceProps, search);
+    results.items = filterObjArrayByUniqueKey( [ ...users.items, ...sites.items ], 'Id'  );
+
+    // Get unique values
+    results.meta1 = [ ...users.meta1, ...sites.meta1 ].filter((v,i,a)=>a.indexOf(v)===i);
+
+    results.itemsY = results.items;
 
   }
 
@@ -71,13 +69,25 @@ export async function fetchMinimalLabelRequests( bannerProps: IWebpartBannerProp
 
 export async function fetchLabelRequests( bannerProps: IWebpartBannerProps, sourceProps: ISourceProps, search: ISourceSearch, surpressKeys: IItemIsAKeys[] = CommonSuppressKeys): Promise<IStateSource> {
 
-  const results: IStateSource = await getSourceItems(sourceProps, false, true ) as IStateSource;
+  let results: IStateSource = await getSourceItems(sourceProps, false, true ) as IStateSource;
 
   if (results.status !== 'Success') {
     results.itemsY = [ createErrorFPSTileItem( results, null ) ];
 
   } else {
-      results.itemsY = addSearchMeta1(results.items, sourceProps, search);
+
+    results.items = addSearchMeta1(results.items, sourceProps, search);
+    results = addMineSiteMeta( ['Author/Title'], ['SiteUrl'] ,results,  );
+    results.items.map( ( item :  IAnySourceItemAny ) => {
+      if ( results.meta1.indexOf( item.Status ) < 0 ) results.meta1.push( item.Status );
+    });
+
+    // const Labels: string[] = [];
+    // results.items.map( ( item :  IAnySourceItemAny ) => {
+    //   if ( Labels.indexOf( item.Label ) < 0 ) results.meta1.push( item.Label );
+    // });
+
+    // results.meta1.push( ...Labels );
 
   }
 

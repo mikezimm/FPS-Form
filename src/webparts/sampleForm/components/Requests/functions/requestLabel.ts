@@ -7,7 +7,7 @@ export const RequestWeb = `${window.location.origin}/sites/SP_GlobalItsRecordsAn
 export const RequestList = `Label Provisioning Requests`;
 
 export const FPSLabelRequestCols: string[] = [
-  'Id', 'Title', 'Author/Title', 'Author/Id', 'Author/Office', 'Label', 'LibraryGuid', 'LibraryName', 'LibraryTitle', 'LibraryLink', 'SiteUrl', 'WebUrl', 'WorkflowComments', 'Status', 'CompleteTime',
+  'Id', 'Title', 'Created', 'Author/Title', 'Author/Id', 'Author/Office', 'Label', 'LibraryGuid', 'LibraryName', 'LibraryTitle', 'LibraryLink', 'SiteUrl', 'WebUrl', 'WorkflowComments', 'Status', 'CompleteTime',
 ];
 
 export interface IFPSLabelRequest {

@@ -45,19 +45,19 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
 
   public async componentDidMount(): Promise<void> {
 
-    const MockBannerProps = {
-      FPSUser: { Title: this.props.context.pageContext.user.displayName },
-      context: { pageContext: { site: {  serverRelativeUrl: this.props.context.pageContext.site.serverRelativeUrl }}}
-    }
-    const [ users, sites, requests ] = await fetchMinimalLabelRequests( MockBannerProps as any, null, [] );
-    const all = await fetchLabelRequests( MockBannerProps as any, LabelRequestSource as ISourceProps , null );
+    // const MockBannerProps = {
+    //   FPSUser: { Title: this.props.context.pageContext.user.displayName },
+    //   context: { pageContext: { site: {  serverRelativeUrl: this.props.context.pageContext.site.serverRelativeUrl }}}
+    // }
+    // const [ users, sites, requests ] = await fetchMinimalLabelRequests( MockBannerProps as any, null, [] );
+    // const all = await fetchLabelRequests( MockBannerProps as any, LabelRequestSource as ISourceProps , null );
 
-    console.log( 'Found these Requests: users', users );
-    console.log( 'Found these Requests: sites', sites );
-    console.log( 'Found these Requests: requests', requests );
-    console.log( 'Found these Requests: all', all );
+    // console.log( 'Found these Requests: users', users );
+    // console.log( 'Found these Requests: sites', sites );
+    // console.log( 'Found these Requests: requests', requests );
+    // console.log( 'Found these Requests: all', all );
 
-    this.setState( { users: users, sites: sites, requests: requests, allRequests: all });
+    // this.setState( { users: users, sites: sites, requests: requests, allRequests: all });
 
   }
 
