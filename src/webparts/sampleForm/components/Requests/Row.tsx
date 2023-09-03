@@ -34,7 +34,7 @@ export function createRequestsRow( props: ISourceRowRender ): JSX.Element { // e
     <td className = { noWrap } title={ LibraryTitle } onClick= { () => {  window.open( LibraryLink.Url ,'_blank') }} >{ getHighlightedText( LibraryTitle, searchText ) }</td>
     <td className = { noWrap } title={ WebUrl } onClick= { () => {  window.open( WebUrl ,'_blank') }} >{ getHighlightedText( WebUrl, searchText ) }</td>
     <td className = { noWrap } title={ Created } >{ CreateDate } -{ CreateAge } days</td>
-    <td className = { noWrap } title={ null } >{ Status }</td>
+    <td className = { noWrap } title={ null } onClick= { () => { props.onPropFilter( 'Status', Status, ) }}  >{ getHighlightedText( Status, searchText ) }</td>
     <td className = { noWrap } title={ null } >{ CompleteTime }</td>
 
   </tr>;

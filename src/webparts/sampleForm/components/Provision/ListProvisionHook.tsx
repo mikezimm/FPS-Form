@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { WebPartContextCopy_15_2 } from "@mikezimm/fps-library-v2/lib/common/interfaces/@msft/1.15.2/WebPartContext";
 
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
-import { TextField, MaskedTextField } from "office-ui-fabric-react";
+import { TextField, } from "office-ui-fabric-react";
 
 import styles from '../SampleForm.module.scss';
 import { doesNotStartNumber, toCamelCase } from './functions/strings';
@@ -13,17 +13,40 @@ import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSo
 import { createLibraryPnpjs } from './functions/createLibraryPnpjs';
 import { requstLibraryLabel } from '../Requests/functions/requestLabel';
 import { ICorpLabelsSource } from '../../storedSecrets/AS303 Labels v3 - JSON Formatted';
-import { ILoadPerformance, IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
-import { createPerformanceRows } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/tables';
+
+/***
+ *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
+ *    d8P  Y8 .8P  Y8. 888o  88 88'  YP `~~88~~' d8' `8b 888o  88 `~~88~~' 88'  YP 
+ *    8P      88    88 88V8o 88 `8bo.      88    88ooo88 88V8o 88    88    `8bo.   
+ *    8b      88    88 88 V8o88   `Y8b.    88    88~~~88 88 V8o88    88      `Y8b. 
+ *    Y8b  d8 `8b  d8' 88  V888 db   8D    88    88   88 88  V888    88    db   8D 
+ *     `Y88P'  `Y88P'  VP   V8P `8888Y'    YP    YP   YP VP   V8P    YP    `8888Y' 
+ *                                                                                 
+ *                                                                                 
+ */
+
+
+export type ITopButtons = 'Mine' | 'OtherPeeps' | 'ThisSite' | 'OtherSites';
+export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeeps', 'ThisSite', 'OtherSites' ];
+const NoRetentionLabel = `No Retention set, max 5 years`;
+
+/***
+ *    db   db  .d88b.   .d88b.  db   dD      d8888b. d8888b.  .d88b.  d8888b. .d8888. 
+ *    88   88 .8P  Y8. .8P  Y8. 88 ,8P'      88  `8D 88  `8D .8P  Y8. 88  `8D 88'  YP 
+ *    88ooo88 88    88 88    88 88,8P        88oodD' 88oobY' 88    88 88oodD' `8bo.   
+ *    88~~~88 88    88 88    88 88`8b        88~~~   88`8b   88    88 88~~~     `Y8b. 
+ *    88   88 `8b  d8' `8b  d8' 88 `88.      88      88 `88. `8b  d8' 88      db   8D 
+ *    YP   YP  `Y88P'   `Y88P'  YP   YD      88      88   YD  `Y88P'  88      `8888Y' 
+ *                                                                                    
+ *                                                                                    
+ */
 
 export interface IListProvisionHookProps {
-  context: WebPartContext;
+  context: WebPartContextCopy_15_2;
   labelItems: ICorpLabelsSource[];
 
 }
 
-export type ITopButtons = 'Mine' | 'OtherPeeps' | 'ThisSite' | 'OtherSites';
-export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeeps', 'ThisSite', 'OtherSites' ];
 
 /***
  *    .d8888. d888888b  .d8b.  d8888b. d888888b      db   db  .d88b.   .d88b.  db   dD 
@@ -40,7 +63,18 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const { context, labelItems } = props;
 
-  const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
+  // const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
+
+  /***
+   *    db    db .d8888. d88888b      .d8888. d888888b  .d8b.  d888888b d88888b 
+   *    88    88 88'  YP 88'          88'  YP `~~88~~' d8' `8b `~~88~~' 88'     
+   *    88    88 `8bo.   88ooooo      `8bo.      88    88ooo88    88    88ooooo 
+   *    88    88   `Y8b. 88~~~~~        `Y8b.    88    88~~~88    88    88~~~~~ 
+   *    88b  d88 db   8D 88.          db   8D    88    88   88    88    88.     
+   *    ~Y8888P' `8888Y' Y88888P      `8888Y'    YP    YP   YP    YP    Y88888P 
+   *                                                                            
+   *                                                                            
+  */
 
   const [ libTitle, setLibTitle ] = useState< string >( );
   const [ libUrl, setLibUrl ] = useState< string >( );
@@ -57,7 +91,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
     }
   }) );
 
-  const [ libLabel, setLibLabel ] = useState< string >( labelItems.length > 0 ? labelItems[0].RecordCode : `` );
+  const [ libLabel, setLibLabel ] = useState< string >( labelItems.length > 0 ? labelItems[0].RecordCode : NoRetentionLabel );
 
   /***
    *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
@@ -97,7 +131,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
     setenableCreate( false );
     const results: IStateSource = await createLibraryPnpjs( context.pageContext.web.absoluteUrl, libTitle, libUrl, libFullDescription ) as IStateSource;
-    await requstLibraryLabel( results.item, libLabel );
+    if ( libLabel !== NoRetentionLabel ) await requstLibraryLabel( results.item, libLabel );
     console.log( 'createLibrary results:', results );
     const allCreated: IStateSource[] = [ results, ...created, ];
     setcreated( allCreated );
@@ -119,6 +153,18 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 const ProvisionListElement: JSX.Element = <section className={``}>
   <div className={ styles.requestForm }>
     <div className={ styles.editFields }>
+      { libLabelOptions && libLabelOptions.length > 0 ? 
+        <Dropdown 
+          options={ libLabelOptions }
+          // styles={ { root: { width: '300px' } } }
+          // selectedKey={ LabelOptions[2].key }
+          defaultSelectedKey={ libLabelOptions[0].key }
+          onChange={labelChange.bind( this ) }
+          label="Label to apply"
+          required={true}
+        /> : undefined
+      }
+
       <TextField 
         label={ `Library Title` }
         disabled={ false }
@@ -128,15 +174,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
         onGetErrorMessage={doesNotStartNumber.bind( this ) }
         required={ true }
       />
-      <Dropdown 
-        options={ libLabelOptions }
-        // styles={ { root: { width: '300px' } } }
-        // selectedKey={ LabelOptions[2].key }
-        defaultSelectedKey={ libLabelOptions[0].key }
-        onChange={labelChange.bind( this ) }
-        label="Label to apply"
-        required={true}
-      />
+
       <TextField 
         label={ `Library Description` }
         disabled={ false }
