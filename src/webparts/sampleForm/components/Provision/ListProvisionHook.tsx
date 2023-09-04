@@ -81,7 +81,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const [ libDescription, setLibDescription ] = useState< string >( );
   const [ libFullDescription, setLibFullDescription ] = useState< string >( );
-  const [ enableCreate, setenableCreate ] = useState< boolean >( false );
+  const [ enableCreate, setEnableCreate ] = useState< boolean >( false );
   const [ created, setcreated ] = useState< IStateSource[] >( [] );
   const[ libLabelOptions, setLibLabelOptions ] = useState< IDropdownOption[] >( labelItems.map( ( item ) => {
     return {
@@ -110,7 +110,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
     const enableCreate = libraryUrl.length > 0 && newValue.length > 0 && !doesNotStartNumber( libraryUrl ) ? true : false;
     setLibUrl( libraryUrl );
     setLibTitle( newValue );
-    setenableCreate( enableCreate );
+    setEnableCreate( enableCreate );
   }
 
   const descChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
@@ -129,7 +129,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const createLibrary = async ( event: React.MouseEventHandler<HTMLButtonElement> ) : Promise<void> => {
 
-    setenableCreate( false );
+    setEnableCreate( false );
     const results: IStateSource = await createLibraryPnpjs( context.pageContext.web.absoluteUrl, libTitle, libUrl, libFullDescription ) as IStateSource;
     if ( libLabel !== NoRetentionLabel ) await requstLibraryLabel( results.item, libLabel );
     console.log( 'createLibrary results:', results );

@@ -1,46 +1,52 @@
 
-import { IValidTemplate, IMakeThisList, IListDefintionHarmonie, } from '../../../../../services/railsCommon/ProvisionTypes';
 
-import { HarmonieEmailFields } from './columnsHarmonie'; //Import column arrays (one file because both lists use many of same columns)
+// import { IListInfo } from "@pnp/sp/lists/types";
+// import { IMakeThisList, IDefinedListInfo, } from '../../interfaces/ProvisionTypes';
 
-import { HarmonieViews, BUHarmonieViews } from './viewsHarmonie';  //Import view arrays for Project list
+// import { HarmonieFields } from './columnsHarmonie'; //Import column arrays (one file because both lists use many of same columns)
 
-// definedList: 'PreConfig',
+// import { HarmonieViews, BUHarmonieViews } from './viewsHarmonie';  //Import view arrays for Project list
 
-
-import { defineTheListMaster } from '../component/provisionWebPartList';
-import { getFieldNamesFromArray, getViewTitlesFromArray } from '../component/provisionFunctions';
+// // definedList: 'PreConfig',
 
 
-//export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
-export function defineTheList ( template: IValidTemplate , listTitle : string, listDefinition: IListDefintionHarmonie , webURL: string, currentUser: number[], pageURL: string ) {
-
-    //import { defineTheListMaster } from '../component/provisionWebPartList';
-    const makeThisList:  IMakeThisList = defineTheListMaster(template, listTitle,listDefinition,webURL,pageURL, 'Harmon.ie');
-
-    if ( listDefinition === 'Emails' ) {
-        makeThisList.createTheseFields = HarmonieEmailFields('Emails');
-        makeThisList.createTheseViews = HarmonieViews;
-        makeThisList.createTheseItems = [];
-        makeThisList.autoItemCreate = true;
-//        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
+// import { defineTheListMaster } from '../functions/defineTheListMaster';
+// import { getFieldNamesFromArray, getViewTitlesFromArray } from '../functions/getFieldInfo';
 
 
-    } else if ( listDefinition === 'BUEmails' ) {
-        makeThisList.createTheseFields = HarmonieEmailFields('BUEmails');
-        makeThisList.createTheseViews = BUHarmonieViews;
-        makeThisList.createTheseItems = [];
-        makeThisList.autoItemCreate = false;
-//        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
-    }
+// //export async function provisionTheListLoader( template: IValidTemplate , listName : string, listDefinition: 'ParentListTitle' | 'ChildListTitle' , webURL: string, setProgress: any ): Promise<IServiceLog[]>{
+// export function defineTheList ( list: IListInfo, definedList: IDefinedListInfo , webURL: string, currentUser: number[], ): IMakeThisList {
 
-    //let listResult = await provisionTheList( makeThisList, setProgress );
-    if ( makeThisList.templateDesc === null ) { 
-        makeThisList.templateDesc = `Adds ${listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;}
+//     //import { defineTheListMaster } from '../component/provisionWebPartList';
+//     const makeThisList:  IMakeThisList = defineTheListMaster( list, definedList, webURL, );
+//     makeThisList.createTheseFields = HarmonieFields( definedList.listDefinition as 'Emails' );
+//     makeThisList.createTheseViews = BUHarmonieViews;
+//     makeThisList.createTheseItems = [];
+//     makeThisList.autoItemCreate = false;
 
-    makeThisList.templateDetails = `Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }\nViews include:${ getViewTitlesFromArray(makeThisList.createTheseViews).join(', ') }` ;
+// //     if ( definedList.listDefinition === 'Emails' ) {
+//         // makeThisList.createTheseFields = HarmonieFields( definedList.listDefinition );
+// //         makeThisList.createTheseViews = HarmonieViews;
+// //         makeThisList.createTheseItems = [];
+// //         makeThisList.autoItemCreate = true;
+// //        makeThisList.alternateItemCreateMessage = 'Oh by the way\n\nWe created some default Projects to get you started :)';
 
-    return makeThisList;
 
-}
+// //     } else if ( definedList.listDefinition === 'BUEmails' ) {
+//         // makeThisList.createTheseFields = HarmonieFields( definedList.listDefinition );
+// //         makeThisList.createTheseViews = BUHarmonieViews;
+// //         makeThisList.createTheseItems = [];
+// //         makeThisList.autoItemCreate = false;
+// //        makeThisList.alternateItemCreateMessage = 'Ok you are all set!\n\nDon\'t forget to delete the sample Time entries when you are done testing :)';
+// //     }
+
+//     //let listResult = await provisionTheList( makeThisList, setProgress );
+//     if ( makeThisList.templateDesc === null ) { 
+//         makeThisList.templateDesc = `Adds ${definedList.listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;}
+
+//     makeThisList.templateDetails = `Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }\nViews include:${ getViewTitlesFromArray(makeThisList.createTheseViews).join(', ') }` ;
+
+//     return makeThisList;
+
+// }
 

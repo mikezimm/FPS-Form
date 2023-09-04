@@ -2,6 +2,7 @@ import * as React from 'react';
 import { useState, useEffect } from 'react';
 
 import { WebPartContext } from "@microsoft/sp-webpart-base";
+import { IListInfo } from "@pnp/sp/lists/types";
 
 import styles from './ApplyTemplateHoook.module.scss';
 
@@ -25,6 +26,7 @@ import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecule
 import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/molecules/FPSTiles/functions/Any/createErrorFPSTileItem';
 
 import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
+import { DefinedLibraryChoices, DefinedListChoices, IDefinedChoice, IDefinedListInfo, IMakeThisList, NoTargetListChoice } from './interfaces/ProvisionTypes';
 
 /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
@@ -88,6 +90,7 @@ export interface IApplyTemplateHookProps {
   context: WebPartContext;
   expandedState: boolean;  //Is this particular page expanded
   refreshId?: string; // optional in case needed
+  targetList: Partial<IListInfo>;
 }
 
 
@@ -105,7 +108,8 @@ export interface IApplyTemplateHookProps {
 const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { context, expandedState } = props;
+  const { context, expandedState, targetList } = props;
+  const { pageContext } = context;
 
 
   /***
@@ -122,6 +126,8 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   /**
    * State related to fetching the source props
    */
+
+  // const [ isCurrentSite, setIsCurrentSite ] = useState<boolean>( pageContext.web.serverRelativeUrl ) // NOT NEEDED until needing users for example items
   const [ applied, setApplied ] = useState<boolean>( false );
   const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
   const [ showPanel, setShowPanel ] = useState<boolean>( false );
@@ -131,6 +137,9 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ fetchPerformance, setFetchPerformance ] = useState<IPerformanceOp>( null );
   const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
+
+  const [ choices, setChoices ] = useState<IDefinedListInfo[]>( !targetList ? [] : targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
+  const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( !targetList ? NoTargetListChoice : choices[0] );
 
 
 

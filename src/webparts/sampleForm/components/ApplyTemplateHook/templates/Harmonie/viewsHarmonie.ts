@@ -1,52 +1,47 @@
 //  >>>> ADD import additional controls/components
 
-import { IMyView, } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
-import { Geq,  } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
-
-import { spliceCopyArray } from '@mikezimm/npmfunctions/dist/Services/Arrays/manipulation';
+import { IMyView, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
+import { Geq,  } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
 
 //Standard Queries
-import { queryValueToday } from '@mikezimm/npmfunctions/dist/Lists/viewTypes';
+import { queryValueToday } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
 
-import { createRecentUpdatesView } from '../../../../../services/listServices/viewsGeneric';
+import { createRecentUpdatesView } from '../GENERIC/recentUpdates';
 
 /**
  * For Importing columns, it's best to create one view file per list and only import the columns from that list :
  */
 
 //Imported but not used so that intellisense can prevent duplicate named columns.
-import { ootbID, ootbTitle, ootbEditor, ootbModified, } from '@mikezimm/npmfunctions/dist/Lists/columnsOOTB';
+import { ootbID, ootbLinkFilename, ootbModified, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/constants/columnsOOTB';
 
 //Harmonie columns
 import {
-EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
-EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
-ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
-MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
-HasAttachmentsHarm , EmailFromNameHarm , EmailFromTxtHarm , EmailMoHarm , EmailYrHarm , EmailYrMoHarm
-, FromCompanyHarm
-
+  EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
+  EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
+  ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
+  MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
+  HasAttachmentsHarm , EmailFromNameHarm , EmailFromTxtHarm , EmailMoHarm , EmailYrHarm , EmailYrMoHarm
+  , FromCompanyHarm
 } from './columnsHarmonie';
-//let checks = StepChecks(0,5);  // Email
 
-export const stdViewFields = [ootbID, EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbTitle, ];
+// export const stdViewFields = [ootbID, EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbLinkFilename, ];
 
-export const stdEmailViewFields = ['Edit', ootbID, EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbTitle, ];
-export const  EmailRecentUpdatesFields = spliceCopyArray ( stdEmailViewFields, null, null, 2, [ootbModified, ootbEditor ] );
+export const stdEmailViewFields = [ EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbLinkFilename, ];
 
 export const EmailAllItemsView : IMyView = {
     Title: 'All Documents', //'All Items',  --- All Documents is default view for a library
-    iFields: 	stdEmailViewFields,
+    iFields: 	[ ootbID, ...stdEmailViewFields ],
     wheres: 	[ 	{field: ootbModified, clause:'And', 	oper: Geq, 	val: queryValueToday(-730) }, //Recently defined as last 2 years max (for indexing)
             ],
     orders: [ {field: ootbModified, asc: false} ],
 };
 
-const EmailByYearViewFields = ['Edit', ootbID, EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbTitle, ];
+const EmailByYearViewFields = [ EmailCategoriesHarm, EmailFromNameHarm, EmailDateHarm, EmailSubjectHarm, ootbLinkFilename, ];
 
 export const EmailsByYearView : IMyView = {
     Title: 'Emails by Year',
-    iFields: 	EmailByYearViewFields,
+    iFields: 	[ ootbID, ...EmailByYearViewFields ],
     orders: [ {field: EmailDateHarm, asc: false} ],
     groups: { collapse: true, limit: 30,
 		fields: [
@@ -56,7 +51,7 @@ export const EmailsByYearView : IMyView = {
 };
 
 
-const allFields = [ootbTitle, EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
+const allFields = [ ootbLinkFilename, EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
     EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
     ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
     MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
@@ -119,23 +114,23 @@ export const EmailsByProgramView : IMyView = {
 };
 
 export const HarmonieViews : IMyView[] = [
-    EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
+    EmailAllItemsView, 
+    createRecentUpdatesView( stdEmailViewFields, ),
     EmailsByYearMoView,
     EmailsByYearView,
     EmailsByCompanyView,
     AllFieldsView,
-
 ] ;
 
 export const BUHarmonieViews : IMyView[] = [
-    EmailAllItemsView, createRecentUpdatesView( EmailRecentUpdatesFields),
+    EmailAllItemsView, 
+    createRecentUpdatesView( stdEmailViewFields),
     EmailsByYearMoView,
     EmailsByYearView,
     EmailsByProdView,
     EmailsByProgramView,
     EmailsByCompanyView,
     AllFieldsView,
-
 ] ;
 
 
