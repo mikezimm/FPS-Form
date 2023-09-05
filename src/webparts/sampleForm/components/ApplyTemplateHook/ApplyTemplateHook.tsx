@@ -1,6 +1,8 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 
+import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { IListInfo } from "@pnp/sp/lists/types";
 
@@ -26,7 +28,10 @@ import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecule
 import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/molecules/FPSTiles/functions/Any/createErrorFPSTileItem';
 
 import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
-import { DefinedLibraryChoices, DefinedListChoices, IDefinedChoice, IDefinedListInfo, IMakeThisList, NoTargetListChoice } from './interfaces/ProvisionTypes';
+import { DefinedLibraryChoices, DefinedListChoices, IDefinedChoice, IDefinedListInfo, IMakeThisList, } from './interfaces/ProvisionTypes';
+import { getSpecificListDef } from './templates/functions/getSpecificListDef';
+
+require ('./ApplyTemplate.css');
 
 /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
@@ -88,8 +93,9 @@ export const ApplyTemplateHookSourceProps: ISourceProps = {
 
 export interface IApplyTemplateHookProps {
   context: WebPartContext;
+  webUrl?: string; // Optional if not using current context
   expandedState: boolean;  //Is this particular page expanded
-  refreshId?: string; // optional in case needed
+  propsRefreshId?: string; // optional in case needed
   targetList: Partial<IListInfo>;
 }
 
@@ -108,7 +114,7 @@ export interface IApplyTemplateHookProps {
 const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { context, expandedState, targetList } = props;
+  const { context, expandedState, targetList, propsRefreshId } = props;
   const { pageContext } = context;
 
 
@@ -139,7 +145,9 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
   const [ choices, setChoices ] = useState<IDefinedListInfo[]>( !targetList ? [] : targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
-  const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( !targetList ? NoTargetListChoice : choices[0] );
+  const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( null );
+  const [ makeList, setMakeList ] = useState<IMakeThisList>( null );
+  const [ webUrl, setWebUrl ] = useState<string>( props.webUrl ? props.webUrl : pageContext.web.serverRelativeUrl );
 
 
 
@@ -156,20 +164,20 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   const applyThisTemplate = async (): Promise<void> => {
 
-    const results: IStateSource = await getSourceItems(ApplyTemplateHookSourceProps, false, true ) as IStateSource;
+    // const results: IStateSource = await getSourceItems(ApplyTemplateHookSourceProps, false, true ) as IStateSource;
 
-    if (results.status !== 'Success') {
-      results.items = [ createErrorFPSTileItem( results, null ) ];
+    // if (results.status !== 'Success') {
+    //   results.items = [ createErrorFPSTileItem( results, null ) ];
 
-    } else {
-      const search: ISourceSearch = null;
-      results.items = addSearchMeta1(results.items, ApplyTemplateHookSourceProps, search);
-    }
+    // } else {
+    //   const search: ISourceSearch = null;
+    //   results.items = addSearchMeta1(results.items, ApplyTemplateHookSourceProps, search);
+    // }
 
-    setApplied( results.loaded );
-    setStateSource( results );
-    setProcPerformance( null ); // Add here if you want to also monitor some process performance
-    setFetchPerformance( results.unifiedPerformanceOps.fetch );
+    // setApplied( results.loaded );
+    // setStateSource( results );
+    // setProcPerformance( null ); // Add here if you want to also monitor some process performance
+    // setFetchPerformance( results.unifiedPerformanceOps.fetch );
   };
 
 
@@ -186,6 +194,18 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   }, [ expandedState, applied ] );
 
+  useEffect(() => {
+    if ( expandedState === true && targetList ) {
+      setChoices( targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
+      setListChoice( null );
+      // eslint-disale-next-line no-void
+      // const newMakeList =  getSpecificListDef( props.targetList as IListInfo, null, webUrl, [] );
+      // console.log( 'ApplylTemplate: newMakeList', newMakeList )
+      // setMakeList( newMakeList )
+    }
+
+  }, [ propsRefreshId ] );
+
 
   /***
    *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
@@ -198,14 +218,10 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *                                                                            
    */
 
-  const setNewPanelItem = ( command: string, Id: number, type: IPanelOption, item: IAnySourceItem ): void => {
-    if ( command === 'Filter' ) {
-      // This option could be used to pre-filter the entire items in order to pass in smaller list to SourcePages
-      // See Easy Analytics example.
-    } else {
-      setPanelItem( item );
-      setShowPanel( true );
-    }
+  const templateChange = ( index?: number): void => {
+    const key: IDefinedListInfo =  choices[ index ];
+    setMakeList( getSpecificListDef( props.targetList as IListInfo, key, webUrl, [] ) )
+    setListChoice( choices[ index ] );
   }
 
 
@@ -220,15 +236,27 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *                                                                         
    */
 
+  const TemplateDropdown: JSX.Element = 
+    <div className='apply-template-dropdown'>
+      <Dropdown 
+          placeholder={ `Select the template you want to apply` }
+          options={ choices.map( choice => { return { key: choice.listDefinition, text: choice.listDefinition }}) }
+          onChange={ ( event, option, index ) => { templateChange( index ) } }
+          dropdownWidth={ 250 }
+          disabled={ !targetList }
+        />
+    </div>;
+
   const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 0px 5px 0px' }}>
-    { sourceButtonRow( null ) }
-    <div>Add any content here you want in AccordionContent</div>
+    {/* { sourceButtonRow( null ) } */}
+    { makeList?.templateFields }
+    { makeList?.templateViews }
   </div>;
 
-  const accordionHeight: number = 120;
+  const accordionHeight: number = -100;
 
-  const SourcePagesHeader: JSX.Element = <Accordion 
-    title = { `More information about this tab`}
+  const TemplateDetails: JSX.Element = <Accordion 
+    title = { makeList?.templateDesc }
     defaultIcon = 'Help'
     showAccordion = { true }
     content = { AccordionContent }
@@ -236,73 +264,6 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     contentStylesVis = { { height: `${accordionHeight}px` } }
   />;
 
-  /***
-   *    .d8888.  .d88b.  db    db d8888b.  .o88b. d88888b d8888b.  .d8b.   d888b  d88888b .d8888. 
-   *    88'  YP .8P  Y8. 88    88 88  `8D d8P  Y8 88'     88  `8D d8' `8b 88' Y8b 88'     88'  YP 
-   *    `8bo.   88    88 88    88 88oobY' 8P      88ooooo 88oodD' 88ooo88 88      88ooooo `8bo.   
-   *      `Y8b. 88    88 88    88 88`8b   8b      88~~~~~ 88~~~   88~~~88 88  ooo 88~~~~~   `Y8b. 
-   *    db   8D `8b  d8' 88b  d88 88 `88. Y8b  d8 88.     88      88   88 88. ~8~ 88.     db   8D 
-   *    `8888Y'  `Y88P'  ~Y8888P' 88   YD  `Y88P' Y88888P 88      YP   YP  Y888P  Y88888P `8888Y' 
-   *                                                                                              
-   *                                                                                              
-   */
-
-  const itemsElement = <SourcePages
-    // source={ SourceInfo }
-    primarySource={ ApplyTemplateHookSourceProps }
-    itemsPerPage={ 20 }
-    pageWidth={ 1000 }
-    topButtons={ stateSource.meta1 ? stateSource.meta1 : [] }
-    stateSource={ stateSource }
-    startQty={ 20 }
-    showItemType={ false }
-    debugMode={ null }
-
-    tableHeaderElements={ exampleRowHeaders }
-    tableClassName= { 'anyTableClass' }
-    tableHeaderClassName= { [  ].join( ' ' )  }
-    selectedClass={ styles.isSelected }
-
-    renderRow={ createApplyTemplateRow }
-
-    deepProps={ null }
-
-    onParentCall={ setNewPanelItem }
-    headingElement={ SourcePagesHeader }
-    ageSlider={ true }
-    searchAgeOp={ 'show >' }
-    searchAgeProp={ 'createdAge' }
-  />;
-
-  /***
-   *    d8888b.  .d8b.  d8b   db d88888b db      
-   *    88  `8D d8' `8b 888o  88 88'     88      
-   *    88oodD' 88ooo88 88V8o 88 88ooooo 88      
-   *    88~~~   88~~~88 88 V8o88 88~~~~~ 88      
-   *    88      88   88 88  V888 88.     88booo. 
-   *    88      YP   YP VP   V8P Y88888P Y88888P 
-   *                                             
-   *                                             
-   */
-
-  const panelContent : JSX.Element = showPanel !== true ? undefined : CustomPanel({
-    source: null,
-    primarySource: ApplyTemplateHookSourceProps,
-    item: panelItem,
-    onClosePanel: () => { setShowPanel( false ) },
-
-    showItemPanel: showPanel,
-    search: null,
-    searchText: '',
-    refreshId: refreshId,
-    showCanvasContent1: false,
-    showProperties: true,
-    reactPanelType: PanelType.medium,
-    showHeading: true,
-    // customElement1: createPerformanceTableVisitor( panelJSON, [] ) ,
-    // customElement1B: FPSPropsJSON,
-
-  });
 
   /***
    *    d88888b d888888b d8b   db  .d8b.  db           d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -315,9 +276,17 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *                                                                                                                
    */
 
-  const FinalElement: JSX.Element = <div className = { [].join( ' ' ) } style={{ minHeight: '450px' }}>
-    { itemsElement }
-    { panelContent }
+  // console.log( 'ApplylTemplate: propsRefreshId', propsRefreshId );
+  // console.log( 'ApplylTemplate: refreshId', refreshId );
+  // console.log( 'ApplylTemplate: webUrl', webUrl );
+  // console.log( 'ApplylTemplate: expandedState', expandedState );
+  // console.log( 'ApplylTemplate: targetList', targetList );
+  // console.log( 'ApplylTemplate: makeList', makeList );
+  // console.log( 'ApplylTemplate: webUrl', webUrl );
+
+  const FinalElement: JSX.Element = !expandedState ? null : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px' }}>
+    { TemplateDropdown }
+    { listChoice ? TemplateDetails : undefined }
   </div>;
 
   return ( FinalElement );

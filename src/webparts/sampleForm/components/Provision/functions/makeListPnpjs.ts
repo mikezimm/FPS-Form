@@ -43,6 +43,7 @@ export async function makeListPnpjs(siteUrl: string, template: number, libraryUr
     await intialList.list.update( properties );
     const returnList = thisWeb.lists.getById( intialList.data.Id );
     result.item = await returnList.select("*")();
+    result.status = 'Success';
 
     if ( check4This( 'fpsShowFetchResults=true' ) === true ) { console.log( `fps-Pnp2 Success: makeLibraryPnpjs ~ 38`, result ) }
 

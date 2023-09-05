@@ -56,6 +56,8 @@ export function defineTheListMaster( list: Partial<IListInfo>, definedList: IDef
 
     templateDesc: null,
     templateDetails: null,
+    templateFields: null,
+    templateViews: null,
   };
 
   //let listResult = await provisionTheList( makeThisList, setProgress );

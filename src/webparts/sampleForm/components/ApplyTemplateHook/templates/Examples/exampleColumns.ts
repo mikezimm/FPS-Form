@@ -1,9 +1,7 @@
 
-import { DateTimeFieldFormatType, } from "@pnp/sp/fields/types";
+import { IMyFieldTypes, ITextField , IMultiLineTextField , IBooleanField , ICalculatedField , IDateTimeField , IChoiceField , } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/columnTypes';
 
-import { IMyFieldTypes, ITextField , IMultiLineTextField , IBooleanField , ICalculatedField , IDateTimeField , IChoiceField , } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
-
-import { cBool, cCalcT, cChoice, cDate, cMText, cText, } from '@mikezimm/npmfunctions/dist/Lists/columnTypes';
+import { cBool, cCalcT, cChoice, cDate, cMText, cText, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/columnTypes';
 
 /***
  *    d88888b db    db  .d8b.  .88b  d88. d8888b. db      d88888b       .o88b.  .d88b.  db      db    db .88b  d88. d8b   db .d8888.

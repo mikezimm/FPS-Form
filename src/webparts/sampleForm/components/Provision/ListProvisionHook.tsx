@@ -6,6 +6,10 @@ import { WebPartContextCopy_15_2 } from "@mikezimm/fps-library-v2/lib/common/int
 import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
 import { TextField, } from "office-ui-fabric-react";
 
+import { FPSFetchStatus } from '@mikezimm/fps-library-v2/lib/components/atoms/FetchStatus/FPSFetchStatus'
+import { createLibrarySource } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/createLibrarySource'
+import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface'
+
 import styles from '../SampleForm.module.scss';
 import { doesNotStartNumber, toCamelCase } from './functions/strings';
 
@@ -13,6 +17,8 @@ import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSo
 import { createLibraryPnpjs } from './functions/createLibraryPnpjs';
 import { requstLibraryLabel } from '../Requests/functions/requestLabel';
 import { ICorpLabelsSource } from '../../storedSecrets/AS303 Labels v3 - JSON Formatted';
+
+import ApplyTemplateHook from '../ApplyTemplateHook/ApplyTemplateHook'
 
 /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
@@ -63,6 +69,8 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const { context, labelItems } = props;
 
+  const webUrl = context ? context.pageContext.web.absoluteUrl : '';
+
   // const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
   /***
@@ -76,13 +84,15 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
    *                                                                            
   */
 
-  const [ libTitle, setLibTitle ] = useState< string >( );
-  const [ libUrl, setLibUrl ] = useState< string >( );
+  const [ libTitle, setLibTitle ] = useState< string >( '' );
+  const [ libUrl, setLibUrl ] = useState< string >( '' );
 
   const [ libDescription, setLibDescription ] = useState< string >( );
   const [ libFullDescription, setLibFullDescription ] = useState< string >( );
   const [ enableCreate, setEnableCreate ] = useState< boolean >( false );
   const [ created, setcreated ] = useState< IStateSource[] >( [] );
+  const [ lastCreated, setLastCreated ] = useState< IStateSource >( );
+  const [ sourceProps, setSourceProps ] = useState< ISourceProps >( createLibrarySource( webUrl, libTitle, libUrl  ));
   const[ libLabelOptions, setLibLabelOptions ] = useState< IDropdownOption[] >( labelItems.map( ( item ) => {
     return {
       key: item.RecordCode,
@@ -106,6 +116,10 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const titleChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
     console.log( `titleChange:`, event, newValue );
+    // Need to set this value in case you Type a Title than create using pre-selected label
+    const libraryFullDescription = libFullDescription ? libFullDescription : `${ libDescription ? `${ libDescription } - ` : '' }Retention Label: [ ${ libLabel } ]`;
+    setLibFullDescription( libraryFullDescription );
+
     const libraryUrl = toCamelCase( newValue );
     const enableCreate = libraryUrl.length > 0 && newValue.length > 0 && !doesNotStartNumber( libraryUrl ) ? true : false;
     setLibUrl( libraryUrl );
@@ -130,12 +144,14 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   const createLibrary = async ( event: React.MouseEventHandler<HTMLButtonElement> ) : Promise<void> => {
 
     setEnableCreate( false );
-    const results: IStateSource = await createLibraryPnpjs( context.pageContext.web.absoluteUrl, libTitle, libUrl, libFullDescription ) as IStateSource;
-    if ( libLabel !== NoRetentionLabel ) await requstLibraryLabel( results.item, libLabel );
-    console.log( 'createLibrary results:', results );
-    const allCreated: IStateSource[] = [ results, ...created, ];
-    setcreated( allCreated );
-
+    const results: IStateSource = await createLibraryPnpjs( context.pageContext.web.absoluteUrl, libTitle, `/${libUrl}`, libFullDescription ) as IStateSource;
+    setLastCreated( results );
+    if ( results.status === 'Success' ) {
+      if ( libLabel !== NoRetentionLabel ) await requstLibraryLabel( results.item, libLabel );
+      console.log( 'createLibrary results:', results );
+      const allCreated: IStateSource[] = [ results, ...created, ];
+      setcreated( allCreated );
+    }
   }
 
   /***
@@ -159,7 +175,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
           // styles={ { root: { width: '300px' } } }
           // selectedKey={ LabelOptions[2].key }
           defaultSelectedKey={ libLabelOptions[0].key }
-          onChange={labelChange.bind( this ) }
+          onChange={ labelChange.bind( this ) }
           label="Label to apply"
           required={true}
         /> : undefined
@@ -173,6 +189,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
         onChange={titleChange.bind( this ) }
         onGetErrorMessage={doesNotStartNumber.bind( this ) }
         required={ true }
+
       />
 
       <TextField 
@@ -203,7 +220,13 @@ const ProvisionListElement: JSX.Element = <section className={``}>
       >
       Create Library
     </button>
-
+    { lastCreated && lastCreated.status !== 'Success' ? FPSFetchStatus( sourceProps, lastCreated ) : undefined }
+    <ApplyTemplateHook 
+      context={ context as any }
+      propsRefreshId={ created && created.length > 0 ? created[0].refreshId : '' }
+      expandedState={ created && created.length > 0 ? true : false }
+      targetList={ created && created.length > 0 ? created[0].item : null }
+    />
   </div>
 </section>;
 

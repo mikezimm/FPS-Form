@@ -1,0 +1,27 @@
+
+
+.apply-template-page {
+  padding: 1em;
+
+}
+
+.apply-template-dropdown {
+  max-width: 300px;
+}
+
+.template-items {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.template-items>div {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 5px 15px;
+}
+
+.items-title {
+  font-size: larger;
+  font-weight: 600;
+}

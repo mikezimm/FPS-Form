@@ -87,18 +87,6 @@ export interface IDefinedListInfo {
   templates: IValidTemplate[];
 }
 
-export const NoTargetListChoice: IDefinedListInfo = {
-  listDefinition: `Pick component Type`,
-  list: `No List Available`,
-  templates: [ 100, 101 ],
-}
-
-export const SelectTargetList: IDefinedListInfo = {
-  listDefinition: `Pick component Type`,
-  list: `No List Available`,
-  templates: [ 100, 101 ],
-}
-
 const Emails: IDefinedListInfo = {
   listDefinition: `Emails`,
   list: `Harmon.ie`,
@@ -117,7 +105,7 @@ export const DefinedListChoices: IDefinedListInfo[] = [
 ];
 
 export const DefinedLibraryChoices: IDefinedListInfo[] = [
-  SelectTargetList, Emails , BUEmails,
+  Emails , BUEmails,
 ];
 
 export type IAnyArray = any[];
@@ -153,5 +141,7 @@ export interface IMakeThisList {
     validUserIds?: number[];  // Used for creating sample items with user columns
     templateDesc: string;
     templateDetails: string;
+    templateFields: JSX.Element;
+    templateViews: JSX.Element;
 
 }

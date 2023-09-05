@@ -45,7 +45,7 @@ export interface IFPSLabelRequestRead extends IFPSLabelRequest {
 
 export async function requstLibraryLabel(list: IListInfo, label: string): Promise<any> {
 
-  const parentWeb: string[] = list.ParentWebUrl.split('/');
+  const parentWeb: string[] = list.ParentWebUrl ? list.ParentWebUrl.split('/') : [];
   const SiteUrl: string = parentWeb.slice(0, 3).join('/');
   const LabelRequest: IFPSLabelRequest = {
     Title: list.Title,

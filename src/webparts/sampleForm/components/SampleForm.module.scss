@@ -52,19 +52,22 @@ div.isSelected {
 }
 
 .requestForm {
-  display: grid;
-  max-width: 500px;
+  height: auto;
+  // display: grid;
+  // max-width: 500px;
 
 }
 
 .displayFields {
   display: grid;
   grid-gap: 10px;
+  max-width: 500px;
 }
 
 .editFields {
   display: grid;
   grid-gap: 10px;
+  max-width: 500px;
 }
 
 .divField {
