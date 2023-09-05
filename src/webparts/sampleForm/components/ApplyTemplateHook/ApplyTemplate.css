@@ -1,12 +1,13 @@
 
 
 .apply-template-page {
-  padding: 1em;
+  padding: 1em 0em;
 
 }
 
 .apply-template-dropdown {
   max-width: 300px;
+  padding-bottom: 1em;
 }
 
 .template-items {

@@ -13,6 +13,8 @@ import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Int
 import styles from '../SampleForm.module.scss';
 import { doesNotStartNumber, toCamelCase } from './functions/strings';
 
+import { _LinkIsValid } from '@mikezimm/fps-library-v2/lib/components/atoms/Links/AllLinks';
+
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { createLibraryPnpjs } from './functions/createLibraryPnpjs';
 import { requstLibraryLabel } from '../Requests/functions/requestLabel';
@@ -85,6 +87,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   */
 
   const [ libTitle, setLibTitle ] = useState< string >( '' );
+  const [ validateExists, setValidateExists ] = useState< boolean >( false );
   const [ libUrl, setLibUrl ] = useState< string >( '' );
 
   const [ libDescription, setLibDescription ] = useState< string >( );
@@ -92,6 +95,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   const [ enableCreate, setEnableCreate ] = useState< boolean >( false );
   const [ created, setcreated ] = useState< IStateSource[] >( [] );
   const [ lastCreated, setLastCreated ] = useState< IStateSource >( );
+  // const [ titleDescription, setTitleDescription ] = useState< string >( '' );
   const [ sourceProps, setSourceProps ] = useState< ISourceProps >( createLibrarySource( webUrl, libTitle, libUrl  ));
   const[ libLabelOptions, setLibLabelOptions ] = useState< IDropdownOption[] >( labelItems.map( ( item ) => {
     return {
@@ -102,6 +106,30 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   }) );
 
   const [ libLabel, setLibLabel ] = useState< string >( labelItems.length > 0 ? labelItems[0].RecordCode : NoRetentionLabel );
+
+  // const textFocus = (): void => {
+  //   setTitleDescription( 'Library Title Description')
+  // }
+  const checkUrl = (): void => {
+    const titleMessage = libUrl.length > 0 && libTitle.length > 0 && !doesNotStartNumber( libUrl ) ? '' : 'Invalid Title';
+    // setTitleDescription( '' );
+    if (  !titleMessage ) {
+      _LinkIsValid( `${webUrl}/${libUrl}/Forms/` ).then(( result ): void => {
+        const exists = result  === "" ? true : false;
+        if ( !exists ) setEnableCreate( true );
+      }).catch((e) =>  {
+        console.log('_LinkIsValid seemed to fail')
+      });
+    }
+  }
+
+  // useEffect(() => {
+  //   setTimeout(()=>{
+  //     const titleMessage = libUrl.length > 0 && libTitle.length > 0 && !doesNotStartNumber( libUrl ) ? '' : 'Invalid Title';
+  //     if ( !titleMessage ) checkUrl( )
+  //    }, 300)
+
+  // }, [ libTitle ] );
 
   /***
    *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
@@ -114,17 +142,17 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
    *                                                                            
    */
 
-  const titleChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
+  const titleChange = async (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): Promise<void> => {
     console.log( `titleChange:`, event, newValue );
     // Need to set this value in case you Type a Title than create using pre-selected label
     const libraryFullDescription = libFullDescription ? libFullDescription : `${ libDescription ? `${ libDescription } - ` : '' }Retention Label: [ ${ libLabel } ]`;
     setLibFullDescription( libraryFullDescription );
 
     const libraryUrl = toCamelCase( newValue );
-    const enableCreate = libraryUrl.length > 0 && newValue.length > 0 && !doesNotStartNumber( libraryUrl ) ? true : false;
+    setEnableCreate( false );
     setLibUrl( libraryUrl );
     setLibTitle( newValue );
-    setEnableCreate( enableCreate );
+
   }
 
   const descChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
@@ -186,7 +214,10 @@ const ProvisionListElement: JSX.Element = <section className={``}>
         disabled={ false }
         placeholder={ 'Enter Title here' }
         autoComplete='off'
-        onChange={titleChange.bind( this ) }
+        description={ `If we can create this library, the 'Create' button will be enabled After moving cursor from field` }
+        onChange={ titleChange.bind( this ) }
+        // onFocus={ () => textFocus() }
+        onBlur={ checkUrl.bind( this ) }
         onGetErrorMessage={doesNotStartNumber.bind( this ) }
         required={ true }
 
