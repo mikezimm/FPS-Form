@@ -264,6 +264,20 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     contentStylesVis = { { height: `${accordionHeight}px` } }
   />;
 
+  const ButtonRow: JSX.Element = <div >
+      <button className={ applied !== true && listChoice ? styles.enabled : null }
+        disabled={ applied === false && listChoice ? false : true }
+        onClick={ applyThisTemplate.bind( this ) }
+        >
+        Apply Template
+      </button>
+      <button className={ applied !== true ? styles.enabled : null }
+        disabled={ applied === true ? true : false }
+        onClick={ applyThisTemplate.bind( this ) }
+        >
+        Skip
+      </button>
+  </div>
 
   /***
    *    d88888b d888888b d8b   db  .d8b.  db           d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b 
@@ -287,6 +301,8 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const FinalElement: JSX.Element = !expandedState ? null : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px' }}>
     { TemplateDropdown }
     { listChoice ? TemplateDetails : undefined }
+    { ButtonRow }
+
   </div>;
 
   return ( FinalElement );

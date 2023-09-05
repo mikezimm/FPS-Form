@@ -87,7 +87,6 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   */
 
   const [ libTitle, setLibTitle ] = useState< string >( '' );
-  const [ validateExists, setValidateExists ] = useState< boolean >( false );
   const [ libUrl, setLibUrl ] = useState< string >( '' );
 
   const [ libDescription, setLibDescription ] = useState< string >( );
@@ -107,30 +106,6 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
   const [ libLabel, setLibLabel ] = useState< string >( labelItems.length > 0 ? labelItems[0].RecordCode : NoRetentionLabel );
 
-  // const textFocus = (): void => {
-  //   setTitleDescription( 'Library Title Description')
-  // }
-  const checkUrl = (): void => {
-    const titleMessage = libUrl.length > 0 && libTitle.length > 0 && !doesNotStartNumber( libUrl ) ? '' : 'Invalid Title';
-    // setTitleDescription( '' );
-    if (  !titleMessage ) {
-      _LinkIsValid( `${webUrl}/${libUrl}/Forms/` ).then(( result ): void => {
-        const exists = result  === "" ? true : false;
-        if ( !exists ) setEnableCreate( true );
-      }).catch((e) =>  {
-        console.log('_LinkIsValid seemed to fail')
-      });
-    }
-  }
-
-  // useEffect(() => {
-  //   setTimeout(()=>{
-  //     const titleMessage = libUrl.length > 0 && libTitle.length > 0 && !doesNotStartNumber( libUrl ) ? '' : 'Invalid Title';
-  //     if ( !titleMessage ) checkUrl( )
-  //    }, 300)
-
-  // }, [ libTitle ] );
-
   /***
    *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
    *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 88'  YP 
@@ -145,14 +120,19 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   const titleChange = async (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): Promise<void> => {
     console.log( `titleChange:`, event, newValue );
     // Need to set this value in case you Type a Title than create using pre-selected label
+
     const libraryFullDescription = libFullDescription ? libFullDescription : `${ libDescription ? `${ libDescription } - ` : '' }Retention Label: [ ${ libLabel } ]`;
     setLibFullDescription( libraryFullDescription );
-
     const libraryUrl = toCamelCase( newValue );
-    setEnableCreate( false );
     setLibUrl( libraryUrl );
     setLibTitle( newValue );
 
+    const titleMessage = newValue.length > 0 && newValue.length > 0 && !doesNotStartNumber( newValue ) ? '' : 'Invalid Title';
+    if ( titleMessage ) {
+      setEnableCreate( false );
+    } else { 
+      setEnableCreate( true );
+    }
   }
 
   const descChange = (event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
@@ -217,7 +197,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
         description={ `If we can create this library, the 'Create' button will be enabled After moving cursor from field` }
         onChange={ titleChange.bind( this ) }
         // onFocus={ () => textFocus() }
-        onBlur={ checkUrl.bind( this ) }
+        // onBlur={ checkUrl.bind( this ) }
         onGetErrorMessage={doesNotStartNumber.bind( this ) }
         required={ true }
 
@@ -245,17 +225,22 @@ const ProvisionListElement: JSX.Element = <section className={``}>
       </div>
     </div>
 
-    <button className={ enableCreate === true ? styles.enabled : null }
-      disabled={ !enableCreate }
-      onClick={ createLibrary.bind( this ) }
-      >
-      Create Library
-    </button>
+    <div style={{ padding: '5px 0px 15px 0px'}}>
+      <button className={ enableCreate === true ? styles.enabled : null }
+        disabled={ !enableCreate }
+        onClick={ createLibrary.bind( this ) }
+        >
+        Create Library
+      </button>
+
+    </div>
+
+
     { lastCreated && lastCreated.status !== 'Success' ? FPSFetchStatus( sourceProps, lastCreated ) : undefined }
     <ApplyTemplateHook 
       context={ context as any }
       propsRefreshId={ created && created.length > 0 ? created[0].refreshId : '' }
-      expandedState={ created && created.length > 0 ? true : false }
+      expandedState={ lastCreated && lastCreated.status === 'Success' ? true : false }
       targetList={ created && created.length > 0 ? created[0].item : null }
     />
   </div>

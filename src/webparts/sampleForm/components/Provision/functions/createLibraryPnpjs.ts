@@ -23,7 +23,7 @@ export async function createLibraryPnpjs(siteUrl: string, libraryTitle: string, 
   if (libraryTitle) listProperties.Title = libraryTitle;
   if (libraryDescription) listProperties.Description = libraryDescription;
 
-  const initialResult = await makeListPnpjs(siteUrl, 101, libraryUrl, listProperties);
+  const initialResult = await makeListPnpjs(siteUrl, 101, libraryTitle, libraryUrl, listProperties);
 
   const result: IFpsItemsReturn = checkItemsResults(initialResult as IFpsItemsReturn, `fps-library-v2: createLibraryPnpjs ~ 24`, false, true);
   result.fpsContentType = ['list'];

@@ -17,8 +17,9 @@ import { check4This } from '@mikezimm/fps-pnp2/lib/services/sp/CheckSearch';
  * @param properties 
  * @returns 
  */
-export async function makeListPnpjs(siteUrl: string, template: number, libraryUrl: string, properties: Partial<IListInfo> ): Promise<IItemErrorObj> {
+export async function makeListPnpjs(siteUrl: string, template: number, libraryTitle: string, libraryUrl: string, properties: Partial<IListInfo> ): Promise<IItemErrorObj> {
 
+  const existsError = `A list or document library with the specified title already exists: `;
   const result: IItemErrorObj = {
     status: 'Unknown',
     item: null,
@@ -36,9 +37,35 @@ export async function makeListPnpjs(siteUrl: string, template: number, libraryUr
     return result;
   }
 
+  const thisWeb: IWeb = Web( siteUrl );
+
+  let libExisted: any = false;
+  try {
+    const lists : IListInfo[]= await thisWeb.lists.select( 'Id,Title,EntityTypeName').get();
+    if ( !lists || lists.length === 0 ) return;
+    console.log( `makeListPnpjs - Checking for dup lists:`, lists );
+    lists.map( ( list: IListInfo ) => {
+      if ( list.EntityTypeName.toLocaleLowerCase() === libraryUrl.replace('/', '' ).toLocaleLowerCase() ) {
+        libExisted = true;
+        result.item = list;
+        result.status = 'AlreadyExisted';
+        result.e = { message: `${existsError}${libraryUrl}` };
+      } else if ( list.Title.toLocaleLowerCase() === libraryTitle.toLocaleLowerCase() ) {
+        libExisted = true;
+        result.item = list;
+        result.status = 'AlreadyExisted';
+        result.e = { message: `${existsError}${libraryTitle}` };
+      }
+    } );
+
+  } catch (e) {
+    result.status = 'Error';
+  }
+
+  if ( libExisted === true ) return result;
+
   try {
 
-    const thisWeb: IWeb = Web( siteUrl );
     const intialList: IListAddResult = await thisWeb.lists.add( libraryUrl, ``, template, false, );
     await intialList.list.update( properties );
     const returnList = thisWeb.lists.getById( intialList.data.Id );

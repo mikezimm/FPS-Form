@@ -5,6 +5,7 @@ import { IFPSItem } from "@mikezimm/fps-library-v2/lib/components/molecules/AnyC
 
 export const RequestWeb = `${window.location.origin}/sites/SP_GlobalItsRecordsAndInformationGovernanceSystem`;
 export const RequestList = `Label Provisioning Requests`;
+export const RequestListUrl = `LabelProvisioningRequests`;
 
 export const FPSLabelRequestCols: string[] = [
   'Id', 'Title', 'Created', 'Author/Title', 'Author/Id', 'Author/Office', 'Label', 'LibraryGuid', 'LibraryName', 'LibraryTitle', 'LibraryLink', 'SiteUrl', 'WebUrl', 'WorkflowComments', 'Status', 'CompleteTime',

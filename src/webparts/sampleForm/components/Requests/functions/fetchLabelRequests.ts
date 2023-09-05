@@ -11,7 +11,7 @@ import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/
 import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/functions/addSearchMeta1';
 import { filterObjArrayByUniqueKey } from '@mikezimm/fps-library-v2/lib/logic/Arrays/searching/filterObjArrayByUniqueKey';
 
-import { FPSLabelRequestCols, RequestList, RequestWeb } from "./requestLabel";
+import { FPSLabelRequestCols, RequestList, RequestListUrl, RequestWeb } from "./requestLabel";
 import { addMineSiteMeta } from './addMineSiteMeta';
 import { ICorpLabelsSource } from '../../../storedSecrets/AS303 Labels v3 - JSON Formatted';
 import { IAnySourceItemAny } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
@@ -20,7 +20,7 @@ export const LabelRequestSource: ISourceProps = {
   fpsContentType: [ 'item' ],
   key: 'any',
   defType: 'item',
-  webRelativeLink: `/lists/${RequestList}`,
+  webRelativeLink: `/lists/${RequestListUrl}`,
   searchSource: 'any',
   searchSourceDesc: 'any',
   defSearchButtons: [ 'Mine', 'ThisSite' ],

@@ -32,7 +32,7 @@ export function getSpecificListDef( list: IListInfo, definedList: IDefinedListIn
 
   }
 
-  makeThisList.templateDesc = `Adds ${definedList.listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;
+  makeThisList.templateDesc = `Adds ${definedList.list} > ${definedList.listDefinition} related views (${makeThisList.createTheseViews.length}) and fields (${makeThisList.createTheseFields.length}) to your list.`;
   makeThisList.templateDetails = `Fields include:${ getFieldNamesFromArray(makeThisList.createTheseFields).join(', ') }\nViews include:${ getViewTitlesFromArray(makeThisList.createTheseViews).join(', ') }` ;
 
   makeThisList.templateFields = <div>
