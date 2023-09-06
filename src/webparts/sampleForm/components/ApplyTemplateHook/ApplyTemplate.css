@@ -26,3 +26,8 @@
   font-size: larger;
   font-weight: 600;
 }
+
+.apply-template-page button {
+  padding: 10px 20px;
+  font-size: larger;
+}

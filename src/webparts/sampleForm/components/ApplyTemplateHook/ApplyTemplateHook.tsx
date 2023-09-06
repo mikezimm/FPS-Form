@@ -1,35 +1,33 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
 
-import { Dropdown, IDropdownOption } from 'office-ui-fabric-react/lib/Dropdown';
+import { Dropdown } from 'office-ui-fabric-react/lib/Dropdown';
+
+import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { IListInfo } from "@pnp/sp/lists/types";
 
 import styles from './ApplyTemplateHoook.module.scss';
+import FPSLogListHook from '../FPSLogList/FPSLogList';
 
-import { PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
-import { sourceButtonRow } from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/sourceButtonRow';
 import Accordion from '@mikezimm/fps-library-v2/lib/components/molecules/Accordion/Accordion';
-import SourcePages from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/SourcePages';
 
 import { ISourceProps, StandardMetaViewProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
 import { getExpandColumns } from '@mikezimm/fps-library-v2/lib/pnpjs/Lists/getVX/getExpandV2';
 import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
 
-import { ISourceSearch } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/Interfaces/ISourceSearch';
-import { getSourceItems } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/getSourceItems';
-import { createApplyTemplateRow, exampleRowHeaders } from './Row';
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
-import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/functions/addSearchMeta1';
-import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/molecules/FPSTiles/functions/Any/createErrorFPSTileItem';
 
-import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
-import { DefinedLibraryChoices, DefinedListChoices, IDefinedChoice, IDefinedListInfo, IMakeThisList, } from './interfaces/ProvisionTypes';
+import { DefinedLibraryChoices, DefinedListChoices, IDefinedListInfo, IMakeThisList, } from './interfaces/ProvisionTypes';
 import { getSpecificListDef } from './templates/functions/getSpecificListDef';
+import { provisionTheList } from './functions/provisionWebPartList';
+
+import { IServiceLog } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+import { IMyProgress, } from '@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces';
 
 require ('./ApplyTemplate.css');
 
@@ -135,20 +133,28 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   // const [ isCurrentSite, setIsCurrentSite ] = useState<boolean>( pageContext.web.serverRelativeUrl ) // NOT NEEDED until needing users for example items
   const [ applied, setApplied ] = useState<boolean>( false );
-  const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
-  const [ showPanel, setShowPanel ] = useState<boolean>( false );
-  const [ panelItem, setPanelItem ] = useState<IAnySourceItem>( null );
+  // const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
+  // const [ showPanel, setShowPanel ] = useState<boolean>( false );
+  // const [ panelItem, setPanelItem ] = useState<IAnySourceItem>( null );
 
   // Added for example when fetching items
-  const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
-  const [ fetchPerformance, setFetchPerformance ] = useState<IPerformanceOp>( null );
-  const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
+  // const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  // const [ fetchPerformance, setFetchPerformance ] = useState<IPerformanceOp>( null );
+  // const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
   const [ choices, setChoices ] = useState<IDefinedListInfo[]>( !targetList ? [] : targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
   const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( null );
   const [ makeList, setMakeList ] = useState<IMakeThisList>( null );
   const [ webUrl, setWebUrl ] = useState<string>( props.webUrl ? props.webUrl : pageContext.web.serverRelativeUrl );
 
+  const [ errors, setErrors ] = useState<IMyProgress[]>( [] );
+  const [ fields, setFields ] = useState<IMyProgress[]>( [] );
+  const [ views, setViews ] = useState<IMyProgress[]>( [] );
+  const [ items, setItems ] = useState<IMyProgress[]>( [] );
+  const [ total, setTotal ] = useState<number>( 0 );
+  const [ current, setCurrent ] = useState<number>( 0 );
+  const [ status, setStatus ] = useState<string>( 'Waiting' );
+  const [ progressX, setProgressX ] = useState<IMyProgress>( null );
 
 
   /***
@@ -162,8 +168,61 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *                                                                                   
    */
 
-  const applyThisTemplate = async (): Promise<void> => {
 
+  const setProgress = ( progressHidden: boolean, list: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ): void => {
+    const thisTime = new Date().toLocaleTimeString();
+    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
+
+    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
+    const progressX: IMyProgress = {
+        ref: ref,
+        time: thisTime,
+        logLabel: logLabel,
+        label: label + '- at ' + thisTime,
+        description: description,
+        percentComplete: percentComplete,
+        progressHidden: progressHidden,
+        color: color,
+        icon: icon,
+      };
+
+    setTotal( total + 1 );
+    setCurrent( current );
+
+    setProgressX( progressX )
+    if ( list === 'E') {
+      console.log( `setProgress: ${list}   ${errors.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, errors );
+      setErrors( errors.length === 0 ? [ progressX ] : [ progressX ].concat( errors ) );
+
+    } else if ( list === 'C') {
+      console.log( `setProgress: ${list}   ${fields.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, fields );
+      const newFields= JSON.parse(JSON.stringify(  [ progressX, ...fields ] ))
+      setFields( newFields );
+      // setFields( fields.length === 0 ? [ progressX ] : [ progressX ].concat( fields ) );
+
+    } else if ( list === 'V') {
+      console.log( `setProgress: ${list}   ${views.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, views );
+      setViews( [ progressX, ...views ]);
+    } else if ( list === 'I') {
+      setItems( [ progressX, ...items ]);
+    }
+
+  }
+
+  
+  const markComplete = () : void => {
+    alert( 'Finished!' );
+    setStatus( 'Finished' );
+  }
+
+  const applyThisTemplate = async (): Promise<void> => {
+    setStatus( 'Starting' );
+
+    const listCreated: IServiceLog[] = await provisionTheList( makeList, false, setProgress, markComplete , true, true, false );
+    // Both versions seem to be different instances
+    // const listCreated: IServiceLog[] = await provisionTheList( makeList, false, setProgress.bind( this ), markComplete.bind( this ) , true, true, false );
+
+    console.log( `listCreated`, listCreated );
     // const results: IStateSource = await getSourceItems(ApplyTemplateHookSourceProps, false, true ) as IStateSource;
 
     // if (results.status !== 'Success') {
@@ -181,18 +240,18 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   };
 
 
-  useEffect(() => {
+  // useEffect(() => {
 
-    if ( expandedState === true && applied === false ) {
-      // eslint-disable-next-line no-void
-      void applyThisTemplate();
+  //   if ( expandedState === true && applied === false ) {
+  //     // eslint-disable-next-line no-void
+  //     void applyThisTemplate();
 
-      return () => {
-        // this now gets called when the component unmounts
-      };
-    }
+  //     return () => {
+  //       // this now gets called when the component unmounts
+  //     };
+  //   }
 
-  }, [ expandedState, applied ] );
+  // }, [ expandedState, applied ] );
 
   useEffect(() => {
     if ( expandedState === true && targetList ) {
@@ -258,13 +317,39 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const TemplateDetails: JSX.Element = <Accordion 
     title = { makeList?.templateDesc }
     defaultIcon = 'Help'
-    showAccordion = { true }
+    showAccordion = { status === 'Waiting' ? true : false }
     content = { AccordionContent }
     refreshId={ makeid(5) }
     contentStylesVis = { { height: `${accordionHeight}px` } }
   />;
 
-  const ButtonRow: JSX.Element = <div >
+  const CurrentProgress = progressX === null ? <div style={{ height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
+            label={progressX.label}
+            description={progressX.description}
+            percentComplete={progressX.percentComplete}
+            progressHidden={progressX.progressHidden}/>;
+
+  const ProgressPane: JSX.Element = <div>
+    { CurrentProgress }
+    <FPSLogListHook
+      title={ 'Error'}           items={ errors }   showWhenEmpty={ true }
+      descending={false}          titles={null}            />
+
+    <FPSLogListHook
+      title={ 'Column'}           items={ fields }  showWhenEmpty={ true }
+      descending={false}          titles={null}            />
+
+    <FPSLogListHook
+      title={ 'View'}           items={ views }     showWhenEmpty={ true }
+      descending={false}          titles={null}            />
+
+    <FPSLogListHook
+      title={ 'Item'}           items={ items }     showWhenEmpty={ true }
+      descending={false}          titles={null}            />
+
+  </div>;
+
+  const ButtonRow: JSX.Element = <div className='apply-template-dropdown' style={{ display: 'flex', justifyContent: 'space-between' }}>
       <button className={ applied !== true && listChoice ? styles.enabled : null }
         disabled={ applied === false && listChoice ? false : true }
         onClick={ applyThisTemplate.bind( this ) }
@@ -299,9 +384,11 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   // console.log( 'ApplylTemplate: webUrl', webUrl );
 
   const FinalElement: JSX.Element = !expandedState ? null : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px' }}>
+    <div style={{ fontWeight: 600, fontSize: 'larger', marginBottom: '1em' }}>Want to kick-start your library with a Template?</div>
     { TemplateDropdown }
-    { listChoice ? TemplateDetails : undefined }
     { ButtonRow }
+    { listChoice ? TemplateDetails : undefined }
+    { ProgressPane }
 
   </div>;
 

@@ -225,7 +225,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
       </div>
     </div>
 
-    <div style={{ padding: '5px 0px 15px 0px'}}>
+    <div className='apply-template-page' style={{ padding: '5px 0px 15px 0px'}}>
       <button className={ enableCreate === true ? styles.enabled : null }
         disabled={ !enableCreate }
         onClick={ createLibrary.bind( this ) }

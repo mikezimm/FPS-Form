@@ -50,7 +50,7 @@ export const BccHarm : IMultiLineTextField = {
 
 export const ConversationIndexHarm : ITextField = {
     fieldType: cText,
-    name: 'Conversation%5Fx002d%5FIndex',
+    name: 'ConversationIndex', // 'Conversation%5Fx002d%5FIndex'
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -60,7 +60,7 @@ export const ConversationIndexHarm : ITextField = {
 
 export const ConversationTopicHarm	 : ITextField = {
     fieldType: cText,
-    name: 'Conversation_x002d_Topic',
+    name: 'ConversationTopic', // 'Conversation_x002d_Topic'
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -164,7 +164,7 @@ export const ImportanceHarm : ITextField = {
 
 export const InReplyToHarm : ITextField = {
     fieldType: cText,
-    name: 'In%5Fx002d%5FReply%5Fx002d%5FTo', //In%5Fx002d%5FReply%5Fx002d%5FTo
+    name: 'InReplyTo', //In%5Fx002d%5FReply%5Fx002d%5FTo
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -174,7 +174,7 @@ export const InReplyToHarm : ITextField = {
 
 export const MessageIDHarm : ITextField = {
     fieldType: cText,
-    name: 'Message_x002d_ID', //_x002d_
+    name: 'MessageID', // Message_x002d_ID
     maxLength: 255,
     onCreateProps: {
         Group: thisColumnGroup,
@@ -301,7 +301,7 @@ export const ProductsALV : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Generic Products',
-DefaultValue: theseChoices[theseChoices.length-1],
+        DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
@@ -317,7 +317,7 @@ export const ProgramsALV : IChoiceField = {
     onCreateProps: {
         Group: thisColumnGroup,
         Description: 'Generic Programs',
-DefaultValue: theseChoices[theseChoices.length-1],
+        DefaultValue: theseChoices[theseChoices.length-1],
         Indexed: true,
     },
 //    onCreateChanges: {
