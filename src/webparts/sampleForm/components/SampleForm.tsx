@@ -7,6 +7,7 @@ import { LabelExportJSON } from '../storedSecrets/AS303 Labels v3 - JSON Formatt
 
 import ListProvisionHook from './Provision/ListProvisionHook'
 import RequestsHook from './Requests/RequestsHook'
+import MockApplyHook from './ApplyTemplateHook/AMockApply/MockApplyHook';
 
 export interface ISampleFormProps {
   context: WebPartContext;
@@ -29,6 +30,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
   public render(): React.ReactElement<ISampleFormProps> {
     return (
       <div>
+        <MockApplyHook />
         <ListProvisionHook 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           context={ this.props.context as any }

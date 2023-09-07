@@ -103,7 +103,6 @@ export function buildFieldWhereTag ( thisWhere: IViewWhere ): string {
     if ( fieldVType === 'Boolean') {
 
         if ( tempWhere.val === '1' || tempWhere.val === '0' ) { } //all is ok
-
         else if ( tempWhere.val === 'false' || tempWhere.val === 'FALSE'  || tempWhere.val === 'False'  ) { tempWhere.val = '0'; }
         else if ( tempWhere.val === 'true' || tempWhere.val === 'TRUE'  || tempWhere.val === 'True'  ) { tempWhere.val = '1'; }
         else { alert('Boolean value for \'' + fieldName + '\' can\'t be \'' + tempWhere.val +'\''); }
