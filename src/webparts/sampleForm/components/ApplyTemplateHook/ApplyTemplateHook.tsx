@@ -147,12 +147,14 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ makeList, setMakeList ] = useState<IMakeThisList>( null );
   const [ webUrl, setWebUrl ] = useState<string>( props.webUrl ? props.webUrl : pageContext.web.serverRelativeUrl );
 
-  const [ errors, setErrors ] = useState<IMyProgress[]>( [] );
-  const [ fields, setFields ] = useState<IMyProgress[]>( [] );
-  const [ views, setViews ] = useState<IMyProgress[]>( [] );
-  const [ items, setItems ] = useState<IMyProgress[]>( [] );
+  const [ errorsX, setErrorsX ] = useState<IMyProgress[]>( [] );
+  const [ fieldsX, setFieldsX ] = useState<IMyProgress[]>( [] );
+  const [ viewsX, setViewsX ] = useState<IMyProgress[]>( [] );
+  const [ itemsX, setItemsX ] = useState<IMyProgress[]>( [] );
   const [ total, setTotal ] = useState<number>( 0 );
-  const [ current, setCurrent ] = useState<number>( 0 );
+  const [ currentX, setCurrentX ] = useState<number>( 0 );
+  const [ id, setId ] = useState<string>( makeid(5) );
+
   const [ status, setStatus ] = useState<string>( 'Waiting' );
   const [ progressX, setProgressX ] = useState<IMyProgress>( null );
 
@@ -169,44 +171,38 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    */
 
 
-  const setProgress = ( progressHidden: boolean, list: 'E' | 'C' | 'V' | 'I', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ): void => {
-    const thisTime = new Date().toLocaleTimeString();
-    const percentComplete = ofThese !== 0 ? current/ofThese : 0;
+  // const setProgress = async ( progressHidden: boolean, list: 'E' | 'Field' | 'View' | 'Item', current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ): Promise<void> => {
+  const setProgressNow = async ( progress: IMyProgress[] ): Promise<void> => {
 
-    logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
-    const progressX: IMyProgress = {
-        ref: ref,
-        time: thisTime,
-        logLabel: logLabel,
-        label: label + '- at ' + thisTime,
-        description: description,
-        percentComplete: percentComplete,
-        progressHidden: progressHidden,
-        color: color,
-        icon: icon,
-      };
+    if ( !progress || progress.length === 0 ) return;
 
-    setTotal( total + 1 );
-    setCurrent( current );
+    // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
+    await Promise.resolve().then(() => {
 
-    setProgressX( progressX )
-    if ( list === 'E') {
-      console.log( `setProgress: ${list}   ${errors.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, errors );
-      setErrors( errors.length === 0 ? [ progressX ] : [ progressX ].concat( errors ) );
+        setTotal( total + 1 );
+        setCurrentX( progress[0].current );
+        setProgressX( progress[0] );
+        console.log( 'setProgressNow Id: ', id );
+        setId( progress[0].id );
 
-    } else if ( list === 'C') {
-      console.log( `setProgress: ${list}   ${fields.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, fields );
-      const newFields= JSON.parse(JSON.stringify(  [ progressX, ...fields ] ))
-      setFields( newFields );
-      // setFields( fields.length === 0 ? [ progressX ] : [ progressX ].concat( fields ) );
+        if ( progress[0].array === 'E') {
+          console.log( 'setProgress progress, errorsX, newArray:', progress, errorsX, progress );
+          setErrorsX( progress );
 
-    } else if ( list === 'V') {
-      console.log( `setProgress: ${list}   ${views.length}  ${current}  ${ofThese}   ${logLabel} `, progressX, views );
-      setViews( [ progressX, ...views ]);
-    } else if ( list === 'I') {
-      setItems( [ progressX, ...items ]);
-    }
+        } else if ( progress[0].array === 'Field' ) {
+          console.log( 'setProgress progress, fieldsX, newArray:', progress, fieldsX, progress );
+          setFieldsX( progress );
+          // setFields( fields.length === 0 ? [ progressX ] : [ progressX ].concat( fields ) );
 
+        } else if ( progress[0].array === 'View' ) {
+          console.log( 'setProgress progress, viewsX, newArray:', progress, viewsX, progress );
+          setViewsX( progress );
+
+        } else if ( progress[0].array === 'Item' ) {
+          setItemsX( progress );
+        }
+
+      });
   }
 
   
@@ -216,13 +212,39 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   }
 
   const applyThisTemplate = async (): Promise<void> => {
-    setStatus( 'Starting' );
 
-    const listCreated: IServiceLog[] = await provisionTheList( makeList, false, setProgress, markComplete , true, true, false );
+    // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
+    await Promise.resolve().then(() => {
+      setStatus( 'Starting' );
+      setFieldsX( [] );
+      setViewsX( [] );
+      setItemsX( [] );
+    });
+
+    const listCreated: IServiceLog[] = await provisionTheList( {
+      makeThisList: makeList,
+      setProgress: setProgressNow,
+      markComplete: markComplete,
+      readOnly: false,
+      requireAll: false,
+      doFields: true,
+      doItems: true,
+      doViews: true,
+
+    } );
     // Both versions seem to be different instances
     // const listCreated: IServiceLog[] = await provisionTheList( makeList, false, setProgress.bind( this ), markComplete.bind( this ) , true, true, false );
 
     console.log( `listCreated`, listCreated );
+
+    // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
+    await Promise.resolve().then(() => {
+      setFieldsX( listCreated[0] );
+      setViewsX( listCreated[1] );
+      setItemsX( listCreated[2] );
+      setStatus( 'Finished' );
+    });
+
     // const results: IStateSource = await getSourceItems(ApplyTemplateHookSourceProps, false, true ) as IStateSource;
 
     // if (results.status !== 'Success') {
@@ -332,19 +354,19 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const ProgressPane: JSX.Element = <div>
     { CurrentProgress }
     <FPSLogListHook
-      title={ 'Error'}           items={ errors }   showWhenEmpty={ true }
+      title={ 'Error'}           items={ errorsX }   showWhenEmpty={ true }
       descending={false}          titles={null}            />
 
     <FPSLogListHook
-      title={ 'Column'}           items={ fields }  showWhenEmpty={ true }
+      title={ 'Column'}           items={ fieldsX }  showWhenEmpty={ true }
       descending={false}          titles={null}            />
 
     <FPSLogListHook
-      title={ 'View'}           items={ views }     showWhenEmpty={ true }
+      title={ 'View'}           items={ viewsX }     showWhenEmpty={ true }
       descending={false}          titles={null}            />
 
     <FPSLogListHook
-      title={ 'Item'}           items={ items }     showWhenEmpty={ true }
+      title={ 'Item'}           items={ itemsX }     showWhenEmpty={ true }
       descending={false}          titles={null}            />
 
   </div>;

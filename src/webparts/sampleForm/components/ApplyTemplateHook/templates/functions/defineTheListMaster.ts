@@ -42,6 +42,10 @@ export function defineTheListMaster( list: Partial<IListInfo>, definedList: IDef
     },
     createTheseFields: null,
     createTheseViews: null,
+
+    currentFields: [],
+    currentViews: [],
+
     createTheseItems: null,
     autoItemCreate: false,
     listURL: `${webURL}/${list.BaseTemplate === 100 ? 'lists/' : ''} ${list.EntityTypeName}`,

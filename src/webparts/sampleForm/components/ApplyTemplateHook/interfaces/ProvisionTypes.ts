@@ -126,6 +126,10 @@ export interface IMakeThisList {
      };
     createTheseFields: IMyFieldTypes[];
     createTheseViews: IMyView[];
+
+    currentFields: any[];
+    currentViews: any[];
+
     createTheseItems: IAnyArray;
     autoItemCreate: boolean;
     alternateItemCreateMessage?: string;

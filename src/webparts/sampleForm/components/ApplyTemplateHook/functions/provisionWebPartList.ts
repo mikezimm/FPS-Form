@@ -11,6 +11,7 @@
  */
 import { IWeb, Web } from "@pnp/sp/webs/types";
 import { IField, } from "@pnp/sp/fields/types";
+import { IListEnsureResult, IList } from "@pnp/sp/lists/types";
 
 /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      d8b   db d8888b. .88b  d88.      d88888b db    db d8b   db  .o88b. d888888b d888888b  .d88b.  d8b   db .d8888. 
@@ -70,6 +71,7 @@ import { IAnyArray } from  './listServices';
 
 
  import { IMakeThisList, } from '../interfaces/ProvisionTypes';
+import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces";
 
 
 /***
@@ -83,11 +85,31 @@ import { IAnyArray } from  './listServices';
  *                                                                                                                                               
  */
 
-export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
+export interface IProvisionListFunction {
+
+  setProgress : (progress : IMyProgress[]) => void;
+  markComplete : (progress : IMyProgress[]) => void;
+  makeThisList:  IMakeThisList;
+  readOnly: boolean;
+  doFields: boolean;
+  doViews: boolean;
+  doItems: boolean;
+  requireAll: boolean;
+
+}
+
+// export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
+export async function provisionTheList( props: IProvisionListFunction ): Promise<IServiceLog[]>{
+
+  const { makeThisList, readOnly, doFields, doViews, doItems, requireAll, markComplete, setProgress } = props;
 
     const statusLog : IServiceLog[] = [];
     const alertMe = false;
     const consoleLog = false;
+
+    let fieldsResults: IMyProgress[] = [];
+    let viewsResults: IMyProgress[] = [];
+    let itemsResults: IMyProgress[] = [];
 
     let createItems: boolean = false;
     let hasFields: boolean = false;
@@ -129,7 +151,7 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         //}
     }
 
-    if ( makeThisList.createTheseItems == null || makeThisList.createTheseItems == undefined ) { createItems = false; }
+    if ( !makeThisList.createTheseItems == null || makeThisList.createTheseItems == undefined ) { createItems = false; }
     if ( createItems === true && makeThisList.createTheseItems.length === 0 ) { createItems = false; } 
 
     const fieldsToGet = makeThisList.createTheseFields.map ( thisField => {
@@ -179,7 +201,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     console.log('makeThisList.listExists2:', makeThisList.listExists.toString() );
 
-    let ensuredList: any = null;
+    let ensuredList: IListEnsureResult = null;
+    let actualList: IList = null;
     let listFields = null;
     let listViews = null;
     let currentFields: IField[]  = [];
@@ -192,15 +215,16 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         if ( makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
+            actualList = ensuredList as any;
             listFields = ensuredList.list.fields;   //Get the fields object from the list
             listViews = ensuredList.list.views;     //Get the views object from the list
         } else {
             if ( makeThisList.listExists === true ) {
-                ensuredList = thisWeb.lists.getByTitle(makeThisList.title);
-                listFields = ensuredList.fields;   //Get the fields object from the list
-                listViews = ensuredList.views;     //Get the views object from the list
+                actualList = thisWeb.lists.getByTitle(makeThisList.title);
+                listFields = actualList.fields;   //Get the fields object from the list
+                listViews = actualList.views;     //Get the views object from the list
             } else {
-                ensuredList = await thisWeb.lists.add(makeThisList.title, makeThisList.desc, makeThisList.template, true, { OnQuickLaunch: true });
+                ensuredList = await thisWeb.lists.add(makeThisList.title, makeThisList.desc, makeThisList.template, true, { OnQuickLaunch: true }) as IListEnsureResult;
                 listFields = ensuredList.list.fields;   //Get the fields object from the list
                 listViews = ensuredList.list.views;     //Get the views object from the list
             }
@@ -211,15 +235,39 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
         console.log('theseFields', currentFields ) ;
 
         currentViews = await listViews.get();
-        
+
         console.log('currentFields:', readOnly, currentFields );
         console.log('currentViews:', readOnly, currentViews );
 
     } else {
-        ensuredList = thisWeb.lists.getByTitle(makeThisList.title);
-        console.log('ensuredList:', readOnly, ensuredList );
+        actualList = thisWeb.lists.getByTitle(makeThisList.title);
+        console.log('ensuredList:', readOnly, actualList );
 
         for (let i2=0; i2 < arrFieldFilter.length; i2 ++ ) {
+
+
+          /**
+           * THINGS TO DO AFTER 9/7/2023 Updating:
+           * 
+           * Add currentFields and currentViews to makeList
+           * Return object back in array of results to component
+           * Show current / updated fields somehow in the panel
+           * 
+           * Check the notify function and make sure all is captured in the IMyProgress
+           * 
+           * Double check what the 'notify' function really does vs the status log.
+           *  Seems like statuslog is kind of like IMyProgress[]
+           *  and notify might be just for console?
+           * 
+           *  Maybe add a flag to the IMyProgress to indicate if it's for Status or Notify
+           * 
+           * Review what IServiceLog is and compare to Notify and IMyProgress
+           * 
+           */
+
+
+
+
             const theseFields: IField[] = await ensuredList.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i2] ).get() ;
             console.log('currentFields:', currentFields );
             console.log('theseFields:', theseFields );
@@ -233,12 +281,12 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     if ( doFields === true ) {
         //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-        const result = await addTheseFields(['create','changesFinal'], readOnly, makeThisList as any, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
+        fieldsResults = await addTheseFields(['create','changesFinal'], readOnly, makeThisList as any, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
     } else { console.log('Skipping doFields') ; }
 
     if ( doViews === true ) {
         //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-        const result2 = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList as any, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+        viewsResults = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList as any, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
     } else { console.log('Skipping doViews') ; }
 
     let result3 = null;
@@ -254,13 +302,13 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
         if ( totalItems <= 50 ) {
             //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-            result3 = await addTheseItemsToList(makeThisList as any, thisWeb, makeThisList.createTheseItems, setProgress, true, true);
+            itemsResults = await addTheseItemsToList(makeThisList as any, thisWeb, makeThisList.createTheseItems, setProgress, true, true);
 
         } else {
             for (let i=0; i < totalItems; i += chunk) {
                 createThisBatch = makeThisList.createTheseItems.slice(i, i+chunk);
                 //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-                result3 = await addTheseItemsToListInBatch(makeThisList as any, thisWeb, createThisBatch, setProgress, true, true);
+                itemsResults = await addTheseItemsToListInBatch(makeThisList as any, thisWeb, createThisBatch, setProgress, true, true);
             }
         }
 
@@ -278,7 +326,8 @@ export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: 
 
     markComplete( makeThisList );
 
-    return statusLog;
+    return [ fieldsResults, viewsResults, itemsResults ];
+
 
 }
 

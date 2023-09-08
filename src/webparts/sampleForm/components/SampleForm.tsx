@@ -30,7 +30,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
   public render(): React.ReactElement<ISampleFormProps> {
     return (
       <div>
-        <MockApplyHook />
+        {/* <MockApplyHook /> */}
         <ListProvisionHook 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           context={ this.props.context as any }
