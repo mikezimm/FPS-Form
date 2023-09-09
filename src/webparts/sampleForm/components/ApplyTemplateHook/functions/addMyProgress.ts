@@ -3,11 +3,11 @@ import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
 
 // export function addMyProgress( progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, current: number , ofThese: number, color: string, icon: string, logLabel: string, label: string, description: string, ref: string = null ) : IMyProgress {
 
-export async function addMyProgress( progress: IMyProgress[], progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
+export function addMyProgress( progress: IMyProgress[], progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
   i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
-  setProgress : (progress : IMyProgress[]) => void, ref: string = null, checkValue: any = null, returnField: any = null, item: any = null): Promise<IMyProgress[]> {
+  setProgress : (progress : IMyProgress[]) => void, ref: string = null, checkValue: any = null, returnField: any = null, item: any = null): IMyProgress[] {
 
-  await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect
+  // await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect
   const thisTime = new Date();
   const timeMS = thisTime.getTime();
   const timeStr = thisTime.toLocaleTimeString();

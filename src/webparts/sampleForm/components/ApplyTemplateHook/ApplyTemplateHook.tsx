@@ -95,6 +95,7 @@ export interface IApplyTemplateHookProps {
   expandedState: boolean;  //Is this particular page expanded
   propsRefreshId?: string; // optional in case needed
   targetList: Partial<IListInfo>;
+  listExists: boolean;
 }
 
 
@@ -112,7 +113,7 @@ export interface IApplyTemplateHookProps {
 const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { context, expandedState, targetList, propsRefreshId } = props;
+  const { context, expandedState, targetList, propsRefreshId, listExists } = props;
   const { pageContext } = context;
 
 
@@ -221,7 +222,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
       setItemsX( [] );
     });
 
-    const listCreated: IServiceLog[] = await provisionTheList( {
+    const listCreated: IMyProgress[][] = await provisionTheList( {
       makeThisList: makeList,
       setProgress: setProgressNow,
       markComplete: markComplete,
@@ -301,7 +302,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   const templateChange = ( index?: number): void => {
     const key: IDefinedListInfo =  choices[ index ];
-    setMakeList( getSpecificListDef( props.targetList as IListInfo, key, webUrl, [] ) )
+    setMakeList( getSpecificListDef( props.targetList as IListInfo, key, webUrl, [], listExists ) )
     setListChoice( choices[ index ] );
   }
 

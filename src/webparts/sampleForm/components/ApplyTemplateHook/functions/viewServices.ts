@@ -3,6 +3,7 @@ import { doesObjectExistInArray } from '@mikezimm/fps-library-v2/lib/logic/Array
 
 import { IMyListInfo, IServiceLog, notify } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 import { IViewWhere, IViewOrder, IViewGroupBy,  } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
+import { IViews, } from "@pnp/sp/views/types";
 
 import { getHelpfullErrorV2 } from '@mikezimm/fps-library-v2/lib/logic/Errors/friendly';
 import { BaseErrorTrace } from '@mikezimm/fps-library-v2/lib/PackageConst';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
@@ -163,25 +164,28 @@ export function buildFieldWhereTag ( thisWhere: IViewWhere ): string {
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 
-export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean, myList: IMyListInfo, ensuredList: any, currentViews: any[], viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IViewLog[]>{
+export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean, myList: IMyListInfo, listViews: IViews, currentViews: any[], viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IMyProgress[]>{
 
-    let statusLog : IViewLog[] = [];
+    let statusLog : IMyProgress[] = [];
     
     /**
      * listViews just gets the current list's view fetch handler which is used to actually add views to the list.
      * currentViews should show the actual views on the list prior to getting to this point. 
+     * 
+     * 2023-09-08:  I think this is now redundat after fixing some of the interface issues in the provisioning function
      */
-    let listViews = null;
 
-    if (readOnly === false ) {
-        if ( ensuredList.list === undefined ) {
-            listViews = ensuredList.views;
-        } else {
-            listViews = ensuredList.list.views;
-        }
-    } else { 
-        listViews = ensuredList.views;
-    }
+    // let listViews = null;
+
+    // if (readOnly === false ) {
+    //     if ( ensuredList.list === undefined ) {
+    //         listViews = ensuredList.views;
+    //     } else {
+    //         listViews = ensuredList.list.views;
+    //     }
+    // } else { 
+    //     listViews = ensuredList.views;
+    // }
 
     /**
     * @param progressHidden 
@@ -491,7 +495,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                         TabularView: v.TabularView !== false ? true : false,
                     };
     
-                    if ( viewQueryXML != '' ) { createViewProps["ViewQuery"] = viewQueryXML; }
+                    if ( viewQueryXML != '' ) { createViewProps.ViewQuery = viewQueryXML; }
     
                     //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
                     const result = await listViews.add(v.Title, false, createViewProps );

@@ -5,6 +5,8 @@ import { IFieldAddResult, FieldTypes, UrlFieldFormatType,
     FieldUserSelectionMode,
     IField, } from "@pnp/sp/fields/types";
 
+import { IFields, } from "@pnp/sp/fields/types";
+
 import { IMyFieldTypes, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/columnTypes';
 
 import { changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate, 
@@ -55,22 +57,28 @@ function checkForKnownColumnIssues(){
  * @param consoleLog - used for logging and testing
  * @param skipTry - was used prior to adding 'currentFields' so you wouldn't have to 'try' adding/checking if column existed before creating it.
  */
-export async function addTheseFields( steps : changes[], readOnly: boolean, myList: IMyListInfo, ensuredList: any, currentFields: IField[] , fieldsToAdd: IMyFieldTypes[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IFieldLog[]>{
+export async function addTheseFields( listTitle: string, steps : changes[], readOnly: boolean, listFields: IFields, currentFields: IField[] , fieldsToAdd: IMyFieldTypes[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IMyProgress[]>{
 
     let statusLog : IMyProgress[] = [];
 
-    let listFields = null;
+    /**
+     * listViews just gets the current list's view fetch handler which is used to actually add views to the list.
+     * currentViews should show the actual views on the list prior to getting to this point. 
+     * 
+     * 2023-09-08:  I think this is now redundat after fixing some of the interface issues in the provisioning function
+     */
 
-    if (readOnly === false ) {
-        if ( ensuredList.list === undefined ) {
-            listFields = ensuredList.fields;
-        } else {
-            listFields = ensuredList.list.fields;
-        }
-    } else { 
-        listFields = ensuredList.fields;
-    }
-    
+    // let listFields = null;
+
+    // if (readOnly === false ) {
+    //     if ( ensuredList.list === undefined ) {
+    //         listFields = ensuredList.fields;
+    //     } else {
+    //         listFields = ensuredList.list.fields;
+    //     }
+    // } else { 
+    //     listFields = ensuredList.fields;
+    // }
 
     //alert('Need to check for checkForKnownColumnIssues here');
 
@@ -85,7 +93,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
     * @param description 
    */
 
-    statusLog = await addMyProgress( statusLog, false, 'Field', 0, 0 , '', 'TimePicker', myList.title, 'Adding FIELDS to list', 'Add' , `Starting` , setProgress, `Checking for FIELDS` );
+    statusLog = addMyProgress( statusLog, false, 'Field', 0, 0 , '', 'TimePicker', listTitle, 'Adding FIELDS to list', 'Add' , `Starting` , setProgress, `Checking for FIELDS` );
 
     for ( const step of steps ) {
 
@@ -97,18 +105,18 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
 
         if (n > 0 ) {
             // setProgress(false, "C", 0, n , '', 'Next', '##### ' + step, 'Adding FIELDS to list: ' + myList.title, 'Checking for FIELDS', step + ' ~ 93' );
-            statusLog = await addMyProgress( statusLog, false, 'Field', 0, n , '', 'Next', myList.title, step, 'Start Adding Fields', 'Started' , setProgress, `Checking for FIELDS ${ step } ~ 93`, );
+            statusLog = addMyProgress( statusLog, false, 'Field', 0, n , '', 'Next', listTitle, step, 'Start Adding Fields', 'Started' , setProgress, `Checking for FIELDS ${ step } ~ 93`, );
         }
 
         for (const f of fieldsToDo) {
-          const helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
+          const helpfulErrorEnd = [ listTitle, f.name, i, n ].join('|');
             //console.log(step + ' trying adding column:', f);
             i++;
             let foundField = skipTry === true ? true : false;
             let skipTryField : boolean;
 
             // setProgress(false, "C", i, n , 'darkgray', 'CalculatorSubtract', f.name, 'Adding fields to list (' + step +'): ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name , step + ' fieldsToDo ~ 102' );
-            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step , 'Add Field', 'Starting',  setProgress, `fieldsToDo ~ 102`, );
+            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step , 'Add Field', 'Starting',  setProgress, `fieldsToDo ~ 102`, );
 
 
             if (readOnly === true ) { 
@@ -135,9 +143,9 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         foundField = true;
                     } else {
                         foundField = false;
-                        const err = `The ${myList.title} list does not have this column yet:  ${checkField}`;
+                        const err = `The ${listTitle} list does not have this column yet:  ${checkField}`;
                         // statusLog = notify(statusLog, 'Checked Field', err, step, f,  null);
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step , 'Check Exists', 'Not Found', setProgress, err, );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step , 'Check Exists', 'Not Found', setProgress, err, );
                     }
 
                     //console.log('newTryField tested: ', foundField );
@@ -146,15 +154,15 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     // if any of the fields does not exist, raise an exception in the console log
                     const errOutput = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'skipTryField ~ 146', helpfulErrorEnd ].join('|') );
                     if (errOutput.friendly.indexOf('missing a column') > -1) {
-                        const err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
+                        const err = `The ${listTitle} list does not have this column yet:  ${f.name}`;
                         // statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step, 'Check Exists', 'Error' , setProgress, err, );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step, 'Check Exists', 'Error' , setProgress, err, );
                     } else {
-                        const err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                        const err = `The ${listTitle} list had this error so the webpart may not work correctly unless fixed:  `;
                         // statusLog = notify(statusLog, 'Checked Field', err, step, f, null);
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step, 'Check Exists', 'Error' , setProgress, err, );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkgray', 'CalculatorSubtract', f.name, step, 'Check Exists', 'Error' , setProgress, err, );
                     }
-                    setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Col: ' + f.name, 'Houston we have a problem: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Error! ~ 156' );
+                    setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Col: ' + f.name, 'Houston we have a problem: ' + listTitle, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Error! ~ 156' );
                 }
             }
 
@@ -168,17 +176,17 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                     if ( verifyField === true ) {
                         // setProgress(false, "C", i, n , 'blueviolet', 'CheckMark', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Looks ok ~ 160' + ' - NOT updating ' + verifyField );
 
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'blueviolet', 'CheckMark', f.name, step, 'Check Field', 'Verified', setProgress, step + ' Looks ok ~ 160 - NOT updating ' + verifyField, );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'blueviolet', 'CheckMark', f.name, step, 'Check Field', 'Verified', setProgress, step + ' Looks ok ~ 160 - NOT updating ' + verifyField, );
 
                     } else {
                         // setProgress(false, "E", i, n , 'darkorange', 'Warning12', f.name, 'Check Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Something Changed! ~ 162 ' + verifyField );
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkorange', 'Warning12', f.name, step, 'Check Field', 'Something Changed', setProgress, step + ' Something Changed! ~ 162 - NOT updating ' + verifyField, );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkorange', 'Warning12', f.name, step, 'Check Field', 'Something Changed', setProgress, step + ' Something Changed! ~ 162 - NOT updating ' + verifyField, );
                     }
 
 
                 } else { //Log that field was not found
                     // setProgress(false, "E", i, n , 'darkred', 'ErrorBadge', 'Col: ' + f.name, 'Missing Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' Missing Field! ~ 167' );
-                    statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Check Field', 'Not Found', setProgress, step + ' Missing Field! ~ 167 - NOT updating ' );
+                    statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Check Field', 'Not Found', setProgress, step + ' Missing Field! ~ 167 - NOT updating ' );
                 }
 
             }
@@ -199,18 +207,18 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             // if any of the fields does not get created, raise an exception in the console log
                             const errOutput = getHelpfullErrorV2(e, alertMe, consoleLog, [ BaseErrorTrace , 'Failed', 'try actualField ~ 194', helpfulErrorEnd ].join('|') );
                             if (errOutput.friendly.indexOf('missing a column') > -1) {
-                                const err = `The ${myList.title} list does not have this column yet:  ${f.name}`;
+                                const err = `The ${listTitle} list does not have this column yet:  ${f.name}`;
                                 
                                 // statusLog = notify(statusLog, 'Create XML Field', err, step, f, null);
-                                statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Create XML Field', 'Missing Column' , setProgress, err );
+                                statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Create XML Field', 'Missing Column' , setProgress, err );
 
                             } else {
-                                const err = `The ${myList.title} list had this error so there was a problem:  `;
-                                statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Create XML Field', 'List Error' , setProgress, err );
+                                const err = `The ${listTitle} list had this error so there was a problem:  `;
+                                statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'ErrorBadge', f.name, step, 'Create XML Field', 'List Error' , setProgress, err );
                                 // statusLog = notify(statusLog, 'Create XML Field', err, step, f, null);
                             }
                             // setProgress(false, "E", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' create XML ~ 201' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create XML Field', 'Error' , setProgress, step + ' create XML ~ 201' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create XML Field', 'Error' , setProgress, step + ' create XML ~ 201' );
                         }
 
     
@@ -330,7 +338,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             // statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
                             // setProgress(false, "C", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
 
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, step + ' created ~ 258' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, step + ' created ~ 258' );
 
 
                         } catch (e) {
@@ -341,25 +349,25 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                                 const errField: any = f;
                                 const err = `Here's the formula you have for ${f.name} \n\n ${ errField.formula}`;
                                 // statusLog = notify(statusLog, 'Create Field', err, step, f, null);
-                                statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
+                                statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
                                 errOutput.friendly = err + '\n\n' + errOutput.friendly;
 
                             } else if ( thisFieldType['type'] === cMChoice.type ) {
                                 if ( thisField.onCreateProps && thisField.onCreateProps.Indexed ) {
                                     const err = `You are trying to Index a MultiChoice column ( ${f.name} ) which is NOT allowed :).\n\nGo to column settings and make sure choices are set by hand.`;
                                     // statusLog = notify(statusLog, 'Create Field', err, step, f, null);
-                                    statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
+                                    statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
 
                                     errOutput.friendly = err + '\n\n' + errOutput.friendly;
                                 }
 
                             } else {
-                                const err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
+                                const err = `The ${listTitle} list had this error so the webpart may not work correctly unless fixed:  `;
                                 // statusLog = notify(statusLog, 'Create Field', err, step, f, null);
-                                statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
+                                statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, err );
                             }
                             // setProgress(false, "E", i, n , 'red', 'Error', f.name, 'Error Creating Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, errOutput.friendly + ' ~ 331' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field',i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, errOutput.friendly + ' ~ 331' );
+                            statusLog = addMyProgress( statusLog, false, 'Field',i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, errOutput.friendly + ' ~ 331' );
 
                         }
                     }
@@ -374,7 +382,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                         // statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
                         // setProgress(false, "C", i, n , 'midnightblue', 'Sync', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
 
-                        statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'midnightblue', 'Sync', f.name, step, 'Updated Field', 'Error' , setProgress, step + ' other ~ 269' );
+                        statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'midnightblue', 'Sync', f.name, step, 'Updated Field', 'Error' , setProgress, step + ' other ~ 269' );
 
                     }
 
@@ -384,7 +392,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
                             // statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
                             // setProgress(false, "C", i, n , 'slategrey', 'AddTo', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'slategrey', 'AddTo', f.name, step, 'setShowNew Field', 'Success' , setProgress, step + ' showNew ~ 277' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'slategrey', 'AddTo', f.name, step, 'setShowNew Field', 'Success' , setProgress, step + ' showNew ~ 277' );
 
                         }
 
@@ -392,7 +400,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
                             // statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
                             // setProgress(false, "C", i, n , 'saddlebrown', 'PageHeaderEdit', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'saddlebrown', 'PageHeaderEdit', f.name, step, 'setShowEdit Field', 'Success' , setProgress, step + ' showEdit ~ 283' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'saddlebrown', 'PageHeaderEdit', f.name, step, 'setShowEdit Field', 'Success' , setProgress, step + ' showEdit ~ 283' );
 
                         }
 
@@ -400,7 +408,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
                             // statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
                             // setProgress(false, "C", i, n , 'midnightblue', 'EntryView', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'midnightblue', 'EntryView', f.name, step, 'setShowDisplay Field', 'Success' , setProgress, step + ' showDisplay ~ 289' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'midnightblue', 'EntryView', f.name, step, 'setShowDisplay Field', 'Success' , setProgress, step + ' showDisplay ~ 289' );
                         }
                     } //END: if ( step === 'create' || step === 'setForm' ) {
 
@@ -409,7 +417,7 @@ export async function addTheseFields( steps : changes[], readOnly: boolean, myLi
                             const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                             // statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
                             // setProgress(false, "C", i, n , 'darkred', 'SyncStatus', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
-                            statusLog = await addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'SyncStatus', f.name, step, 'Update', 'update===' + JSON.stringify(thisField.onCreateChanges) , setProgress, step + ' onCreateChanges ~ 297' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkred', 'SyncStatus', f.name, step, 'Update', 'update===' + JSON.stringify(thisField.onCreateChanges) , setProgress, step + ' onCreateChanges ~ 297' );
 
                         } //END: if (thisField.onCreateChanges) {
 

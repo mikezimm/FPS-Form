@@ -11,13 +11,14 @@ import { getFieldNamesFromArray, getViewTitlesFromArray } from "./getFieldInfo";
 
 const noWrap = `fps-gen-text-ellipse`;
 
-export function getSpecificListDef( list: IListInfo, definedList: IDefinedListInfo , webURL: string, currentUser: number[], ) : IMakeThisList {
+export function getSpecificListDef( list: IListInfo, definedList: IDefinedListInfo , webURL: string, currentUser: number[], listExists: boolean ) : IMakeThisList {
 
   if ( !definedList ) {
     console.log( 'getSpecificListDef:  list: IListInfo IS NOT DEFINED')
   }
   let makeThisList:  IMakeThisList = null;
   makeThisList = defineTheListMaster( list, definedList, webURL, );
+  makeThisList.listExists = listExists ? listExists : false;
 
   switch ( definedList.list ) {
     case 'Harmon.ie':

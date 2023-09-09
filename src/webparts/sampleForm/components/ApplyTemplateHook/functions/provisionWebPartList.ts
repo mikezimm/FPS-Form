@@ -99,11 +99,11 @@ export interface IProvisionListFunction {
 }
 
 // export async function provisionTheList( makeThisList:  IMakeThisList, readOnly: boolean, setProgress: any, markComplete: any, doFields: boolean, doViews: boolean, doItems: boolean, requireAll: boolean = true ): Promise<IServiceLog[]>{
-export async function provisionTheList( props: IProvisionListFunction ): Promise<IServiceLog[]>{
+export async function provisionTheList( props: IProvisionListFunction ): Promise<IMyProgress[][]>{
 
   const { makeThisList, readOnly, doFields, doViews, doItems, requireAll, markComplete, setProgress } = props;
 
-    const statusLog : IServiceLog[] = [];
+    const statusLog : IMyProgress[] = [];
     const alertMe = false;
     const consoleLog = false;
 
@@ -132,7 +132,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
         if ( requireAll === true ) {
             alert( errMess );
-            return statusLog;
+            return [ statusLog ];
         } else { console.log( 'provisionTheList', errMess) ; }
 
     }
@@ -160,41 +160,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
     // const fieldFilter = "StaticName eq '" + fieldsToGet.join("' or StaticName eq '") + "'";
 
-    const arrFieldFilter = [''];
-    let fieldFilterIndex = 0;
-    let fieldFilterLength = 0;
 
-    /*    */
-    fieldsToGet.map( ( f, idx ) => {
-
-        fieldFilterLength = arrFieldFilter.length === 0 ? 0 : arrFieldFilter[ fieldFilterIndex ].length;
-
-        if ( fieldFilterLength > 1000 ) {
-
-            //Remove extra "or StaticName eq" from end before moving on to next one
-            // let lastStatNameIdx = arrFieldFilter[ fieldFilterIndex ].lastIndexOf('\' or StaticName eq \'');
-            //arrFieldFilter[ fieldFilterIndex ] = arrFieldFilter[ fieldFilterIndex ].substring(0,lastStatNameIdx + 1);
-
-            fieldFilterIndex ++ ;
-            fieldFilterLength = 0 ;
-            arrFieldFilter.push('') ;
-
-        }
-
-        //let suffix =  fieldsToGet[ idx + 1 ] ? "' or StaticName eq '" : '';
-        const suffix =  "' or StaticName eq '";
-        arrFieldFilter[ fieldFilterIndex ] += f + suffix;
-
-    });
-
-    arrFieldFilter.map( (f, idx) => {
-        arrFieldFilter[idx]= "StaticName eq '" + arrFieldFilter[idx] ;
-        //Remove extra "or StaticName eq" from end before moving on to next one
-        const lastStatNameIdx = arrFieldFilter[idx].lastIndexOf(`' or StaticName eq '`) ;
-        arrFieldFilter[idx] = arrFieldFilter[idx].substring(0,lastStatNameIdx) + `'` ;
-    });
-
-    console.log('arrFieldFilter:', arrFieldFilter);
     console.log('makeThisList.listExists1:', makeThisList.listExists);
 
     const thisWeb: IWeb = Web( getFullUrlFromSlashSitesUrl( makeThisList.webURL ) );
@@ -215,9 +181,9 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
         if ( makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
-            actualList = ensuredList as any;
-            listFields = ensuredList.list.fields;   //Get the fields object from the list
-            listViews = ensuredList.list.views;     //Get the views object from the list
+            actualList = ensuredList.list as any;
+            listFields = actualList.fields;   //Get the fields object from the list
+            listViews = actualList.views;     //Get the views object from the list
         } else {
             if ( makeThisList.listExists === true ) {
                 actualList = thisWeb.lists.getByTitle(makeThisList.title);
@@ -241,7 +207,48 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
     } else {
         actualList = thisWeb.lists.getByTitle(makeThisList.title);
-        console.log('ensuredList:', readOnly, actualList );
+        listFields = actualList.fields;
+        listViews = actualList.views;
+
+        console.log('actualList:', readOnly, actualList );
+
+        // Moved this block of code from above the if then because it is not neccessary in first if loop.
+        const arrFieldFilter = [''];
+        let fieldFilterIndex = 0;
+        let fieldFilterLength = 0;
+    
+        /*    */
+        fieldsToGet.map( ( f, idx ) => {
+    
+            fieldFilterLength = arrFieldFilter.length === 0 ? 0 : arrFieldFilter[ fieldFilterIndex ].length;
+    
+            if ( fieldFilterLength > 1000 ) {
+    
+                //Remove extra "or StaticName eq" from end before moving on to next one
+                // let lastStatNameIdx = arrFieldFilter[ fieldFilterIndex ].lastIndexOf('\' or StaticName eq \'');
+                //arrFieldFilter[ fieldFilterIndex ] = arrFieldFilter[ fieldFilterIndex ].substring(0,lastStatNameIdx + 1);
+    
+                fieldFilterIndex ++ ;
+                fieldFilterLength = 0 ;
+                arrFieldFilter.push('') ;
+    
+            }
+    
+            //let suffix =  fieldsToGet[ idx + 1 ] ? "' or StaticName eq '" : '';
+            const suffix =  "' or StaticName eq '";
+            arrFieldFilter[ fieldFilterIndex ] += f + suffix;
+    
+        });
+    
+        arrFieldFilter.map( (f, idx) => {
+            arrFieldFilter[idx]= "StaticName eq '" + arrFieldFilter[idx] ;
+            //Remove extra "or StaticName eq" from end before moving on to next one
+            const lastStatNameIdx = arrFieldFilter[idx].lastIndexOf(`' or StaticName eq '`) ;
+            arrFieldFilter[idx] = arrFieldFilter[idx].substring(0,lastStatNameIdx) + `'` ;
+        });
+    
+        console.log('arrFieldFilter:', arrFieldFilter);
+
 
         for (let i2=0; i2 < arrFieldFilter.length; i2 ++ ) {
 
@@ -266,27 +273,28 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
            */
 
 
-
-
-            const theseFields: IField[] = await ensuredList.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i2] ).get() ;
+            // 2023-09-08:  Had to revise this line to make sure it is getting listFields... in other code it was doing this on ensuredList, not the fields.
+            // It seemed to work there but I likely just had not actually used it or maybe worked around the error later.
+            const theseFields: IField[] = await listFields.select('StaticName,Title,Hidden,Formula,DefaultValue,Required,TypeAsString,Indexed,OutputType,DateFormat').filter( arrFieldFilter[i2] ).get() ;
             console.log('currentFields:', currentFields );
             console.log('theseFields:', theseFields );
 
             theseFields.map( f=>{ currentFields.push( f ) ; });
         }
-        currentViews = await ensuredList.views.get();
+
+        currentViews = await listViews.get();
     }
 
     console.log(makeThisList.title + ' list fields and views', currentFields, currentViews);
 
     if ( doFields === true ) {
         //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-        fieldsResults = await addTheseFields(['create','changesFinal'], readOnly, makeThisList as any, ensuredList, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
+        fieldsResults = await addTheseFields( makeThisList.title, ['create','changesFinal'], readOnly, listFields, currentFields, makeThisList.createTheseFields, setProgress, alertMe, consoleLog );
     } else { console.log('Skipping doFields') ; }
 
     if ( doViews === true ) {
         //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-        viewsResults = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList as any, ensuredList, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
+        viewsResults = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList as any, listViews, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
     } else { console.log('Skipping doViews') ; }
 
     let result3 = null;
@@ -302,13 +310,13 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
         if ( totalItems <= 50 ) {
             //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-            itemsResults = await addTheseItemsToList(makeThisList as any, thisWeb, makeThisList.createTheseItems, setProgress, true, true);
+            itemsResults = await addTheseItemsToList( thisWeb, actualList.items, makeThisList, setProgress, true, true);
 
         } else {
             for (let i=0; i < totalItems; i += chunk) {
                 createThisBatch = makeThisList.createTheseItems.slice(i, i+chunk);
                 //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
-                itemsResults = await addTheseItemsToListInBatch(makeThisList as any, thisWeb, createThisBatch, setProgress, true, true);
+                itemsResults = await addTheseItemsToListInBatch( thisWeb, makeThisList.title, actualList.items, createThisBatch, setProgress, true, true);
             }
         }
 
@@ -324,7 +332,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
         alert(`Your  list is all ready to go!`);
     }
 
-    markComplete( makeThisList );
+    markComplete( [ ...fieldsResults, ...viewsResults, ...itemsResults ] );
 
     return [ fieldsResults, viewsResults, itemsResults ];
 
