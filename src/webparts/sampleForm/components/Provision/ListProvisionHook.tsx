@@ -238,6 +238,7 @@ const ProvisionListElement: JSX.Element = <section className={``}>
 
     { lastCreated && lastCreated.status !== 'Success' ? FPSFetchStatus( sourceProps, lastCreated ) : undefined }
     <ApplyTemplateHook 
+      listExists= { true }
       context={ context as any }
       propsRefreshId={ created && created.length > 0 ? created[0].refreshId : '' }
       expandedState={ lastCreated && lastCreated.status === 'Success' ? true : false }

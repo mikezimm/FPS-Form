@@ -31,3 +31,8 @@
   padding: 10px 20px;
   font-size: larger;
 }
+
+.applyTemplateLogs {
+  display: flex;
+  gap: 2em;
+}

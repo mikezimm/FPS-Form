@@ -20,6 +20,9 @@ import "@pnp/sp/fields/list";
 
 import { IMakeThisList, } from '../interfaces/ProvisionTypes';
 
+import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces";
+import { addMyProgress } from "./addMyProgress";
+
 export interface IViewLog extends IServiceLog {
     view?: string;
 }
@@ -164,10 +167,10 @@ export function buildFieldWhereTag ( thisWhere: IViewWhere ): string {
 
 //private async ensureTrackTimeList(myListName: string, myListDesc: string, ProjectOrTime: string): Promise<boolean> {
 
-export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean, myList: IMyListInfo, listViews: IViews, currentViews: any[], viewsToAdd: IMyView[], setProgress: any, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IMyProgress[]>{
+export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean, myList: IMyListInfo, listViews: IViews, currentViews: any[], viewsToAdd: IMyView[], setProgress : (progress : IMyProgress[]) => void, alertMe: boolean, consoleLog: boolean, skipTry = false): Promise<IMyProgress[]>{
 
     let statusLog : IMyProgress[] = [];
-    
+    const listTitle= myList.title;
     /**
      * listViews just gets the current list's view fetch handler which is used to actually add views to the list.
      * currentViews should show the actual views on the list prior to getting to this point. 
@@ -198,7 +201,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     * @param description 
    */
 
-    setProgress(false, "V", 0, 0 , '', 'TimePicker', myList.title, 'Adding VIEWS to list: ' + myList.title, 'Checking for VIEWS', 'Add view ~ 194'  );
+    // setProgress(false, "V", 0, 0 , '', 'TimePicker', myList.title, 'Adding VIEWS to list: ' + myList.title, 'Checking for VIEWS', 'Add view ~ 194'  );
+    statusLog = addMyProgress( statusLog, false, 'View', 0, 0 , '', 'TimePicker', listTitle, 'Adding VIEWS to list', 'Add' , `Starting` , setProgress, `Add view ~ 194` );
 
     //let returnArray: [] = [];
 
@@ -208,8 +212,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     for (const v of viewsToAdd) {
         iV++;
         const helpfulErrorEnd = [ myList.title, v.Title,iV, nV ].join('|');
-        setProgress(false, "V", iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
-
+        // setProgress(false, "V", iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
+        statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding VIEWS to list', 'Add' , `Starting` , setProgress, `Add view ~ 198` );
         /**
          * Build view settings schema
          */
@@ -226,7 +230,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         } else {
             foundView = false;
             const err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
-            statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
+            // statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
+            statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
         }
 
 
@@ -277,8 +282,10 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         let viewGroupByXML = '';
         if (v.groups != null) {
             if ( v.groups.fields.length > 2) {
-                alert('You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length);
-                setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
+                const err = 'You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length;
+                alert( err );
+                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
+                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 GroupBy Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 198 ${err}` );
 
             } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
                 if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
@@ -312,12 +319,20 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         let viewOrderByXML = '';
         if (v.orders != null) {
             if ( v.orders.length > 2 ) {
-                alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
-                setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
+                const err = 'You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length;
+                alert( err );
+                // alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
+                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
 
+                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 299 ${err}` );
             } else if ( v.orders.length === 0 ) {
-                alert('You have view.orders object with no fields to order by!');
-                setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
+                const err = 'You have view.orders object with no fields to order by!';
+                alert( err );
+
+                // alert('You have view.orders object with no fields to order by!');
+                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
+
+                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `No Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 303 ${err}` );
 
             } else {
 
@@ -363,17 +378,22 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
               if ( viewWhereArray.length === 0 ) {
                   //You need to have something in here for it to work.
-                  alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
-                  setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
+                  const err = `Field was skipped because there wasn't a valid 'Where' : ' ${v.wheres[i].field}`;
+                  alert( err );
+                  // alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+                  // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
+                  statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Invalid Where`, 'Checking' , `Error` , setProgress, `Add view ~ 347 ${err}` );
 
               } else if ( viewWhereArray.length === 1 ) {
                   viewWhereXML = thisFieldWhere;
 
               } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
                   //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
-                  alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
-                  setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
-
+                  const err = `Can't do 'Or' clause because for ${ thisFieldWhere } because there was already an 'And' clause here:  ${previousAnd}`;
+                  alert( err );
+                  // alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+                  // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
+                  statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't do Or after And`, 'Checking' , `Error` , setProgress, `Add view ~ 355 ${err}` );
               } else {
                   //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
                   // '<' + thisOper.q + '>'
@@ -384,8 +404,11 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                           viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
                           
                       } else {
-                          alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
-                          setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
+                          const err = `Can't wrap this in clause because there is not any existing field to compare to ${thisFieldWhere}`;
+                          alert( err );
+                          // alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
+                          // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
+                          statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't Compare field`, 'Checking' , `Error` , setProgress, `Add view ~ 368 ${err}` );
                           viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
                       }
 
@@ -440,9 +463,11 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
             }
 
             if ( errMess === '' ) {
-                setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Checked Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 429' );
+                // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Checked Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 429' );
+                statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Checked Fields`, 'Checking' , `Finished` , setProgress, `Add view ~ 429 ` );
             } else {
-                setProgress(false, "E", iV, nV , 'darkorange', 'Warning12', v.Title, 'Unexpected Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 431' + errMess);
+                // setProgress(false, "E", iV, nV , 'darkorange', 'Warning12', v.Title, 'Unexpected Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 431' + errMess);
+                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkorange', 'Warning12', v.Title, `Unexpected Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 431 ${errMess}` );
             }
 
         }
@@ -500,8 +525,9 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                     //createViewProps["ViewQuery"] = "<OrderBy><FieldRef Name='Modified' Ascending='False' /></OrderBy>";
                     const result = await listViews.add(v.Title, false, createViewProps );
     
-                    statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
-    
+                    // statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
+                    statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Creating View`, 'Create' , `Success` , setProgress, `Add view ~ 529 ` );
+
                     let viewXML = result.data.ListViewXml;
     
                     const ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
@@ -509,19 +535,24 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                     viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
     
                     await result.view.setViewXml(viewXML);
-                    setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated Schema: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Updated View ~ 498' );
+                    // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated Schema: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Updated View ~ 498' );
+                    statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `setViewXml`, 'Checking' , `Finished` , setProgress, `Add view ~ 498 ` );
 
                 } catch (e) {
                     // if any of the fields does not exist, raise an exception in the console log
                     const errOutput = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get Views ~ 513', helpfulErrorEnd ].join('|'));
                     if (errOutput.friendly.indexOf('missing a column') > -1) {
                         const err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                        statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
-                        setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 453' );
+                        // alert( err ); // This alert was not in original code
+                        // statusLog = notify(statusLog,  v, 'Creating View', 'Create',err, null);
+                        // setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 453' );
+                        statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkread', 'Warning12', v.Title, `Field does not exist`, 'Checking' , `Error` , setProgress, `Add view ~ 453 ${err}` );
                     } else {
                         const err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                        statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
-                        setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 457' );
+                        // alert( err ); // This alert was not in original code
+                        // statusLog = notify(statusLog, v, 'Creating View', 'Create', err, null);
+                        // setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 457' );
+                        statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkread', 'Warning12', v.Title, `Unknown error`, 'Creating View' , `Error` , setProgress, `Add view ~ 457 ${err}` );
                     }
                 }
     
@@ -572,18 +603,21 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
                     //Update view schema
                     await listViews.getByTitle(v.Title).setViewXml(newViewXML);
-                    setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated View: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 533' + errMess );
+                    // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated View: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 533' + errMess );
+                    statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, ``, 'Updated View' , `Finished` , setProgress, `Update view ~ 533 ${errMess}` );
 
                 } catch (e) {
                   const errOutput = getHelpfullErrorV2(e, true, true, [ BaseErrorTrace , 'Failed', 'get List Views2 ~ 575', helpfulErrorEnd ].join('|'));
                     if (errOutput.friendly.indexOf('missing a column') > -1) {
                         const err = `The ${myList.title} list does not have this column yet:  ${v.Title}`;
-                        statusLog = notify(statusLog,  v, 'Updating View', 'Create',err, null);
-                        setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 539' );
+                        // statusLog = notify(statusLog,  v, 'Updating View', 'Create',err, null);
+                        // setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Field does not exist: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 539' );
+                        statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkread', 'Warning12', v.Title, `Updated View`, 'setViewXml' , `Field does not exist` , setProgress, `Update view ~ 539 ${err}` );
                     } else {
                         const err = `The ${myList.title} list had this error so the webpart may not work correctly unless fixed:  `;
-                        statusLog = notify(statusLog, v, 'Updating View', 'Create', err, null);
-                        setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 543' );
+                        // statusLog = notify(statusLog, v, 'Updating View', 'Create', err, null);
+                        // setProgress(false, "E", iV, nV , 'darkread', 'Warning12', v.Title, 'Unknown error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Update view ~ 543' );
+                        statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkread', 'Warning12', v.Title, `Updated View`, 'setViewXml' , `Error` , setProgress, `Update view ~ 543 ${err}` );
                     }
                 }
 

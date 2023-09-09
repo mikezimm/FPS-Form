@@ -5,7 +5,7 @@ import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
 
 export function addMyProgress( progress: IMyProgress[], progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
   i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
-  setProgress : (progress : IMyProgress[]) => void, ref: string = null, checkValue: any = null, returnField: any = null, item: any = null): IMyProgress[] {
+  setProgress : (progress : IMyProgress[]) => void, refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null): IMyProgress[] {
 
   // await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect
   const thisTime = new Date();
@@ -19,7 +19,7 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
     id: id,
     timeMS: timeMS,
     rowLabel: `${step} [ ${itemType} ${i} of ${n} ${id}] => ${name + ' - at ' + timeStr}`,
-    ref: ref,
+    refLabel: refLabel,
     time: timeStr,
     logLabel: ` ${step} Adding ${itemType} to list ( ${name} ): `,
     label: label + '- at ' + timeStr,

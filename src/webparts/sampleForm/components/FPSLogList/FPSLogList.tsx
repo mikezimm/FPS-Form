@@ -1,5 +1,5 @@
 import * as React from 'react';
-
+import { useState, useEffect } from 'react';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 
@@ -57,6 +57,10 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { items, showWhenEmpty, title } = props;
 
+  useEffect(() => {
+    console.log( 'FPSLogListHook - render' );
+  }, );
+
   const maxChars = props.maxChars ? props.maxChars : 20;
   /***
    *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
@@ -69,10 +73,10 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
    *                                                                         
    */
     const itemRows = items.length === 0 ? null : items.map( ( item, index ) => { 
-
       const actionCell = <div><span>
         {/* { itemIcon } // was always null in Easy Contents */}
-        { item.logLabel.length > maxChars ? item.logLabel.slice(0,maxChars) + '...' : item.logLabel }</span>
+        {/* { item.label.length > maxChars ? item.label.slice(0,maxChars) + '...' : item.label }</span> */}
+        { item.label }</span>
       </div>;
 
       const iconStyles: any = { root: {
@@ -86,10 +90,10 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
       // const detailsCards = autoDetailsList( item, ["refElement","time","logLabel","label","description"], [] , false );
 
       const onRenderPlainCard = ( ): JSX.Element => {
-        const showTheseProps = autoDetailsList( item, ["refElement","time","logLabel","label","description"], [] , false );
+        const showTheseProps = autoDetailsList( item, ["refElement","time","logLabel","label","description", "refLabel"], [] , false );
         const tipLine = showTheseProps.length > 20 ?  <p><span style={{fontSize: 'x-large', fontWeight: 600, color: 'darkblue'}}><mark>TIP: </mark>Use Mouse Wheel to scroll down page, Don't use scroll bar!</span></p> : null ;
 
-        const detailsElement = <div>
+        const detailsElement = <div className='progressHoverElement'>
           <div>
             { tipLine }
             { showTheseProps }
@@ -114,7 +118,7 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
       </tr>; 
     });
 
-  const logTable = <table style={{ display: 'block'}} className={ '' }>
+  const logTable = <table style={{ display: 'block'}} className={ 'progressTable' }>
       <tr><th>{ title }</th><th>Info</th></tr>
       { itemRows }
   </table>;

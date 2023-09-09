@@ -187,16 +187,16 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
         setId( progress[0].id );
 
         if ( progress[0].array === 'E') {
-          console.log( 'setProgress progress, errorsX, newArray:', progress, errorsX, progress );
+          console.log( 'setProgress progress, errorsX, newArray:', progress, errorsX, );
           setErrorsX( progress );
 
         } else if ( progress[0].array === 'Field' ) {
-          console.log( 'setProgress progress, fieldsX, newArray:', progress, fieldsX, progress );
+          console.log( 'setProgress progress, fieldsX, newArray:', progress, fieldsX, );
           setFieldsX( progress );
           // setFields( fields.length === 0 ? [ progressX ] : [ progressX ].concat( fields ) );
 
         } else if ( progress[0].array === 'View' ) {
-          console.log( 'setProgress progress, viewsX, newArray:', progress, viewsX, progress );
+          console.log( 'setProgress progress, viewsX, newArray:', progress, viewsX, );
           setViewsX( progress );
 
         } else if ( progress[0].array === 'Item' ) {
@@ -347,28 +347,31 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   />;
 
   const CurrentProgress = progressX === null ? <div style={{ height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
-            label={progressX.label}
-            description={progressX.description}
-            percentComplete={progressX.percentComplete}
-            progressHidden={progressX.progressHidden}/>;
+      label={progressX.label}
+      description={progressX.description}
+      percentComplete={progressX.percentComplete}
+      progressHidden={progressX.progressHidden}/>;
 
   const ProgressPane: JSX.Element = <div>
     { CurrentProgress }
-    <FPSLogListHook
-      title={ 'Error'}           items={ errorsX }   showWhenEmpty={ true }
-      descending={false}          titles={null}            />
+    <div className='applyTemplateLogs'>
+      <FPSLogListHook
+        title={ 'Error'}           items={ errorsX }   showWhenEmpty={ true }
+        descending={false}          titles={null}            />
 
-    <FPSLogListHook
-      title={ 'Column'}           items={ fieldsX }  showWhenEmpty={ true }
-      descending={false}          titles={null}            />
+      <FPSLogListHook
+        title={ 'Column'}           items={ fieldsX }  showWhenEmpty={ true }
+        descending={false}          titles={null}            />
 
-    <FPSLogListHook
-      title={ 'View'}           items={ viewsX }     showWhenEmpty={ true }
-      descending={false}          titles={null}            />
+      <FPSLogListHook
+        title={ 'View'}           items={ viewsX }     showWhenEmpty={ true }
+        descending={false}          titles={null}            />
 
-    <FPSLogListHook
-      title={ 'Item'}           items={ itemsX }     showWhenEmpty={ true }
-      descending={false}          titles={null}            />
+      <FPSLogListHook
+        title={ 'Item'}           items={ itemsX }     showWhenEmpty={ false }
+        descending={false}          titles={null}            />
+    </div>
+
 
   </div>;
 

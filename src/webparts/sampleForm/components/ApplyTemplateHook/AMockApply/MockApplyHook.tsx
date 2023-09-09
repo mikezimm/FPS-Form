@@ -36,17 +36,18 @@ const MockApplyHook: React.FC<IMockApplyHookProps> = ( props ) => {
     const percentComplete = ofThese !== 0 ? current/ofThese : 0;
 
     logLabel = current > 0 ? current + '/' + ofThese + ' - ' + logLabel : logLabel ;
-    const progressX: IMyProgress = {
-        ref: ref,
-        time: thisTime,
-        logLabel: logLabel,
-        label: label + '- at ' + thisTime,
-        description: description,
-        percentComplete: percentComplete,
-        progressHidden: progressHidden,
-        color: color,
-        icon: icon,
-      };
+    const progressX : IMyProgress = null;
+    // const progressX: IMyProgress = {
+    //     ref: ref,
+    //     time: thisTime,
+    //     logLabel: logLabel,
+    //     label: label + '- at ' + thisTime,
+    //     description: description,
+    //     percentComplete: percentComplete,
+    //     progressHidden: progressHidden,
+    //     color: color,
+    //     icon: icon,
+    //   };
 
     const newTotal = total + 1;
     setTotal( newTotal );
