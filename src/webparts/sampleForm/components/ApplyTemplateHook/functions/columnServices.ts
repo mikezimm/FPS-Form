@@ -14,7 +14,7 @@ import { changes, cBool, cCalcT, cCalcN, cChoice, cMChoice, cCurr, cDate,
 
 import { doesObjectExistInArray } from '@mikezimm/fps-library-v2/lib/logic/Arrays/searching/objectfind';
 
-import { IMyListInfo, IServiceLog, notify } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+// import { IServiceLog, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 
 import { getHelpfullErrorV2 } from '@mikezimm/fps-library-v2/lib/logic/Errors/friendly';
 import { BaseErrorTrace } from '@mikezimm/fps-library-v2/lib/PackageConst';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ myList.title, f.name, i, n ].join('|');
@@ -26,9 +26,9 @@ import "@pnp/sp/fields/list";
 import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces";
 import { addMyProgress } from "./addMyProgress";
 
-export interface IFieldLog extends IServiceLog {
-    field?: string;
-}
+// export interface IFieldLog extends IServiceLog {
+//     field?: string;
+// }
 
 export const minInfinity: number = -1.7976931348623157e+308;
 export const maxInfinity: number = -1 * minInfinity ;
@@ -338,7 +338,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                             // statusLog = notify(statusLog, 'Created Field', 'Complete', step, f, actualField);
                             // setProgress(false, "C", i, n , 'darkgreen', 'Add', f.name, 'Created Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' created ~ 258' );
 
-                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'red', 'Error', f.name, step, 'Create Field', 'Error' , setProgress, step + ' created ~ 258' );
+                            statusLog = addMyProgress( statusLog, false, 'Field', i, n , 'darkgreen', 'Add', f.name, step, 'Create Field', 'Error' , setProgress, step + ' created ~ 258' );
 
 
                         } catch (e) {

@@ -17,16 +17,13 @@ import Accordion from '@mikezimm/fps-library-v2/lib/components/molecules/Accordi
 
 import { ISourceProps, StandardMetaViewProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
 import { getExpandColumns } from '@mikezimm/fps-library-v2/lib/pnpjs/Lists/getVX/getExpandV2';
-import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
 
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
-import { IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
 
 import { DefinedLibraryChoices, DefinedListChoices, IDefinedListInfo, IMakeThisList, } from './interfaces/ProvisionTypes';
 import { getSpecificListDef } from './templates/functions/getSpecificListDef';
 import { provisionTheList } from './functions/provisionWebPartList';
 
-import { IServiceLog } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 import { IMyProgress, } from '@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces';
 
 require ('./ApplyTemplate.css');
@@ -133,6 +130,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    */
 
   // const [ isCurrentSite, setIsCurrentSite ] = useState<boolean>( pageContext.web.serverRelativeUrl ) // NOT NEEDED until needing users for example items
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ applied, setApplied ] = useState<boolean>( false );
   // const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
   // const [ showPanel, setShowPanel ] = useState<boolean>( false );
@@ -146,6 +144,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ choices, setChoices ] = useState<IDefinedListInfo[]>( !targetList ? [] : targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
   const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( null );
   const [ makeList, setMakeList ] = useState<IMakeThisList>( null );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ webUrl, setWebUrl ] = useState<string>( props.webUrl ? props.webUrl : pageContext.web.serverRelativeUrl );
 
   const [ errorsX, setErrorsX ] = useState<IMyProgress[]>( [] );
@@ -153,6 +152,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ viewsX, setViewsX ] = useState<IMyProgress[]>( [] );
   const [ itemsX, setItemsX ] = useState<IMyProgress[]>( [] );
   const [ total, setTotal ] = useState<number>( 0 );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ currentX, setCurrentX ] = useState<number>( 0 );
   const [ id, setId ] = useState<string>( makeid(5) );
 

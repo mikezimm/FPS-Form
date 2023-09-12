@@ -1,13 +1,12 @@
 import * as React from 'react';
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-import styles from './SampleForm.module.scss';
+// import styles from './SampleForm.module.scss';
 
 import { LabelExportJSON } from '../storedSecrets/AS303 Labels v3 - JSON Formatted';
 
 import ListProvisionHook from './Provision/ListProvisionHook'
 import RequestsHook from './Requests/RequestsHook'
-import MockApplyHook from './ApplyTemplateHook/AMockApply/MockApplyHook';
 
 export interface ISampleFormProps {
   context: WebPartContext;

@@ -123,13 +123,16 @@ const ExampleHook: React.FC<IExampleHookProps> = ( props ) => {
    * State related to fetching the source props
    */
   const [ fetched, setFetched ] = useState<boolean>( false );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
   const [ showPanel, setShowPanel ] = useState<boolean>( false );
   const [ panelItem, setPanelItem ] = useState<IAnySourceItem>( null );
 
   // Added for example when fetching items
   const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ fetchPerformance, setFetchPerformance ] = useState<IPerformanceOp>( null );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
 

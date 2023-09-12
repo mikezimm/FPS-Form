@@ -134,7 +134,7 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
    *                                                                                                                
    */
 
-  const FinalElement: JSX.Element = items.length === 0 && showWhenEmpty === false ? undefined : <div className={ '' }>
+  const FinalElement: JSX.Element = items.length === 0 && showWhenEmpty === false ? null : <div className={ '' }>
     <h2>{ title + 's'}</h2>
     { logTable }
   </div>;
