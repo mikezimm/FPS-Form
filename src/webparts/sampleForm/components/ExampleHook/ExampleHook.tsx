@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 
-import styles from './ExampleHoook.module.scss';
+import styles from './ExampleHook.module.scss';
 
 import { PanelType } from 'office-ui-fabric-react/lib/Panel';
 
