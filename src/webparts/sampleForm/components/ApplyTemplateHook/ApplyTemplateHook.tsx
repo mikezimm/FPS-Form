@@ -10,7 +10,7 @@ import { IListInfo } from "@pnp/sp/lists/types";
 
 import styles from './ApplyTemplateHoook.module.scss';
 import FPSLogListHook from '../FPSLogList/FPSLogList';
-
+import { FPSLogListFunction } from '../FPSLogList/FPSLogListFunction';
 
 import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
 import Accordion from '@mikezimm/fps-library-v2/lib/components/molecules/Accordion/Accordion';
@@ -187,26 +187,26 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
         setId( progress[0].id );
 
         if ( progress[0].array === 'E') {
-          console.log( 'setProgress progress, errorsX, newArray:', progress, errorsX, );
-          setErrorsX( progress );
+          console.log( 'setProgress progress, errorsX,:', progress, errorsX, );
+          setErrorsX( [ progress[0], ...errorsX ] );
 
         } else if ( progress[0].array === 'Field' ) {
-          console.log( 'setProgress progress, fieldsX, newArray:', progress, fieldsX, );
-          setFieldsX( progress );
+          console.log( 'setProgress progress, fieldsX,:', progress, fieldsX, );
+          setFieldsX( [ progress[0], ...fieldsX ] );
           // setFields( fields.length === 0 ? [ progressX ] : [ progressX ].concat( fields ) );
 
         } else if ( progress[0].array === 'View' ) {
-          console.log( 'setProgress progress, viewsX, newArray:', progress, viewsX, );
-          setViewsX( progress );
+          console.log( 'setProgress progress, viewsX,:', progress, viewsX, );
+          setViewsX( [ progress[0], ...viewsX ] );
 
         } else if ( progress[0].array === 'Item' ) {
-          setItemsX( progress );
+          console.log( 'setProgress progress, itemsX,:', progress, itemsX, );
+          setItemsX( [ progress[0], ...itemsX ] );
         }
 
       });
   }
 
-  
   const markComplete = () : void => {
     alert( 'Finished!' );
     setStatus( 'Finished' );
@@ -355,7 +355,12 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const ProgressPane: JSX.Element = <div>
     { CurrentProgress }
     <div className='applyTemplateLogs'>
-      <FPSLogListHook
+
+      { FPSLogListFunction( { title: 'Error', items: errorsX, showWhenEmpty: true, descending: true, titles: null }) }
+      { makeList?.createTheseFields.length > 0 ? FPSLogListFunction( { title: 'Column', items: fieldsX, showWhenEmpty: true, descending: true, titles: null }) : null }
+      { makeList?.createTheseViews.length > 0 ? FPSLogListFunction( { title: 'View', items: viewsX, showWhenEmpty: true, descending: true, titles: null }) : null }
+      { makeList?.createTheseItems.length > 0 ? FPSLogListFunction( { title: 'Item', items: itemsX, showWhenEmpty: true, descending: true, titles: null }) : null }
+      {/* <FPSLogListHook
         title={ 'Error'}           items={ errorsX }   showWhenEmpty={ true }
         descending={false}          titles={null}            />
 
@@ -369,10 +374,8 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
       <FPSLogListHook
         title={ 'Item'}           items={ itemsX }     showWhenEmpty={ false }
-        descending={false}          titles={null}            />
+        descending={false}          titles={null}            /> */}
     </div>
-
-
   </div>;
 
   const ButtonRow: JSX.Element = <div className='apply-template-dropdown' style={{ display: 'flex', justifyContent: 'space-between' }}>

@@ -21,7 +21,7 @@ import "@pnp/sp/fields/list";
 import { IMakeThisList, } from '../interfaces/ProvisionTypes';
 
 import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces";
-import { addMyProgress } from "./addMyProgress";
+import { addMyProgress, createProgressObject } from "./addMyProgress";
 
 export interface IViewLog extends IServiceLog {
     view?: string;
@@ -231,7 +231,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
             foundView = false;
             const err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
             // statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
-            statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
+            createProgressObject( true, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking`, err, );
+            // statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
         }
 
 
@@ -526,7 +527,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
                     const result = await listViews.add(v.Title, false, createViewProps );
     
                     // statusLog = notify(statusLog, v, 'Creating View', 'Create', null, null);
-                    statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Creating View`, 'Create' , `Success` , setProgress, `Add view ~ 529 ` );
+                    createProgressObject( true, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Creating View`, 'Create' , `Success`, `Add view ~ 529 `, );
+                    // statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Creating View`, 'Create' , `Success` , setProgress, `Add view ~ 529 ` );
 
                     let viewXML = result.data.ListViewXml;
     

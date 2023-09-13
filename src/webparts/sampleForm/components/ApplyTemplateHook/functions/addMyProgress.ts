@@ -7,6 +7,18 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
   i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
   setProgress : (progress : IMyProgress[]) => void, refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null): IMyProgress[] {
 
+  const temp: IMyProgress = createProgressObject( false, progressHidden, itemType, i, n, color, icon, name, step, verb, status, refLabel, checkValue, returnField, item );
+  progress.unshift( temp );
+
+  if ( setProgress ) setProgress( progress );
+
+  return progress;
+}
+
+export function createProgressObject( consoleLog: boolean, progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
+i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
+refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null ) : IMyProgress {
+
   // await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect
   const thisTime = new Date();
   const timeMS = thisTime.getTime();
@@ -32,7 +44,7 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
     color: color,
     icon: icon,
 
-      // Addedd from IServiceLog used in notify function
+    // Addedd from IServiceLog used in notify function
     step: step,
     verb: verb,
     status: status,
@@ -43,10 +55,8 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
   };
 
   // parsing it to insure it's not mutating somewhere
-  const temp = JSON.parse(JSON.stringify(MyProgress));
-  progress.unshift( temp );
+  const result: IMyProgress = JSON.parse(JSON.stringify(MyProgress));
+  if ( consoleLog === true ) console.log( `createProgressObject: `, id, refLabel,  MyProgress );
 
-  if ( setProgress ) setProgress( progress );
-
-  return progress;
+  return result;
 }
