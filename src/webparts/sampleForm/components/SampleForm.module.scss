@@ -53,6 +53,8 @@ div.isSelected {
 
 .requestForm {
   height: auto;
+  background: lightyellow;
+  padding: 1em 2em;
   // display: grid;
   // max-width: 500px;
 
@@ -74,4 +76,11 @@ div.isSelected {
   display: flex;
   div:nth-child(1) { width: 150px; }
   div:nth-child(2) { font-weight: 600 ;}
+}
+
+.tabHeadingElement {
+  font-size: x-large;
+  font-weight: 600;
+  // text-decoration-line: underline;
+  padding: 15px 0px 15px 0px;
 }

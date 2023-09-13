@@ -1,7 +1,7 @@
 
 
 .apply-template-page {
-  padding: 1em 0em;
+  padding: 1em 2em;
 
 }
 
@@ -25,6 +25,8 @@
 .items-title {
   font-size: larger;
   font-weight: 600;
+  text-decoration-line: underline;
+  text-decoration-color: black;
 }
 
 .apply-template-page button {

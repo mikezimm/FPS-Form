@@ -21,6 +21,7 @@ import { requstLibraryLabel } from '../Requests/functions/requestLabel';
 import { ICorpLabelsSource } from '../../storedSecrets/AS303 Labels v3 - JSON Formatted';
 
 import ApplyTemplateHook from '../ApplyTemplateHook/ApplyTemplateHook'
+import { IProvTab } from '../SampleForm';
 
 /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
@@ -52,7 +53,8 @@ const NoRetentionLabel = `No Retention set, max 5 years`;
 export interface IListProvisionHookProps {
   context: WebPartContextCopy_15_2;
   labelItems: ICorpLabelsSource[];
-
+  updateParentLists:( lists: IStateSource[], doThis: string, param: IProvTab ) => void;
+  expandedState: boolean;
 }
 
 
@@ -69,7 +71,7 @@ export interface IListProvisionHookProps {
 
 const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
 
-  const { context, labelItems } = props;
+  const { context, labelItems, expandedState } = props;
 
   const webUrl = context ? context.pageContext.web.absoluteUrl : '';
 
@@ -159,6 +161,7 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
       console.log( 'createLibrary results:', results );
       const allCreated: IStateSource[] = [ results, ...created, ];
       setcreated( allCreated );
+      props.updateParentLists( allCreated, 'setTab', 'Apply Template' );
     }
   }
 
@@ -174,8 +177,10 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
  */
 
 
-const ProvisionListElement: JSX.Element = <section className={``}>
+const ProvisionListElement: JSX.Element = expandedState === false ? null : <section className={``}>
   <div className={ styles.requestForm }>
+    <div className={ styles.tabHeadingElement }>Create a new library with a label here</div>
+    <div className={ null }>Labels are automatically applied to all items in the library within about 30 minutes.</div>
     <div className={ styles.editFields }>
       { libLabelOptions && libLabelOptions.length > 0 ? 
         <Dropdown 
@@ -237,13 +242,13 @@ const ProvisionListElement: JSX.Element = <section className={``}>
 
 
     { lastCreated && lastCreated.status !== 'Success' ? FPSFetchStatus( sourceProps, lastCreated ) : undefined }
-    <ApplyTemplateHook 
+    {/* <ApplyTemplateHook 
       listExists= { true }
       context={ context as any }
       propsRefreshId={ created && created.length > 0 ? created[0].refreshId : '' }
       expandedState={ lastCreated && lastCreated.status === 'Success' ? true : false }
       targetList={ created && created.length > 0 ? created[0].item : null }
-    />
+    /> */}
   </div>
 </section>;
 

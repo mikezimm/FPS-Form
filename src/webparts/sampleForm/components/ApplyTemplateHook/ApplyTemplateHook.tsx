@@ -9,6 +9,7 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { IListInfo } from "@pnp/sp/lists/types";
 
 import styles from './ApplyTemplateHoook.module.scss';
+import stylesTop from '../SampleForm.module.scss';
 import FPSLogListHook from '../FPSLogList/FPSLogList';
 import { FPSLogListFunction } from '../FPSLogList/FPSLogListFunction';
 
@@ -89,10 +90,12 @@ export const ApplyTemplateHookSourceProps: ISourceProps = {
 export interface IApplyTemplateHookProps {
   context: WebPartContext;
   webUrl?: string; // Optional if not using current context
-  expandedState: boolean;  //Is this particular page expanded
+  expandedState: boolean | 'Nudge';  //Is this particular page expanded
   propsRefreshId?: string; // optional in case needed
   targetList: Partial<IListInfo>;
   listExists: boolean;
+  updateSelectedTemplate:( selectedTemplate: IDefinedListInfo ) => void;
+  selectedTemplate?: IDefinedListInfo;
 }
 
 
@@ -142,7 +145,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   // const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
   const [ choices, setChoices ] = useState<IDefinedListInfo[]>( !targetList ? [] : targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
-  const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( null );
+  const [ listChoice, setListChoice ] = useState<IDefinedListInfo>( props.selectedTemplate ? props.selectedTemplate : null );
   const [ makeList, setMakeList ] = useState<IMakeThisList>( null );
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ webUrl, setWebUrl ] = useState<string>( props.webUrl ? props.webUrl : pageContext.web.serverRelativeUrl );
@@ -208,7 +211,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   }
 
   const markComplete = () : void => {
-    alert( 'Finished!' );
+    // alert( 'Finished!' );
     setStatus( 'Finished' );
   }
 
@@ -279,7 +282,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   useEffect(() => {
     if ( expandedState === true && targetList ) {
       setChoices( targetList.BaseTemplate === 101 ? DefinedLibraryChoices : DefinedListChoices );
-      setListChoice( null );
+      setListChoice( props.selectedTemplate ? props.selectedTemplate : null );
       // eslint-disale-next-line no-void
       // const newMakeList =  getSpecificListDef( props.targetList as IListInfo, null, webUrl, [] );
       // console.log( 'ApplylTemplate: newMakeList', newMakeList )
@@ -304,6 +307,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     const key: IDefinedListInfo =  choices[ index ];
     setMakeList( getSpecificListDef( props.targetList as IListInfo, key, webUrl, [], listExists ) )
     setListChoice( choices[ index ] );
+    props.updateSelectedTemplate( choices[ index ] );
   }
 
 
@@ -326,6 +330,8 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
           onChange={ ( event, option, index ) => { templateChange( index ) } }
           dropdownWidth={ 250 }
           disabled={ !targetList }
+          selectedKey={ listChoice?.listDefinition }
+
         />
     </div>;
 
@@ -352,7 +358,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
       percentComplete={progressX.percentComplete}
       progressHidden={progressX.progressHidden}/>;
 
-  const ProgressPane: JSX.Element = <div>
+  const ProgressPane: JSX.Element = <div style={{ padding: '15px 0px 15px 0px'}}>
     { CurrentProgress }
     <div className='applyTemplateLogs'>
 
@@ -387,7 +393,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
       </button>
       <button className={ applied !== true ? styles.enabled : null }
         disabled={ applied === true ? true : false }
-        onClick={ applyThisTemplate.bind( this ) }
+        onClick={ () => { alert( 'Ok, we will be here if you need a template :)') } }
         >
         Skip
       </button>
@@ -412,8 +418,15 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   // console.log( 'ApplylTemplate: makeList', makeList );
   // console.log( 'ApplylTemplate: webUrl', webUrl );
 
-  const FinalElement: JSX.Element = !expandedState ? null : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px' }}>
-    <div style={{ fontWeight: 600, fontSize: 'larger', marginBottom: '1em' }}>Want to kick-start your library with a Template?</div>
+  const ComponentTitle = targetList && targetList.Title ? `Selected Library: ${ targetList.Title }` : undefined;
+  const TitleElement: JSX.Element = !ComponentTitle ? undefined : <div  className={ stylesTop.tabHeadingElement } style={{ fontSize: 'x-large', fontWeight: 600, paddingBottom: '5px' }}>{ ComponentTitle }</div>;
+
+  const FinalElement: JSX.Element = expandedState === 'Nudge' ? 
+  <div className={ stylesTop.tabHeadingElement } style={{ paddingLeft: '2em' }}>First, Create a new Library.  Then you can use this page.....</div> :
+    expandedState !== true ? null
+    : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px', background: 'lightgreen', }}>
+    { TitleElement}
+    <div style={{ fontWeight: 600, fontSize: 'larger', marginBottom: '1.5em' }}>Want to kick-start your library with a Template?</div>
     { TemplateDropdown }
     { ButtonRow }
     { listChoice ? TemplateDetails : undefined }

@@ -197,7 +197,9 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
     deepProps={ null } //deepProps
 
     onParentCall={ setNewPanelItem } // onParentCallFunction
-    headingElement={ <div>headingElement</div> }
+    headingElement={ <div className={ styles.tabHeadingElement } style={{ fontSize: '18px', fontWeight: 600 }} 
+      title={ `All requests to apply a label: Including those 1.  In this site collection or 2. Requested by you` }>
+        Relavent Label Provision requests</div> }
     ageSlider={ true }
     searchAgeOp={ 'show >' }
     searchAgeProp={ 'createdAge' }
@@ -251,7 +253,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
    *                                                                                                                
    */
 
-  const FinalElement: JSX.Element = <div className = { [].join( ' ' ) } style={{ minHeight: '450px' }}>
+  const FinalElement: JSX.Element = expandedState === false ? null : <div className = { [].join( ' ' ) } style={{ minHeight: '450px', background: 'lightsteelblue', padding: '1em 2em' }}>
   { itemsElement }
   { panelContent }
 </div>;

@@ -28,7 +28,7 @@
     "features": [
       {
         "title": "fps-form Feature",
-        "description": "The feature that activates elements of the fps-form solution.",
+        "description": "The feature that activates Label Provisioning sandbox component.",
         "id": "0ad7d8a8-9729-4318-8658-a770c15bfea0",
         "version": "1.0.0.0"
       }
