@@ -99,7 +99,10 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
     for ( const step of steps ) {
 
         //https://stackoverflow.com/a/6121234
-        const fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[ step as 'title' ] !== null);
+        // const fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[ step as 'title' ] !== null);
+        
+        // eslint-disable-next-line eqeqeq -- Disabling because the value could be null or undefined and want to check for both.
+        const fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[ step as 'title' ] != null);
         let i = 0;
         const n = fieldsToDo.length;
 
@@ -385,8 +388,9 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
 
                 if ( step !== 'setForm' && step !== 'create' ) { // Will do changes1, changes2, changes3 and changesFinal
                     //Loop through other types of changes
-
-                    if ( thisField[step] !== null ) {
+                    
+                    // eslint-disable-next-line eqeqeq -- Disabling because the value could be null or undefined and want to check for both.
+                    if ( thisField[step] != null ) {
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
                         // statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);

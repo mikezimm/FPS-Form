@@ -20,7 +20,7 @@ import {
   EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
   EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
   ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
-  MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
+  MessageIDHarm , OriginalSubjectHarm , EmailToHarm , MailPreviewDataHarm ,
   HasAttachmentsHarm , EmailFromNameHarm , EmailFromTxtHarm , EmailMoHarm , EmailYrHarm , EmailYrMoHarm
   , FromCompanyHarm
 } from './columnsHarmonie';
@@ -54,7 +54,7 @@ export const EmailsByYearView : IMyView = {
 const allFields = [ ootbLinkFilename, EmailCategoriesHarm , ProductsALV , ProgramsALV , YearsALV , EmailDateHarm ,
     EmailSubjectHarm , EmailFromHarm , EmailReceivedHarm , EmailCcHarm , BccHarm ,
     ConversationIndexHarm , ConversationTopicHarm , EmailReferencesHarm , ImportanceHarm , InReplyToHarm ,
-    MessageIDHarm , OriginalSubjectHarm , ReplyToHarm , EmailToHarm , MailPreviewDataHarm ,
+    MessageIDHarm , OriginalSubjectHarm , EmailToHarm , MailPreviewDataHarm ,
     HasAttachmentsHarm , EmailFromNameHarm , EmailFromTxtHarm , EmailMoHarm , EmailYrHarm , EmailYrMoHarm
     , FromCompanyHarm];
 

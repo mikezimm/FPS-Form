@@ -192,15 +192,16 @@ export const OriginalSubjectHarm : ITextField = {
     }
 };
 
-export const ReplyToHarm : ITextField = {
-    fieldType: cText,
-    name: 'Reply-To',
-    maxLength: 255,
-    onCreateProps: {
-        Group: thisColumnGroup,
-        Description: 'Mapped according to Harmon.ie',
-    }
-};
+// Removedd because it was getting re-provisioned every time.
+// export const ReplyToHarm : ITextField = {
+//     fieldType: cText,
+//     name: 'Reply-To',
+//     maxLength: 255,
+//     onCreateProps: {
+//         Group: thisColumnGroup,
+//         Description: 'Mapped according to Harmon.ie',
+//     }
+// };
 
 export const EmailToHarm : IMultiLineTextField = {
     fieldType: cMText,
@@ -376,6 +377,11 @@ export const FromCompanyHarm : ICalculatedField = {
  *
  */
 
+/**
+ * FIND THE Official list of mappable columns here:  https://harmon.ie/kb/map-email-headers-sharepoint-metadata
+ * @param listName 
+ * @returns 
+ */
 export function HarmonieFields( listName: 'Emails' | 'BUEmails' ): IMyFieldTypes[] {
 
     const theseFields: IMyFieldTypes[] = [];
@@ -398,7 +404,7 @@ export function HarmonieFields( listName: 'Emails' | 'BUEmails' ): IMyFieldTypes
     theseFields.push(InReplyToHarm);  //BOTH
     theseFields.push(MessageIDHarm);  //BOTH
     theseFields.push(OriginalSubjectHarm);  //BOTH
-    theseFields.push(ReplyToHarm);  //BOTH
+    // theseFields.push(ReplyToHarm);  //BOTH
     theseFields.push(EmailToHarm);  //BOTH
     theseFields.push(MailPreviewDataHarm);  //BOTH
     theseFields.push(HasAttachmentsHarm);  //BOTH
