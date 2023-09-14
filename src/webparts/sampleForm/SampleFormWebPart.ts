@@ -32,6 +32,7 @@ export default class SampleFormWebPart extends BaseClientSideWebPart<ISampleForm
        * WARNING, (context as any) this needs to be revamped when upgrading to 3.5.1
        */
       sp.setup({
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         spfxContext: this.context as any,
       });
     });
@@ -39,7 +40,8 @@ export default class SampleFormWebPart extends BaseClientSideWebPart<ISampleForm
   }
 
   public render(): void {
-    const docAny: any = document;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // const docAny: any = document;
     // const requestDigest = docAny.querySelector("#__REQUESTDIGEST").value;
     // console.log( 'requestDigest:', requestDigest );
     const element: React.ReactElement<ISampleFormProps> = React.createElement(

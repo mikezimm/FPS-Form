@@ -226,7 +226,7 @@ const ExampleHook: React.FC<IExampleHookProps> = ( props ) => {
     showAccordion = { true }
     content = { AccordionContent }
     refreshId={ makeid(5) }
-    contentStylesVis = { { height: `${accordionHeight}px` } }
+    contentStylesVis = {{ height: `${accordionHeight}px` }}
   />;
 
   /***

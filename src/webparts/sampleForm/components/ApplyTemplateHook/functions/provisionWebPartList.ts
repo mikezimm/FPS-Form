@@ -11,6 +11,7 @@
  */
 import { IWeb, Web } from "@pnp/sp/webs/types";
 import { IField, } from "@pnp/sp/fields/types";
+import { IViews, } from "@pnp/sp/views/types";
 import { IListEnsureResult, IList } from "@pnp/sp/lists/types";
 
 /***
@@ -24,7 +25,7 @@ import { IListEnsureResult, IList } from "@pnp/sp/lists/types";
  *                                                                                                                                                                              
  */
 
-import { IServiceLog, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+// import { IServiceLog, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 
 import { getFullUrlFromSlashSitesUrl } from '@mikezimm/fps-library-v2/lib/logic/Strings/urlServices';
 
@@ -172,7 +173,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
     let listFields = null;
     let listViews = null;
     let currentFields: IField[]  = [];
-    let currentViews: any[] = null;
+    let currentViews: IViews[] = null;
 
     if ( readOnly === false ) {
         //2021-06-02:  No idea why I would be checking for template === 100... but it causes uncaught promise when calling from AddTemplate Rail.
@@ -181,6 +182,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
         if ( makeThisList.listExists !== true ) {
             ensuredList = await thisWeb.lists.ensure(makeThisList.title, makeThisList.desc, makeThisList.template, true, makeThisList.additionalSettings );
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             actualList = ensuredList.list as any;
             listFields = actualList.fields;   //Get the fields object from the list
             listViews = actualList.views;     //Get the views object from the list
@@ -294,10 +296,9 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
 
     if ( doViews === true ) {
         //2022-09-25:  Change makeThisList to as any to pass on as IMyListInfo
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         viewsResults = await addTheseViews( makeThisList.listExistedB4 , readOnly, makeThisList as any, listViews, currentViews, makeThisList.createTheseViews, setProgress, alertMe, consoleLog);
     } else { console.log('Skipping doViews') ; }
-
-    let result3 = null;
 
     if ( doItems === true && createItems === true && readOnly === false ) {
 

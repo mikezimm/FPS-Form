@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+// import { useState, useEffect } from 'react';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 
@@ -57,8 +57,9 @@ export function FPSLogListFunction ( props: IFPSLogListHookProps ): JSX.Element 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { items, showWhenEmpty, title } = props;
 
-  console.log( 'FPSLogListHook - render' );
+  console.log( 'FPSLogListHook - render count:', items.length );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const maxChars = props.maxChars ? props.maxChars : 20;
   /***
    *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
@@ -77,7 +78,8 @@ export function FPSLogListFunction ( props: IFPSLogListHookProps ): JSX.Element 
         { item.label }</span>
       </div>;
 
-      const iconStyles: any = { root: {
+      // Should be:  iconStyles : IStylesFunctionOrObject<IIconStyleProps, IIconStyles> =
+      const iconStyles = { root: {
         color: item.color ? item.color : "blue",
         fontWeight: '700',
       }};
@@ -117,7 +119,7 @@ export function FPSLogListFunction ( props: IFPSLogListHookProps ): JSX.Element 
     });
 
   const logTable = <table style={{ display: 'block'}} className={ 'progressTable' }>
-      <tr><th style={ { minWidth:  items.length > 0 ? '250px' : null } }>{ title }</th><th>Info</th></tr>
+      <tr><th style={{ minWidth:  items.length > 0 ? '250px' : null }}>{ title }</th><th>Info</th></tr>
       { itemRows }
   </table>;
 

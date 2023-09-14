@@ -1,5 +1,5 @@
 
-import { IMinSourceFetchProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/IMinSourceFetchProps';
+
 import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Interface';
 import { ISourceSearch } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/Interfaces/ISourceSearch';
 import { IWebpartBannerProps } from '@mikezimm/fps-library-v2/lib/banner/mainReact/IWebpartBannerProps';
@@ -13,7 +13,6 @@ import { filterObjArrayByUniqueKey } from '@mikezimm/fps-library-v2/lib/logic/Ar
 
 import { FPSLabelRequestCols, RequestList, RequestListUrl, RequestWeb } from "./requestLabel";
 import { addMineSiteMeta } from './addMineSiteMeta';
-import { ICorpLabelsSource } from '../../../storedSecrets/AS303 Labels v3 - JSON Formatted';
 import { IAnySourceItemAny } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
 
 export const LabelRequestSource: ISourceProps = {

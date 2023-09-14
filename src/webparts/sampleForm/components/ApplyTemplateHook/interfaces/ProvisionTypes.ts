@@ -3,6 +3,9 @@
  * MOVE TO 
  */
 
+import { IFields, } from "@pnp/sp/fields/types";
+import { IViews, } from "@pnp/sp/views/types";
+
 import { IMyFieldTypes, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/columnTypes';
 import { IMyView, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
 
@@ -108,6 +111,7 @@ export const DefinedLibraryChoices: IDefinedListInfo[] = [
   Emails , BUEmails,
 ];
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IAnyArray = any[];
 
 export interface IMakeThisList {
@@ -127,8 +131,8 @@ export interface IMakeThisList {
     createTheseFields: IMyFieldTypes[];
     createTheseViews: IMyView[];
 
-    currentFields: any[];
-    currentViews: any[];
+    currentFields: IFields[];
+    currentViews: IViews[];
 
     createTheseItems: IAnyArray;
     autoItemCreate: boolean;

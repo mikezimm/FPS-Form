@@ -10,7 +10,7 @@ import { IListInfo } from "@pnp/sp/lists/types";
 
 import styles from './ApplyTemplateHoook.module.scss';
 import stylesTop from '../SampleForm.module.scss';
-import FPSLogListHook from '../FPSLogList/FPSLogList';
+
 import { FPSLogListFunction } from '../FPSLogList/FPSLogListFunction';
 
 import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
@@ -46,6 +46,7 @@ export type ITopButtons = 'Mine' | 'OtherPeople' | 'ThisSite' | 'OtherSites';
 export const TopButtons: ITopButtons[] = [ 'Mine', 'OtherPeople', 'ThisSite', 'OtherSites' ];
 
 const constId: string = makeid(5);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const EmptyState: IStateSource = { fpsContentType: [ 'item' ], items: [], index: [], loaded: false, refreshId: constId, status: 'Unknown', e: null, };
 
 const ApplyTemplateWeb: string = `ApplyTemplateWeb`;
@@ -159,6 +160,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const [ currentX, setCurrentX ] = useState<number>( 0 );
   const [ id, setId ] = useState<string>( makeid(5) );
 
+  const [ showDetails, setShowDetails ] = useState<boolean>( true );
   const [ status, setStatus ] = useState<string>( 'Waiting' );
   const [ progressX, setProgressX ] = useState<IMyProgress>( null );
 
@@ -215,15 +217,42 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     setStatus( 'Finished' );
   }
 
-  const applyThisTemplate = async (): Promise<void> => {
-
+  const resetState = async (): Promise<void> => {
     // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
     await Promise.resolve().then(() => {
+      setTotal( 0 );
+      setCurrentX( 0 );
+      setProgressX( null );
       setStatus( 'Starting' );
+      setShowDetails( false );
+      setErrorsX( [] );
       setFieldsX( [] );
       setViewsX( [] );
       setItemsX( [] );
     });
+  }
+
+  const applyThisTemplate = async (): Promise<void> => {
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const test = total + 0;
+    // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
+    // await Promise.resolve().then(() => {
+    //   setTotal( 0 );
+    //   setCurrentX( 0 );
+    //   setProgressX( null );
+    //   setStatus( 'Starting' );
+    //   setShowDetails( false );
+    //   setErrorsX( [] );
+    //   setFieldsX( [] );
+    //   setViewsX( [] );
+    //   setItemsX( [] );
+    // });
+
+    await resetState();
+
+    console.log('can pause here');
+    // if ( test !== 0 ) return; // Testing for hitting apply twice to see what happens
 
     const listCreated: IMyProgress[][] = await provisionTheList( {
       makeThisList: makeList,
@@ -303,11 +332,13 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *                                                                            
    */
 
-  const templateChange = ( index?: number): void => {
+  // async (): Promise<void> =>
+  const templateChange = async ( index?: number): Promise<void> => {
     const key: IDefinedListInfo =  choices[ index ];
     setMakeList( getSpecificListDef( props.targetList as IListInfo, key, webUrl, [], listExists ) )
     setListChoice( choices[ index ] );
     props.updateSelectedTemplate( choices[ index ] );
+    await resetState();
   }
 
 
@@ -319,15 +350,15 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
    *    88.     88booo. 88.     88  88  88 88.     88  V888    88    db   8D 
    *    Y88888P Y88888P Y88888P YP  YP  YP Y88888P VP   V8P    YP    `8888Y' 
    *                                                                         
-   *                                                                         
-   */
+   *       async (): Promise<void>                                                                  
+   */ 
 
   const TemplateDropdown: JSX.Element = 
     <div className='apply-template-dropdown'>
       <Dropdown 
           placeholder={ `Select the template you want to apply` }
           options={ choices.map( choice => { return { key: choice.listDefinition, text: choice.listDefinition }}) }
-          onChange={ ( event, option, index ) => { templateChange( index ) } }
+          onChange={ async ( event, option, index ) => { await templateChange( index ) }}
           dropdownWidth={ 250 }
           disabled={ !targetList }
           selectedKey={ listChoice?.listDefinition }
@@ -335,7 +366,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
         />
     </div>;
 
-  const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 0px 5px 0px' }}>
+  const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 3em 15px 2em' }}>
     {/* { sourceButtonRow( null ) } */}
     { makeList?.templateFields }
     { makeList?.templateViews }
@@ -346,21 +377,22 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const TemplateDetails: JSX.Element = <Accordion 
     title = { makeList?.templateDesc }
     defaultIcon = 'Help'
-    showAccordion = { status === 'Waiting' ? true : false }
+    showAccordion = { showDetails }
     content = { AccordionContent }
     refreshId={ makeid(5) }
-    contentStylesVis = { { height: `${accordionHeight}px` } }
+    contentStylesVis = {{ height: `${accordionHeight}px` }}
+    componentStyles={{ paddingBottom: '1em' }}
   />;
 
-  const CurrentProgress = progressX === null ? <div style={{ height: '60px', display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
+  const CurrentProgress = progressX === null ? <div style={{ display: 'inline-flex'}} >No Progress was found</div> : <ProgressIndicator
       label={progressX.label}
       description={progressX.description}
       percentComplete={progressX.percentComplete}
       progressHidden={progressX.progressHidden}/>;
 
-  const ProgressPane: JSX.Element = <div style={{ padding: '15px 0px 15px 0px'}}>
+  const ProgressPane: JSX.Element = <div style={{ padding: '5px 3em 15px 2em'}}>
     { CurrentProgress }
-    <div className='applyTemplateLogs'>
+    <div className='applyTemplateLogs' style={{ height: total === 0 ? '0px' : null, overflow: total === 0 ? 'hidden' : 'visible' }}>
 
       { FPSLogListFunction( { title: 'Error', items: errorsX, showWhenEmpty: true, descending: true, titles: null }) }
       { makeList?.createTheseFields.length > 0 ? FPSLogListFunction( { title: 'Column', items: fieldsX, showWhenEmpty: true, descending: true, titles: null }) : null }
@@ -384,16 +416,29 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     </div>
   </div>;
 
+
+  const ProgressElement: JSX.Element = <Accordion 
+    title = { `Provisioning Progress - Click for more details` }
+    defaultIcon = 'Help'
+    showAccordion = { false }
+    content = { ProgressPane }
+    refreshId={ makeid(5) }
+    contentStylesVis = {{ height: `auto` }}
+    contentStylesHidden = {{ height: `80px` }}
+    componentStyles={{ paddingBottom: '1em' }}
+  />;
+
   const ButtonRow: JSX.Element = <div className='apply-template-dropdown' style={{ display: 'flex', justifyContent: 'space-between' }}>
       <button className={ applied !== true && listChoice ? styles.enabled : null }
         disabled={ applied === false && listChoice ? false : true }
-        onClick={ applyThisTemplate.bind( this ) }
+        // onClick={ applyThisTemplate.bind( this ) }
+        onClick={ () => applyThisTemplate() }
         >
         Apply Template
       </button>
       <button className={ applied !== true ? styles.enabled : null }
         disabled={ applied === true ? true : false }
-        onClick={ () => { alert( 'Ok, we will be here if you need a template :)') } }
+        onClick={ () => { alert( 'Ok, we will be here if you need a template :)') }}
         >
         Skip
       </button>
@@ -422,7 +467,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const TitleElement: JSX.Element = !ComponentTitle ? undefined : <div  className={ stylesTop.tabHeadingElement } style={{  }}>{ ComponentTitle }</div>;
 
   const FinalElement: JSX.Element = expandedState === 'Nudge' ? 
-  <div className={ stylesTop.tabHeadingElement } style={{ paddingLeft: '2em' }}>First, Create a new Library.  Then you can use this page.....</div> :
+  <div className='apply-template-page'><div className={ stylesTop.tabHeadingElement } style={{  }}>First, Create a new Library.  Then you can use this page.....</div></div> :
     expandedState !== true ? null
     : <div className = { [ 'apply-template-page' ].join( ' ' ) } style={{ minHeight: '450px', background: 'lightgreen', }}>
     { TitleElement}
@@ -430,7 +475,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
     { TemplateDropdown }
     { ButtonRow }
     { listChoice ? TemplateDetails : undefined }
-    { ProgressPane }
+    { ProgressElement }
 
   </div>;
 

@@ -37,13 +37,16 @@ export interface IFPSLabelRequest {
 export interface IFPSLabelRequestRead extends IFPSLabelRequest {
   Status: string;
   Id?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Created?: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   CompleteTime?: any;
   WorkflowComments?: string;
   FPSItem: IFPSItem;
 }
 
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function requstLibraryLabel(list: IListInfo, label: string): Promise<any> {
 
   const parentWeb: string[] = list.ParentWebUrl ? list.ParentWebUrl.split('/') : [];

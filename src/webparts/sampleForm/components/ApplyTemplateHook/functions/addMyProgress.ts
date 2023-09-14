@@ -5,6 +5,7 @@ import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
 
 export function addMyProgress( progress: IMyProgress[], progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
   i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setProgress : (progress : IMyProgress[]) => void, refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null): IMyProgress[] {
 
   const temp: IMyProgress = createProgressObject( false, progressHidden, itemType, i, n, color, icon, name, step, verb, status, refLabel, checkValue, returnField, item );
@@ -17,6 +18,7 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
 
 export function createProgressObject( consoleLog: boolean, progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
 i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null ) : IMyProgress {
 
   // await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect

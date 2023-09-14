@@ -33,8 +33,9 @@ import { addMyProgress, createProgressObject } from "./addMyProgress";
 export const minInfinity: number = -1.7976931348623157e+308;
 export const maxInfinity: number = -1 * minInfinity ;
 
-function checkForKnownColumnIssues(){
-
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function checkForKnownColumnIssues(): void {
+  console.log('');
     //Need to add something to check the following:
     //Columns that are Hidden, can't be 'Required' or they will be editable or cause issues.
 
@@ -172,6 +173,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
             if (readOnly === true || foundField === true) { 
                 if (foundField === true ) { 
 
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const verifyField : any = checkIfFieldMatches( f, currentFields[foundFieldIndex as any] );
                     
                     console.log('checkIfFieldMatches ' + f.name, verifyField, f );
@@ -325,6 +327,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                                     break ;
         
                                 case cCurr.type :
+                                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
                                     actualField = await listFields.addCurrency(thisField.name,
                                         thisField.minValue === null || thisField.minValue === undefined ? minInfinity : thisField.minValue ,
                                         thisField.maxValue === null || thisField.maxValue === undefined ? maxInfinity : thisField.maxValue ,
@@ -355,7 +358,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                                 createProgressObject( true, false, 'Field', i, n, 'red', 'Error', f.name, step, 'Create Field', 'Error', err, );
                                 errOutput.friendly = err + '\n\n' + errOutput.friendly;
 
-                            } else if ( thisFieldType['type'] === cMChoice.type ) {
+                            } else if ( thisFieldType.type === cMChoice.type ) {
                                 if ( thisField.onCreateProps && thisField.onCreateProps.Indexed ) {
                                     const err = `You are trying to Index a MultiChoice column ( ${f.name} ) which is NOT allowed :).\n\nGo to column settings and make sure choices are set by hand. ~ 357`;
                                     // statusLog = notify(statusLog, 'Create Field', err, step, f, null);
@@ -384,6 +387,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                     //Loop through other types of changes
 
                     if ( thisField[step] !== null ) {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
                         const otherChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField[step]);
                         // statusLog = notify(statusLog, step + ' Field', JSON.stringify(thisField[step]), step, f, otherChanges);
                         // setProgress(false, "C", i, n , 'midnightblue', 'Sync', f.name, 'Updated Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' other ~ 269' );
@@ -395,6 +399,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                 } else if ( foundField === true ) {
                     if ( step === 'create' || step === 'setForm' ) {
                         if ( thisField.showNew === false || thisField.showNew === true ) {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInNewForm(thisField.showNew);
                             // statusLog = notify(statusLog, 'setShowNew Field', 'Complete',step, f, setDisp);
                             // setProgress(false, "C", i, n , 'slategrey', 'AddTo', f.name, 'setShowNew Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showNew ~ 277' );
@@ -403,6 +408,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                         }
 
                         if ( thisField.showEdit === false || thisField.showNew === true ) {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInEditForm(thisField.showEdit);
                             // statusLog = notify(statusLog, 'setShowEdit Field', 'Complete', step, f, setDisp);
                             // setProgress(false, "C", i, n , 'saddlebrown', 'PageHeaderEdit', f.name, 'setShowEdit Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showEdit ~ 283' );
@@ -411,6 +417,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
                         }
 
                         if ( thisField.showDisplay === false || thisField.showNew === true ) {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const setDisp = await listFields.getByInternalNameOrTitle(f.name).setShowInDisplayForm(thisField.showDisplay);
                             // statusLog = notify(statusLog, 'setShowDisplay Field', 'Complete', step, f, setDisp);
                             // setProgress(false, "C", i, n , 'midnightblue', 'EntryView', f.name, 'setShowDisplay Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' showDisplay ~ 289' );
@@ -420,6 +427,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
 
                     if ( step === 'create') {
                         if (thisField.onCreateChanges) {
+                          // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const createChanges = await listFields.getByInternalNameOrTitle(f.name).update(thisField.onCreateChanges);
                             // statusLog = notify(statusLog, 'onCreateChanges Field', 'update===' + JSON.stringify(thisField.onCreateChanges), step, f, createChanges);
                             // setProgress(false, "C", i, n , 'darkred', 'SyncStatus', f.name, 'onCreateChanges Field: ' + myList.title, 'Field ' + i + ' of ' + n + ' : ' + f.name, step + ' onCreateChanges ~ 297' );
@@ -482,7 +490,7 @@ function checkIfFieldMatches( definition : IMyFieldTypes, actual : any ) : any {
 
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars
 function checkValueOnFieldObject( definition : IMyFieldTypes, key: string, value: any) : any {
 
     if ( definition[key as 'title'] !== undefined ) { return definition[key as 'title'] === value ? true : definition[key as 'title'] ;}

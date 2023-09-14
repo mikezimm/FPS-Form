@@ -3,9 +3,10 @@ import { useState, useEffect } from 'react';
 
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 import { PanelType } from 'office-ui-fabric-react/lib/Panel';
+
+import { IWebpartBannerProps } from '@mikezimm/fps-library-v2/lib/banner/mainReact/IWebpartBannerProps'
 import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
 
-import Accordion from '@mikezimm/fps-library-v2/lib/components/molecules/Accordion/Accordion';
 import SourcePages from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/SourcePages';
 
 import styles from '../SampleForm.module.scss';
@@ -82,12 +83,17 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
    *                                                                            
    */
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ refreshId, setRefreshId ] = useState<string>( makeid( 5 ) );
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ procPerformance, setProcPerformance ] = useState<IPerformanceOp[]>( [] );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ users, setUsers ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ sites, setSites ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ requests, setRequests ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ allRequests, setAllRequests ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
 
   const [ showPanel, setShowPanel ] = useState<boolean>( false );
@@ -96,6 +102,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
   /**
    * State related to fetching the source props
    */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ fetched, setFetched ] = useState<boolean>( false );
 
   /***
@@ -119,7 +126,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
           context: { pageContext: { site: {  serverRelativeUrl: context.pageContext.site.serverRelativeUrl }}}
         }
         const [ users, sites, requests ] = await fetchMinimalLabelRequests( MockBannerProps as any, null, [] );
-        const all = await fetchLabelRequests( MockBannerProps as any, LabelRequestSource as ISourceProps , null );
+        const all = await fetchLabelRequests( MockBannerProps as IWebpartBannerProps, LabelRequestSource as ISourceProps , null );
 
         console.log( 'Found these Requests: users', users );
         console.log( 'Found these Requests: sites', sites );
@@ -191,7 +198,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
     tableClassName= { 'ezAnalyticsTable' } // styles.itemTable
     tableHeaderClassName= { [  ].join( ' ' )  } // stylesRow.genericItem
     selectedClass={ styles.isSelected }
-
+    sourcePageClassName='apply-template-page'
     renderRow={ createRequestsRow }
 
     deepProps={ null } //deepProps
@@ -253,7 +260,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
    *                                                                                                                
    */
 
-  const FinalElement: JSX.Element = expandedState === false ? null : <div className = { [].join( ' ' ) } style={{ minHeight: '450px', background: 'lightsteelblue', padding: '1em 2em' }}>
+  const FinalElement: JSX.Element = expandedState === false ? null : <div className = { [].join( ' ' ) } style={{ minHeight: '450px', background: 'lightsteelblue', }}>
   { itemsElement }
   { panelContent }
 </div>;

@@ -1,7 +1,8 @@
 
 import { doesObjectExistInArray } from '@mikezimm/fps-library-v2/lib/logic/Arrays/searching/objectfind';
 
-import { IMyListInfo, IServiceLog, notify } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+import { IMyListInfo, IServiceLog, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { IViewWhere, IViewOrder, IViewGroupBy,  } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
 import { IViews, } from "@pnp/sp/views/types";
 
@@ -59,6 +60,7 @@ export interface IViewLog extends IServiceLog {
  *                                                               
  */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function buildFieldOrderTag ( thisOrder: any ): string {
     const tempOrder = JSON.parse(JSON.stringify(thisOrder));
     const fieldName = typeof tempOrder.field === 'object' ? tempOrder.field.name : tempOrder.field;
@@ -71,6 +73,7 @@ export function buildFieldOrderTag ( thisOrder: any ): string {
     return thisXML;
 }
 
+// eslint-disable-next-line @rushstack/no-new-null
 export function getValueTag ( thisValue: string, type : string | null = null ): string {
     let result = '';
     if ( typeof thisValue === 'string' && thisValue.indexOf('<Value') > -1 ) {  //Some of these are pre-made so do not add the value tag
@@ -95,6 +98,7 @@ export function buildFieldWhereTag ( thisWhere: IViewWhere ): string {
     let success = true;
     const tempWhere: IViewWhere = JSON.parse(JSON.stringify(thisWhere));
     const fieldName = typeof tempWhere.field === 'object' ? tempWhere.field.name : tempWhere.field;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const fieldAny: any = tempWhere.field;
     const isFieldIndexed = typeof tempWhere.field === 'object' ? fieldAny.indexed : false;
     let thisXML = '<FieldRef Name="' + fieldName + '" />';
@@ -516,6 +520,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
                 try {
                     //console.log('BEFORE CREATE VIEW:  viewQueryXML', viewQueryXML);
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     const createViewProps: any = { 
                         RowLimit: v.RowLimit == null ? 30 : v.RowLimit,
                         TabularView: v.TabularView !== false ? true : false,
@@ -647,8 +652,8 @@ export function fixTitleNameInViews( doList: boolean , list: IMakeThisList ): IM
             if ( view.iFields ) {
                 const correctedFields : IViewField[] = [];
                 view.iFields.map( field => {
-                    let isTitleField: any = -1;
-                    let isNameField: any = -1;
+                    let isTitleField: number = -1;
+                    let isNameField: number = -1;
 
                     if ( typeof field === 'object' ) {
                         isTitleField = ItemPrimaryColumnNames.indexOf( field.name );

@@ -1,4 +1,5 @@
 import * as React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState, useEffect } from 'react';
 
 import { WebPartContextCopy_15_2 } from "@mikezimm/fps-library-v2/lib/common/interfaces/@msft/1.15.2/WebPartContext";
@@ -13,14 +14,14 @@ import { ISourceProps } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Int
 import styles from '../SampleForm.module.scss';
 import { doesNotStartNumber, toCamelCase } from './functions/strings';
 
-import { _LinkIsValid } from '@mikezimm/fps-library-v2/lib/components/atoms/Links/AllLinks';
+// import { _LinkIsValid } from '@mikezimm/fps-library-v2/lib/components/atoms/Links/AllLinks';
 
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { createLibraryPnpjs } from './functions/createLibraryPnpjs';
 import { requstLibraryLabel } from '../Requests/functions/requestLabel';
 import { ICorpLabelsSource } from '../../storedSecrets/AS303 Labels v3 - JSON Formatted';
 
-import ApplyTemplateHook from '../ApplyTemplateHook/ApplyTemplateHook'
+// import ApplyTemplateHook from '../ApplyTemplateHook/ApplyTemplateHook'
 import { IProvTab } from '../SampleForm';
 
 /***
@@ -97,7 +98,11 @@ const ListProvisionHook: React.FC<IListProvisionHookProps> = ( props ) => {
   const [ created, setcreated ] = useState< IStateSource[] >( [] );
   const [ lastCreated, setLastCreated ] = useState< IStateSource >( );
   // const [ titleDescription, setTitleDescription ] = useState< string >( '' );
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ sourceProps, setSourceProps ] = useState< ISourceProps >( createLibrarySource( webUrl, libTitle, libUrl  ));
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const[ libLabelOptions, setLibLabelOptions ] = useState< IDropdownOption[] >( labelItems.map( ( item ) => {
     return {
       key: item.RecordCode,
@@ -185,7 +190,7 @@ const ProvisionListElement: JSX.Element = expandedState === false ? null : <sect
       { libLabelOptions && libLabelOptions.length > 0 ? 
         <Dropdown 
           options={ libLabelOptions }
-          // styles={ { root: { width: '300px' } } }
+          // styles={{ root: { width: '300px' }} }
           // selectedKey={ LabelOptions[2].key }
           defaultSelectedKey={ libLabelOptions[0].key }
           onChange={ labelChange.bind( this ) }

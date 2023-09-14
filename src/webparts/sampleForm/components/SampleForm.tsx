@@ -73,6 +73,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
         />
         <ApplyTemplateHook 
           listExists= { true }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           context={ this.props.context as any }
           propsRefreshId={ useLists && useLists.length > 0 ? useLists[0].refreshId : '' }
           expandedState={ this.state.provisionTab === 'Apply Template' ? useLists && useLists[0] && useLists[0].status === 'Success' ? true : 'Nudge' : false }

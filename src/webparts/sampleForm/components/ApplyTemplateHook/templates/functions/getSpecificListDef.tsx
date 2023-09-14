@@ -9,6 +9,7 @@ import { BUHarmonieViews } from "../Harmonie/viewsHarmonie";
 import { getFieldNamesFromArray, getViewTitlesFromArray } from "./getFieldInfo";
 
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const noWrap = `fps-gen-text-ellipse`;
 
 export function getSpecificListDef( list: IListInfo, definedList: IDefinedListInfo , webURL: string, currentUser: number[], listExists: boolean ) : IMakeThisList {

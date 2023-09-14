@@ -19,6 +19,7 @@ export interface IExampleHookRead extends IAnySourceItem {
 export const exampleRowHeaders: string[] = [ 'Id', 'Title', 'Author', 'Created', 'Editor', 'Modified', ];
 
 export function createExampleRow( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { item, onClick, searchText, onParentCall } = props; // details, showItemType, onOpenPanel
 
   const thisItem: IExampleHookRead = item as IExampleHookRead;

@@ -1,6 +1,6 @@
 import { IJSPostReturn, doSpJsPost } from "../../doSpJsPost";
 
-import { sp } from "@pnp/sp";
+// import { sp } from "@pnp/sp";
 import "@pnp/sp/webs";
 import "@pnp/sp/lists";
 import "@pnp/sp/items";
@@ -38,6 +38,7 @@ export interface IFPSRequestInit {
   signal?: AbortSignal | null; // An optional signal object that can be used to abort the request.
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createFPSLibrary(siteUrl: string, libraryTitle: string, libraryUrl: string, requestDigest: any ): Promise<IJSPostReturn> {
   const endpointUrl = `${siteUrl}/_api/web/lists`;
   const body: IFPSCreateLibraryPost = {

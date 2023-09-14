@@ -1,6 +1,6 @@
 
 
-import { IMyListInfo, IServiceLog, notify } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
+// import { IMyListInfo, IServiceLog, notify } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 
 import { getHelpfullErrorV2 } from '@mikezimm/fps-library-v2/lib/logic/Errors/friendly';
 import { BaseErrorTrace } from '@mikezimm/fps-library-v2/lib/PackageConst';  //, [ BaseErrorTrace , 'Failed', 'try switchType ~ 324', helpfulErrorEnd ].join('|')   let helpfulErrorEnd = [ listTitle, f.name, i, n ].join('|');
@@ -19,6 +19,7 @@ import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/
 import { addMyProgress } from "./addMyProgress";
 import { IMakeThisList } from '../interfaces/ProvisionTypes';
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IAnyArray = any[];
 
 // export interface IAddItemsToListProps {
@@ -43,6 +44,7 @@ export async function addTheseItemsToList( thisWeb: IWeb, listItems: IItems, mak
     //https://www.sitepoint.com/community/t/for-loop-through-array-and-group-every-x-number-of-items/97966
     const totalItems = ItemsToAdd.length;
     const chunk: number = 10;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result3: any[] = [];
 
     const helpfulErrorEnd = [ listTitle, '', '', null, null ].join('|');
@@ -120,6 +122,7 @@ export async function addTheseItemsToListNoBatch( makeThisList: IMakeThisList, l
 
         try {
             delete item.compareArrays;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             await listItems.add( item , ).then( ( b: any ) => {
                 // statusLog = notify(statusLog, 'Created Item', 'No-batch', null, null, null, thisItem );
                 // setProgress(false, "I", i, totalItems , 'darkgreen', 'CheckMark',  item.Title, 'Items: ' + listTitle, 'Item ' + i + ' of ' + totalItems + ' item', 'Add item ~ 95');
@@ -181,6 +184,7 @@ export async function addTheseItemsToListNoBatch( makeThisList: IMakeThisList, l
  * @param alwaysCreateNew - currently no functionality to use this but long term intent would be to check if item exists first, then only add if it does not exist.
  */
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function addTheseItemsToListInBatch( thisWeb: IWeb, listTitle: string, listItems: IItems, ItemsToAdd: any[], setProgress : (progress : IMyProgress[]) => void, alertMe: boolean, consoleLog: boolean, alwaysCreateNew = true ): Promise<IMyProgress[]>{
 
     let statusLog : IMyProgress[] = [];
@@ -209,6 +213,7 @@ export async function addTheseItemsToListInBatch( thisWeb: IWeb, listTitle: stri
 
     for (const item of ItemsToAdd) {
     //, Category1: { results: ['Training']}
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const thisItem = stringifyKeyValue(item, 0, '===');
         i ++;
         //let checkValue = thisItem;
@@ -245,6 +250,7 @@ export async function addTheseItemsToListInBatch( thisWeb: IWeb, listTitle: stri
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const result : ICompareResult = compareArrays(statusLog, ItemsToAdd, 'ReturnNOTFound', 'checkValue','===', 'Both');
 
     return statusLog;

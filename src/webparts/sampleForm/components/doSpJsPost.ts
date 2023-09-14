@@ -14,6 +14,7 @@ export interface IJSPostReturn extends IFpsErrorObject {
   ok: boolean;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   items: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   e: any;
   rawPostResults?: IFPSSearchAPIResultsData;
   postAPI: string;
@@ -35,6 +36,7 @@ export function createEmptyPostReturn( postAPI: string ): IJSPostReturn {
  * @param postAPI 
  * @returns 
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function doSpJsPost(postAPI: string, body: any, requestDigest: any ): Promise<IJSPostReturn> {
 
   const results: IJSPostReturn = createEmptyPostReturn( postAPI );

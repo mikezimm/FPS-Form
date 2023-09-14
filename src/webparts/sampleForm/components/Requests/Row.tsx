@@ -13,10 +13,12 @@ require ('@mikezimm/fps-styles/dist/fpsGeneralCSS.css');
 export const requestRowHeaders: string[] = [ 'Id', 'Label', 'Library', 'WebUrl', 'Requested', 'Status', 'Completed' ];
 
 export function createRequestsRow( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { item, onClick, searchText, onParentCall } = props; // details, showItemType, onOpenPanel
 
   const thisItem: IFPSLabelRequestRead = item as IFPSLabelRequestRead;
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { Title, Id, Created, Label, LibraryGuid, LibraryName, LibraryTitle, Author, LibraryLink, SiteUrl, WebUrl, Status, CompleteTime } = thisItem; // , BannerImageUrl, PromotedState
 
   const created = thisItem?.FPSItem?.Stamp?.created;

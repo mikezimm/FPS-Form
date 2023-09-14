@@ -13,6 +13,7 @@ export function addMineSiteMeta( MineCol: string[], SiteCol: string[], stateSour
   // const currentSiteLC: string = FPSEnviro?.siteUrl.toLowerCase();
   const currentSiteLC: string = '/sites/FPS'.toLowerCase(); // FPSEnviro?.siteUrl.toLowerCase();
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let isMine: any = false, isOthers: any = false, isThisSite: any = false, isOtherSite: any = false;
 
   stateSource.items.map( ( item ) => {

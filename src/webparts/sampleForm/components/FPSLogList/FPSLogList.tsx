@@ -1,10 +1,13 @@
 import * as React from 'react';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { useState, useEffect } from 'react';
 import { Icon } from 'office-ui-fabric-react/lib/Icon';
+
 import { HoverCard, HoverCardType } from 'office-ui-fabric-react/lib/HoverCard';
 
 import { IMyProgress, } from '@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces';
 import { autoDetailsList } from '@mikezimm/fps-library-v2/lib/components/molecules/ReactListV1/atoms/detailsList';
+
 
 require ('./FPSLogListHook.css');
 
@@ -61,6 +64,7 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
     console.log( 'FPSLogListHook - render' );
   }, );
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const maxChars = props.maxChars ? props.maxChars : 20;
   /***
    *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
@@ -79,7 +83,8 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
         { item.label }</span>
       </div>;
 
-      const iconStyles: any = { root: {
+      // Should be:  iconStyles : IStylesFunctionOrObject<IIconStyleProps, IIconStyles> =
+      const iconStyles = { root: {
         color: item.color ? item.color : "blue",
         fontWeight: '700',
       }};
@@ -91,7 +96,7 @@ const FPSLogListHook: React.FC<IFPSLogListHookProps> = ( props ) => {
 
       const onRenderPlainCard = ( ): JSX.Element => {
         const showTheseProps = autoDetailsList( item, ["refElement","time","logLabel","label","description", "refLabel"], [] , false );
-        const tipLine = showTheseProps.length > 20 ?  <p><span style={{fontSize: 'x-large', fontWeight: 600, color: 'darkblue'}}><mark>TIP: </mark>Use Mouse Wheel to scroll down page, Don't use scroll bar!</span></p> : null ;
+        const tipLine = showTheseProps.length > 20 ?  <p><span style={{fontSize: 'x-large', fontWeight: 600, color: 'darkblue'}}><mark>TIP: </mark>{`Use Mouse Wheel to scroll down page, Don't use scroll bar!`}</span></p> : null ;
 
         const detailsElement = <div className='progressHoverElement'>
           <div>

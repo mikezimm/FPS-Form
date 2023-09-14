@@ -39,6 +39,7 @@ export async function makeListPnpjs(siteUrl: string, template: number, libraryTi
 
   const thisWeb: IWeb = Web( siteUrl );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let libExisted: any = false;
   try {
     const lists : IListInfo[]= await thisWeb.lists.select( 'Id,Title,EntityTypeName').get();
