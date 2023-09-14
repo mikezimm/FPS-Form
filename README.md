@@ -1,5 +1,5 @@
 
-
+gulp clean; gulp build; gulp bundle --ship; gulp package-solution --ship
 
 PS C:\Users\dev\Documents\GitHub\FPS-Form> yo @microsoft/sharepoint@1.17.3
 

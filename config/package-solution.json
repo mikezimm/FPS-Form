@@ -3,7 +3,7 @@
   "solution": {
     "name": "fps-form-client-side-solution",
     "id": "4f08011b-f9a2-456f-9430-1df4fee00ba4",
-    "version": "1.0.0.0",
+    "version": "1.0.1.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
     "isDomainIsolated": false,
@@ -30,7 +30,7 @@
         "title": "fps-form Feature",
         "description": "The feature that activates Label Provisioning sandbox component.",
         "id": "0ad7d8a8-9729-4318-8658-a770c15bfea0",
-        "version": "1.0.0.0"
+        "version": "1.0.1.0"
       }
     ]
   },
