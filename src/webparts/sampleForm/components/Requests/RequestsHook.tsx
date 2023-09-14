@@ -197,7 +197,7 @@ const RequestsHook: React.FC<ILabelRequestProps> = ( props ) => {
     deepProps={ null } //deepProps
 
     onParentCall={ setNewPanelItem } // onParentCallFunction
-    headingElement={ <div className={ styles.tabHeadingElement } style={{ fontSize: '18px', fontWeight: 600 }} 
+    headingElement={ <div className={ styles.tabHeadingElement } style={{  }} 
       title={ `All requests to apply a label: Including those 1.  In this site collection or 2. Requested by you` }>
         Relavent Label Provision requests</div> }
     ageSlider={ true }

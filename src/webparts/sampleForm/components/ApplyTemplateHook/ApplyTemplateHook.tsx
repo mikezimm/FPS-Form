@@ -419,7 +419,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   // console.log( 'ApplylTemplate: webUrl', webUrl );
 
   const ComponentTitle = targetList && targetList.Title ? `Selected Library: ${ targetList.Title }` : undefined;
-  const TitleElement: JSX.Element = !ComponentTitle ? undefined : <div  className={ stylesTop.tabHeadingElement } style={{ fontSize: 'x-large', fontWeight: 600, paddingBottom: '5px' }}>{ ComponentTitle }</div>;
+  const TitleElement: JSX.Element = !ComponentTitle ? undefined : <div  className={ stylesTop.tabHeadingElement } style={{  }}>{ ComponentTitle }</div>;
 
   const FinalElement: JSX.Element = expandedState === 'Nudge' ? 
   <div className={ stylesTop.tabHeadingElement } style={{ paddingLeft: '2em' }}>First, Create a new Library.  Then you can use this page.....</div> :

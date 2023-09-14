@@ -3,8 +3,6 @@ import { WebPartContext } from "@microsoft/sp-webpart-base";
 
 import { Pivot, PivotItem, PivotLinkFormat, PivotLinkSize, } from 'office-ui-fabric-react/lib/Pivot';
 
-// import styles from './SampleForm.module.scss';
-
 import { LabelExportJSON } from '../storedSecrets/AS303 Labels v3 - JSON Formatted';
 
 import ListProvisionHook from './Provision/ListProvisionHook'
@@ -12,14 +10,15 @@ import RequestsHook from './Requests/RequestsHook'
 import ApplyTemplateHook from './ApplyTemplateHook/ApplyTemplateHook'
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { IDefinedListInfo } from './ApplyTemplateHook/interfaces/ProvisionTypes';
+import { ProvisionInstructions } from './Instructions';
 
 export interface ISampleFormProps {
   context: WebPartContext;
 }
 
-export type IProvTab = 'Create Library' | 'Apply Template' | 'Label History'
+export type IProvTab = 'Instructions' | 'Create Library' | 'Apply Template' | 'Label History'
 
-export const provTabs: IProvTab[] = [ 'Create Library', 'Apply Template', 'Label History' ];
+export const provTabs: IProvTab[] = [ 'Instructions', 'Create Library', 'Apply Template', 'Label History' ];
 
 export interface ISampleFormState {
   provisionedLists: IStateSource[];
@@ -64,6 +63,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
         <h2>React Component to: 1. Provision lists, 2. Request labels and 3. Apply template</h2>
         { PivotElement }
         {/* <MockApplyHook /> */}
+        { this.state.provisionTab === 'Instructions' ? ProvisionInstructions() : undefined }
         <ListProvisionHook 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           context={ this.props.context as any }
