@@ -374,7 +374,7 @@ export const FromCompanyHarm : ICalculatedField = {
  *    Y8b  d8 `8b  d8' 88booo. 88b  d88 88  88  88 88  V888      88   88 88 `88. 88 `88. 88   88    88    db   8D
  *     `Y88P'  `Y88P'  Y88888P ~Y8888P' YP  YP  YP VP   V8P      YP   YP 88   YD 88   YD YP   YP    YP    `8888Y'
  *
- *
+ * 
  */
 
 /**

@@ -94,13 +94,13 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
     * @param description 
    */
 
-    statusLog = addMyProgress( statusLog, false, 'Field', 0, 0 , '', 'TimePicker', listTitle, 'Adding FIELDS to list', 'Add' , `Starting` , setProgress, `Checking for FIELDS ~ 96` );
+    statusLog = addMyProgress( statusLog, false, 'Field', 0, 0 , '', 'TimePicker', listTitle, '##### Adding FIELDS to list', 'Add' , `Starting` , setProgress, `Checking for FIELDS ~ 96` );
 
     for ( const step of steps ) {
 
         //https://stackoverflow.com/a/6121234
         // const fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[ step as 'title' ] !== null);
-        
+
         // eslint-disable-next-line eqeqeq -- Disabling because the value could be null or undefined and want to check for both.
         const fieldsToDo = step ==='create' ? fieldsToAdd : fieldsToAdd.filter(x => x[ step as 'title' ] != null);
         let i = 0;
@@ -109,7 +109,7 @@ export async function addTheseFields( listTitle: string, steps : changes[], read
 
         if (n > 0 ) {
             // setProgress(false, "C", 0, n , '', 'Next', '##### ' + step, 'Adding FIELDS to list: ' + myList.title, 'Checking for FIELDS', step + ' ~ 93' );
-            statusLog = addMyProgress( statusLog, false, 'Field', 0, n , '', 'Next', listTitle, step, 'Start Adding Fields', 'Started' , setProgress, `Checking for FIELDS ${ step } ~ 108`, );
+            statusLog = addMyProgress( statusLog, false, 'Field', 0, n , '', 'Next', listTitle, step, '##### Start Adding Fields', 'Started' , setProgress, `Checking for FIELDS ${ step } ~ 108`, );
         }
 
         for (const f of fieldsToDo) {

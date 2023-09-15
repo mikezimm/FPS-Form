@@ -26,18 +26,39 @@ refLabel: string = null, checkValue: any = null, returnField: any = null, item: 
   const timeMS = thisTime.getTime();
   const timeStr = thisTime.toLocaleTimeString();
 
+  const overRide = verb.indexOf('###') === 0 ? true : false;
+
   const percentComplete = n !== 0 ? i / n : 0;
   const id: string = makeid(5);
-  const label = `${itemType}s ${i} of ${n} : ${name}`;
+  let label = `${itemType}s ${i} of ${n} : ${name} - at ${timeStr}`;
+  let logLabelX = ` ${step} Adding ${itemType} to list ( ${name} ): - at ${timeStr}`;
+  let descriptionX = `${itemType}s ${i} of ${n} : ${name}`;
+
+  if ( icon === 'TimePicker' ) {
+    // This is the first one of the itemType
+    label = `${name}`;
+    logLabelX =  `${name}`;
+    descriptionX = refLabel;
+  } else if ( icon === 'Next' ) {
+    // This is the beginning of a step
+    label = `##### ${step}`;
+    logLabelX =  refLabel;
+
+  } else { // THis is a normal log
+    //
+  }
+
+
+
   const MyProgress: IMyProgress = {
     id: id,
     timeMS: timeMS,
     rowLabel: `${step} [ ${itemType} ${i} of ${n} ${id}] => ${name + ' - at ' + timeStr}`,
     refLabel: refLabel,
     time: timeStr,
-    logLabel: ` ${step} Adding ${itemType} to list ( ${name} ): `,
-    label: label + '- at ' + timeStr,
-    description: `${itemType}s ${i} of ${n} : ${name}`,
+    logLabel: logLabelX,
+    label: label,
+    description: descriptionX,
     current: i,
     ofThese: n,
     array: itemType,

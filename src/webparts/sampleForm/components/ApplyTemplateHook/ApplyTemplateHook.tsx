@@ -181,14 +181,13 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const setProgressNow = async ( progress: IMyProgress[] ): Promise<void> => {
 
     if ( !progress || progress.length === 0 ) return;
-
+    console.log( 'setProgressNow Id: ', id );
     // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
     await Promise.resolve().then(() => {
 
         setTotal( total + 1 );
         setCurrentX( progress[0].current );
         setProgressX( progress[0] );
-        console.log( 'setProgressNow Id: ', id );
         setId( progress[0].id );
 
         if ( progress[0].array === 'E') {
@@ -210,6 +209,8 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
         }
 
       });
+
+      console.log( 'setProgressNow Id: ', `${id} -  ${progress[0].id}` );
   }
 
   const markComplete = () : void => {
