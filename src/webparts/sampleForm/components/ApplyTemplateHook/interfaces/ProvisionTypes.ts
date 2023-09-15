@@ -8,6 +8,7 @@ import { IViews, } from "@pnp/sp/views/types";
 
 import { IMyFieldTypes, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/columnTypes';
 import { IMyView, } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
+import { IProvisionableFPSlates, IValidTemplate } from "./FPSTemplates";
 
  /***
  *    d888888b .88b  d88. d8888b.  .d88b.  d8888b. d888888b      db   db d88888b db      d8888b. d88888b d8888b. .d8888. 
@@ -64,7 +65,7 @@ export type IListDefintionFinTasks = 'Finance Tasks' | 'OurTasks' | 'OurTasksLig
 
 export type IListDefintionLytics = 'Full' | 'List' | 'zText' | 'zRich' | 'zNumb' | 'Guids' | 'Memory' | 'Url' ;
 
-export type IValidTemplate = 100 | 101;
+// export type IValidTemplate = 100 | 101;
 
 //Add here to make available in dropdown (but does not work unless they are in the definedLists array )
 export const availLists : IDefinedLists[] =  ['No List Available', 'TrackMyTime','Harmon.ie','Customer Requirements', 'Tasks' ,  'Reports' ,
@@ -87,19 +88,19 @@ export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDe
 export interface IDefinedListInfo {
   listDefinition: IDefinedChoice;
   list: IDefinedLists;
-  templates: IValidTemplate[];
+  templates: IProvisionableFPSlates[];
 }
 
 const Emails: IDefinedListInfo = {
   listDefinition: `Emails`,
   list: `Harmon.ie`,
-  templates: [ 100 ],
+  templates: [ 101 ],
 }
 
 const BUEmails: IDefinedListInfo = {
   listDefinition: `BUEmails`,
   list: `Harmon.ie`,
-  templates: [ 100 ],
+  templates: [ 101 ],
 }
 
 
@@ -113,6 +114,9 @@ export const DefinedLibraryChoices: IDefinedListInfo[] = [
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IAnyArray = any[];
+
+export type IProvisionableBaseType = 0 | 1;
+export type IExcludeBaseTemplate = number;
 
 export interface IMakeThisList {
 

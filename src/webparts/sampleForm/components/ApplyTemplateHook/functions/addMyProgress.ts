@@ -17,16 +17,14 @@ export function addMyProgress( progress: IMyProgress[], progressHidden: boolean,
 }
 
 export function createProgressObject( consoleLog: boolean, progressHidden: boolean, itemType: 'E' | 'Field' | 'View' | 'Item' | string, 
-i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string, 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null ) : IMyProgress {
+  i: number, n: number, color: string, icon: string, name: string, step: string, verb: string, status: string,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  refLabel: string = null, checkValue: any = null, returnField: any = null, item: any = null ) : IMyProgress {
 
   // await new Promise(resolve => setTimeout(resolve, 350)); // Pause for effect
   const thisTime = new Date();
   const timeMS = thisTime.getTime();
   const timeStr = thisTime.toLocaleTimeString();
-
-  const overRide = verb.indexOf('###') === 0 ? true : false;
 
   const percentComplete = n !== 0 ? i / n : 0;
   const id: string = makeid(5);
@@ -47,8 +45,6 @@ refLabel: string = null, checkValue: any = null, returnField: any = null, item: 
   } else { // THis is a normal log
     //
   }
-
-
 
   const MyProgress: IMyProgress = {
     id: id,

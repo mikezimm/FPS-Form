@@ -109,13 +109,13 @@ export function FPSLogListFunction ( props: IFPSLogListHookProps ): JSX.Element 
           plainCardProps={{
             onRenderPlainCard: onRenderPlainCard,
           }}>
-          <div style={{ whiteSpace: 'nowrap'}}>{ normalIcon }</div>
+          <div style={{ whiteSpace: 'nowrap', fontSize: 'x-large'}}>{ normalIcon }</div>
         </HoverCard>
 
       return <tr key={ index } className='progressRow'>
         <td> { actionCell }</td>
         <td>{ hoverCard }</td>
-      </tr>; 
+      </tr>;
     });
 
   const logTable = <table style={{ display: 'block'}} className={ 'progressTable' }>

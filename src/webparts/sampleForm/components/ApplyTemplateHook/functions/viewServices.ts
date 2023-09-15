@@ -213,7 +213,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     let iV = 0;
     const nV = viewsToAdd.length;
 
-    for (const v of viewsToAdd) {
+    for (let v of viewsToAdd) {
         iV++;
         const helpfulErrorEnd = [ myList.title, v.Title,iV, nV ].join('|');
         // setProgress(false, "V", iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Adding views to list: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 198' );
@@ -221,23 +221,25 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
         /**
          * Build view settings schema
          */
-        let foundView = false;
-        //Assuming that if I'm creating a column, it's an object with .name value.
-        const checkView = v.Title ;
-        const currentViewIndex = doesObjectExistInArray(currentViews, 'Title', checkView );
-        let actualViewSchema = '';
-        if ( doesObjectExistInArray(currentViews, 'Title', checkView ) ) {
-            foundView = true;
-            const vIndex : any = currentViewIndex;
-            actualViewSchema = currentViews[parseInt(vIndex,10)].ListViewXml;
 
-        } else {
-            foundView = false;
-            const err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
-            // statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
-            createProgressObject( true, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking`, err, );
-            // statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
-        }
+        v = updateViewExists( myList, v, iV, nV, currentViews );
+        // let foundView = false;
+        // //Assuming that if I'm creating a column, it's an object with .name value.
+        // const checkView = v.Title ;
+        // const currentViewIndex = doesObjectExistInArray(currentViews, 'Title', checkView );
+        // let actualViewSchema = '';
+        // if ( doesObjectExistInArray(currentViews, 'Title', checkView ) ) {
+        //     foundView = true;
+        //     const vIndex : any = currentViewIndex;
+        //     actualViewSchema = currentViews[parseInt(vIndex,10)].ListViewXml;
+
+        // } else {
+        //     foundView = false;
+        //     const err = `The ${myList.title} list does not have this view yet:  ${checkView}`;
+        //     // statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
+        //     createProgressObject( true, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking`, err, );
+        //     // statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
+        // }
 
 
     /***
@@ -250,24 +252,9 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
      *                                                                                                  
      *                                                                                                  
      */
-            //console.log('addTheseViews (v): ', v);
-            /**
-             * Build VewFields schema
-             */
 
-            const viewFieldsSchema = v.iFields.map( thisField => { 
-                const tempField : IViewField = JSON.parse(JSON.stringify(thisField));
-                const fieldName = typeof tempField  === 'object' ? tempField.name : tempField;
-                return '<FieldRef Name="' + fieldName + '" />';
-            });
-
-            let viewFieldsSchemaString: string = '';
-            if ( viewFieldsSchema.length > 0) {
-                //viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema.join('') + '</ViewFields>';
-                viewFieldsSchemaString = viewFieldsSchema.join('');            
-            }
-
-            //console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
+    v = addViewFieldSchemaString( v );
+    //console.log('addTheseViews', viewFieldsSchema, viewFieldsSchemaString);
 
 
 /***
@@ -284,69 +271,72 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
          * Build view Query schema:  <GroupBy Stuff="Here"><OrderBy></OrderBy><Where></Where>
          */
 
-        let viewGroupByXML = '';
-        if (v.groups != null) {
-            if ( v.groups.fields.length > 2) {
-                const err = 'You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length;
-                alert( err );
-                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
-                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 GroupBy Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 198 ${err}` );
+        [ v, statusLog ] = addViewGroupXMLString( v, iV, nV, statusLog, setProgress );
+        // if (v.groups != null) {
+        //     if ( v.groups.fields.length > 2) {
+        //         const err = 'You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length;
+        //         alert( err );
+        //         // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
+        //         statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 GroupBy Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 198 ${err}` );
 
-            } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
-                if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
-                if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
-                if (v.groups.limit != null ) { viewGroupByXML += ' GroupLimit="' + v.groups.limit + '"'; }
+        //     } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
+        //         if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
+        //         if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
+        //         if (v.groups.limit != null ) { viewGroupByXML += ' GroupLimit="' + v.groups.limit + '"'; }
 
-                viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
+        //         viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
 
-                viewGroupByXML += v.groups.fields.map( thisField => {
-                    return buildFieldOrderTag(thisField);
-                }).join('');
+        //         viewGroupByXML += v.groups.fields.map( thisField => {
+        //             return buildFieldOrderTag(thisField);
+        //         }).join('');
 
-                viewGroupByXML += '</GroupBy>';
-                //console.log('<OrderBy><FieldRef Name="Modified" Ascending="False" /></OrderBy>');
-                //console.log('viewGroupByXML', viewGroupByXML);
-            }
-        }
+        //         viewGroupByXML += '</GroupBy>';
+        //         //console.log('<OrderBy><FieldRef Name="Modified" Ascending="False" /></OrderBy>');
+        //         //console.log('viewGroupByXML', viewGroupByXML);
+        //     }
+        // }
 
 
-/***
- *     .d88b.  d8888b. d8888b. d88888b d8888b.      d8888b. db    db 
- *    .8P  Y8. 88  `8D 88  `8D 88'     88  `8D      88  `8D `8b  d8' 
- *    88    88 88oobY' 88   88 88ooooo 88oobY'      88oooY'  `8bd8'  
- *    88    88 88`8b   88   88 88~~~~~ 88`8b        88~~~b.    88    
- *    `8b  d8' 88 `88. 88  .8D 88.     88 `88.      88   8D    88    
- *     `Y88P'  88   YD Y8888D' Y88888P 88   YD      Y8888P'    YP    
- *                                                                   
- *                                                                   
- */
+    /***
+     *     .d88b.  d8888b. d8888b. d88888b d8888b.      d8888b. db    db 
+     *    .8P  Y8. 88  `8D 88  `8D 88'     88  `8D      88  `8D `8b  d8' 
+     *    88    88 88oobY' 88   88 88ooooo 88oobY'      88oooY'  `8bd8'  
+     *    88    88 88`8b   88   88 88~~~~~ 88`8b        88~~~b.    88    
+     *    `8b  d8' 88 `88. 88  .8D 88.     88 `88.      88   8D    88    
+     *     `Y88P'  88   YD Y8888D' Y88888P 88   YD      Y8888P'    YP    
+     *                                                                   
+     *                                                                   
+     */
 
-        let viewOrderByXML = '';
-        if (v.orders != null) {
-            if ( v.orders.length > 2 ) {
-                const err = 'You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length;
-                alert( err );
-                // alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
-                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
+    // eslint-disable-next-line prefer-const
+    [ v, statusLog ] = addViewOrderByXMLString( v, iV, nV, statusLog, setProgress );
 
-                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 299 ${err}` );
-            } else if ( v.orders.length === 0 ) {
-                const err = 'You have view.orders object with no fields to order by!';
-                alert( err );
+        // let viewOrderByXML = '';
+        // if (v.orders != null) {
+        //     if ( v.orders.length > 2 ) {
+        //         const err = 'You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length;
+        //         alert( err );
+        //         // alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
+        //         // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
 
-                // alert('You have view.orders object with no fields to order by!');
-                // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
+        //         statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `> 2 Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 299 ${err}` );
+        //     } else if ( v.orders.length === 0 ) {
+        //         const err = 'You have view.orders object with no fields to order by!';
+        //         alert( err );
 
-                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `No Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 303 ${err}` );
+        //         // alert('You have view.orders object with no fields to order by!');
+        //         // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
 
-            } else {
+        //         statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `No Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 303 ${err}` );
 
-                viewOrderByXML += v.orders.map( thisField => {
-                    return buildFieldOrderTag(thisField);
-                }).join('');
-            }
+        //     } else {
 
-        }
+        //         viewOrderByXML += v.orders.map( thisField => {
+        //             return buildFieldOrderTag(thisField);
+        //         }).join('');
+        //     }
+
+        // }
 
 
 /***
@@ -360,78 +350,78 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
  *                                                  
  */
 
-        let viewWhereXML = '';
-        if ( v.wheres != null && v.wheres.length > 0 ) {
+        [ v, statusLog ] = addViewWhereXMLString( v, iV, nV, statusLog, setProgress );
+        // if ( v.wheres != null && v.wheres.length > 0 ) {
 
-            //Get array of where items
-            const viewWhereArray = v.wheres.map( thisWhere => {
-                return buildFieldWhereTag(thisWhere);
+        //     //Get array of where items
+        //     const viewWhereArray = v.wheres.map( thisWhere => {
+        //         return buildFieldWhereTag(thisWhere);
 
-            });
-            //console.log('viewWhereArray', viewWhereArray);
+        //     });
+        //     //console.log('viewWhereArray', viewWhereArray);
 
-            //Go through each item and add the <Or> or <And> Tags around them
-            let hasPreviousAnd = false;
-            let previousAnd = '';
+        //     //Go through each item and add the <Or> or <And> Tags around them
+        //     let hasPreviousAnd = false;
+        //     let previousAnd = '';
 
-            // for (let i in viewWhereArray ) {
+        //     // for (let i in viewWhereArray ) {
 
-            viewWhereArray.map ( ( where, i ) => {
+        //     viewWhereArray.map ( ( where, i ) => {
 
-              const thisClause = i === 0 ? '' : v.wheres[i].clause;
-              const thisFieldWhere = viewWhereArray[i];
+        //       const thisClause = i === 0 ? '' : v.wheres[i].clause;
+        //       const thisFieldWhere = viewWhereArray[i];
 
-              if ( viewWhereArray.length === 0 ) {
-                  //You need to have something in here for it to work.
-                  const err = `Field was skipped because there wasn't a valid 'Where' : ' ${v.wheres[i].field}`;
-                  alert( err );
-                  // alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
-                  // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
-                  statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Invalid Where`, 'Checking' , `Error` , setProgress, `Add view ~ 347 ${err}` );
+        //       if ( viewWhereArray.length === 0 ) {
+        //           //You need to have something in here for it to work.
+        //           const err = `Field was skipped because there wasn't a valid 'Where' : ' ${v.wheres[i].field}`;
+        //           alert( err );
+        //           // alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+        //           // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
+        //           statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Invalid Where`, 'Checking' , `Error` , setProgress, `Add view ~ 347 ${err}` );
 
-              } else if ( viewWhereArray.length === 1 ) {
-                  viewWhereXML = thisFieldWhere;
+        //       } else if ( viewWhereArray.length === 1 ) {
+        //           viewWhereXML = thisFieldWhere;
 
-              } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
-                  //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
-                  const err = `Can't do 'Or' clause because for ${ thisFieldWhere } because there was already an 'And' clause here:  ${previousAnd}`;
-                  alert( err );
-                  // alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
-                  // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
-                  statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't do Or after And`, 'Checking' , `Error` , setProgress, `Add view ~ 355 ${err}` );
-              } else {
-                  //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
-                  // '<' + thisOper.q + '>'
+        //       } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
+        //           //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
+        //           const err = `Can't do 'Or' clause because for ${ thisFieldWhere } because there was already an 'And' clause here:  ${previousAnd}`;
+        //           alert( err );
+        //           // alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+        //           // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
+        //           statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't do Or after And`, 'Checking' , `Error` , setProgress, `Add view ~ 355 ${err}` );
+        //       } else {
+        //           //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
+        //           // '<' + thisOper.q + '>'
 
-                  if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
-                      if ( viewWhereXML != ''){
-                          viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
-                          viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
+        //           if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
+        //               if ( viewWhereXML != ''){
+        //                   viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+        //                   viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
                           
-                      } else {
-                          const err = `Can't wrap this in clause because there is not any existing field to compare to ${thisFieldWhere}`;
-                          alert( err );
-                          // alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
-                          // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
-                          statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't Compare field`, 'Checking' , `Error` , setProgress, `Add view ~ 368 ${err}` );
-                          viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
-                      }
+        //               } else {
+        //                   const err = `Can't wrap this in clause because there is not any existing field to compare to ${thisFieldWhere}`;
+        //                   alert( err );
+        //                   // alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
+        //                   // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
+        //                   statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkred', 'ErrorBadge', v.Title, `Can't Compare field`, 'Checking' , `Error` , setProgress, `Add view ~ 368 ${err}` );
+        //                   viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+        //               }
 
-                      //2021-06-11:  added where viewWhereArray.length === 3 for more complex views where there were 2 or's before the and
-                  } else if ( i === 0 && thisFieldWhere != '' && ( viewWhereArray.length === 2 || viewWhereArray.length === 3) ) {
-                      //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
-                      viewWhereXML = thisFieldWhere;
+        //               //2021-06-11:  added where viewWhereArray.length === 3 for more complex views where there were 2 or's before the and
+        //           } else if ( i === 0 && thisFieldWhere != '' && ( viewWhereArray.length === 2 || viewWhereArray.length === 3) ) {
+        //               //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
+        //               viewWhereXML = thisFieldWhere;
 
-                  }
-              }
+        //           }
+        //       }
 
-              if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
-            })
+        //       if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
+        //     })
 
               
 
-            // }
-        }
+        //     // }
+        // }
 
 
 /***
@@ -445,35 +435,37 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
  *                                                                     
  */
         let errMess = '';
-        const actualWhere = getXMLObjectFromString( actualViewSchema, 'Where', false, true) ;
-        const actualGroupBy = getXMLObjectFromString( actualViewSchema, 'GroupBy', false, false) ;
-        const actualOrderBy = getXMLObjectFromString( actualViewSchema, 'OrderBy', false, true) ;
-        const actualFields = getXMLObjectFromString( actualViewSchema, 'ViewFields',false, true) ;
+        // const actualWhere = getXMLObjectFromString( actualViewSchema, 'Where', false, true) ;
+        // const actualGroupBy = getXMLObjectFromString( actualViewSchema, 'GroupBy', false, false) ;
+        // const actualOrderBy = getXMLObjectFromString( actualViewSchema, 'OrderBy', false, true) ;
+        // const actualFields = getXMLObjectFromString( actualViewSchema, 'ViewFields',false, true) ;
 
-        if ( foundView === true && ( readOnly === true || listExistedB4 === true ) ) {  //Only compare if in read only because if not, it will just over-write, exception is first list which should be the default one.
-            if ( viewWhereXML !== actualWhere) {
-                errMess += '\n\nCurrent Where:\n' + actualWhere + '\n\nExpected Where:\n' + viewWhereXML;
-             }
+        if ( v.foundView === true && ( readOnly === true || listExistedB4 === true ) ) {  //Only compare if in read only because if not, it will just over-write, exception is first list which should be the default one.
+          [ v, statusLog ] = addViewCompareErrorStr( v, iV, nV, statusLog, setProgress );
 
-            if ( viewGroupByXML !== actualGroupBy) {
-                errMess += '\n\nCurrent GroupBy:\n' + actualGroupBy + '\n\nExpected GroupBy:\n' + viewGroupByXML;
-            }
+            // if ( viewWhereXML !== actualWhere) {
+            //     errMess += '\n\nCurrent Where:\n' + actualWhere + '\n\nExpected Where:\n' + viewWhereXML;
+            //  }
+
+            // if ( viewGroupByXML !== actualGroupBy) {
+            //     errMess += '\n\nCurrent GroupBy:\n' + actualGroupBy + '\n\nExpected GroupBy:\n' + viewGroupByXML;
+            // }
     
-            if ( viewOrderByXML !== actualOrderBy) {
-                errMess += '\n\nCurrent OrderBy:\n' + actualOrderBy + '\n\nExpected OrderBy:\n' + viewOrderByXML;
-            } 
+            // if ( viewOrderByXML !== actualOrderBy) {
+            //     errMess += '\n\nCurrent OrderBy:\n' + actualOrderBy + '\n\nExpected OrderBy:\n' + viewOrderByXML;
+            // } 
 
-            if ( viewFieldsSchemaString !== actualFields) {
-                errMess += '\n\nCurrent Fields:\n' + actualFields + '\n\nExpected Fields:\n' + viewFieldsSchemaString;
-            }
+            // if ( viewFieldsSchemaString !== actualFields) {
+            //     errMess += '\n\nCurrent Fields:\n' + actualFields + '\n\nExpected Fields:\n' + viewFieldsSchemaString;
+            // }
 
-            if ( errMess === '' ) {
-                // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Checked Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 429' );
-                statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Checked Fields`, 'Checking' , `Finished` , setProgress, `Add view ~ 429 ` );
-            } else {
-                // setProgress(false, "E", iV, nV , 'darkorange', 'Warning12', v.Title, 'Unexpected Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 431' + errMess);
-                statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkorange', 'Warning12', v.Title, `Unexpected Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 431 ${errMess}` );
-            }
+            // if ( errMess === '' ) {
+            //     // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Checked Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 429' );
+            //     statusLog = addMyProgress( statusLog, false, 'View', iV, nV , 'darkgreen', 'CheckMark', v.Title, `Checked Fields`, 'Checking' , `Finished` , setProgress, `Add view ~ 429 ` );
+            // } else {
+            //     // setProgress(false, "E", iV, nV , 'darkorange', 'Warning12', v.Title, 'Unexpected Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 431' + errMess);
+            //     statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkorange', 'Warning12', v.Title, `Unexpected Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 431 ${errMess}` );
+            // }
 
         }
 
@@ -494,9 +486,9 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
          */
 
         let viewQueryXML = '';
-        if (viewWhereXML != '') { viewQueryXML += '<Where>' + viewWhereXML + '</Where>';}
-        if (viewGroupByXML != '') { viewQueryXML += '' + viewGroupByXML + '';} //Tags included in initial build because of special props.
-        if (viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + viewOrderByXML + '</OrderBy>';}
+        if (v.viewWhereXML != '') { viewQueryXML += '<Where>' + v.viewWhereXML + '</Where>';}
+        if (v.viewGroupByXML != '') { viewQueryXML += '' + v.viewGroupByXML + '';} //Tags included in initial build because of special props.
+        if (v.viewOrderByXML != '') { viewQueryXML += '<OrderBy>' + v.viewOrderByXML + '</OrderBy>';}
 
 
     /***
@@ -510,7 +502,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
      *                                                                                                  
      */
 
-        if ( foundView === false ) {
+        if ( v.foundView === false ) {
 
             /**
              * Available options:  https://github.com/koltyakov/sp-metadata/blob/baf1162394caba1222947f223ed78c76b4a72255/docs/SP/EntityTypes/View.md
@@ -539,7 +531,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
     
                     const ViewFieldsXML = getXMLObjectFromString(viewXML,'ViewFields',false, true);
                     //console.log('ViewFieldsXML', ViewFieldsXML);
-                    viewXML = viewXML.replace(ViewFieldsXML,viewFieldsSchemaString);
+                    viewXML = viewXML.replace(ViewFieldsXML,v.viewFieldsSchemaString);
     
                     await result.view.setViewXml(viewXML);
                     // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Updated Schema: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Updated View ~ 498' );
@@ -578,9 +570,9 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
                 try {
                     // Get old schema = actualViewSchema
-                    let newViewXML = actualViewSchema;
-                    const actualViewFieldsXML = getXMLObjectFromString(actualViewSchema,'ViewFields',false, true);
-                    const actualQueryXML = getXMLObjectFromString(actualViewSchema,'Query',false, true);
+                    let newViewXML = v.actualViewSchema;
+                    const actualViewFieldsXML = getXMLObjectFromString(v.actualViewSchema,'ViewFields',false, true);
+                    const actualQueryXML = getXMLObjectFromString(v.actualViewSchema,'Query',false, true);
 
 
                     /**
@@ -606,7 +598,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
                     }
 
-                    newViewXML = newViewXML.replace(actualViewFieldsXML,viewFieldsSchemaString);
+                    newViewXML = newViewXML.replace(actualViewFieldsXML,v.viewFieldsSchemaString);
 
                     //Update view schema
                     await listViews.getByTitle(v.Title).setViewXml(newViewXML);
@@ -680,6 +672,231 @@ export function fixTitleNameInViews( doList: boolean , list: IMakeThisList ): IM
         });
 
     return list;
+
+}
+
+
+export function updateViewExists( myList: IMyListInfo, v: IMyView, i: number, n: number, currentViews: any[] ): IMyView {
+
+  let foundView = false;
+  //Assuming that if I'm creating a column, it's an object with .name value.
+  const currentViewIndex = doesObjectExistInArray(currentViews, 'Title', v.Title );
+  let actualViewSchema = '';
+  if ( doesObjectExistInArray(currentViews, 'Title', v.Title ) ) {
+      foundView = true;
+      const vIndex : any = currentViewIndex;
+      actualViewSchema = currentViews[parseInt(vIndex,10)].ListViewXml;
+
+  } else {
+      foundView = false;
+      const err = `The ${myList.title} list does not have this view yet:  ${v.Title}`;
+      // statusLog = notify(statusLog, v,  'Checked View', 'create', err, null);
+      createProgressObject( true, false, 'E', i, n , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking`, err, );
+      // statusLog = addMyProgress( statusLog, false, 'E', iV, nV , 'darkgray', 'CalculatorSubtract', v.Title, 'Checked VIEWS', 'Checked' , `Checking` , setProgress, `Add view ~ 198 ${err}` );
+  }
+  v.foundView = foundView;
+  v.actualViewSchema = actualViewSchema;
+
+  return v;
+
+}
+
+export function addViewFieldSchemaString( v: IMyView ): IMyView {
+
+  const viewFieldsSchema = v.iFields.map( thisField => { 
+    const tempField : IViewField = JSON.parse(JSON.stringify(thisField));
+    const fieldName = typeof tempField  === 'object' ? tempField.name : tempField;
+    return '<FieldRef Name="' + fieldName + '" />';
+  });
+
+  let viewFieldsSchemaString: string = '';
+  if ( viewFieldsSchema.length > 0) {
+      //viewFieldsSchemaString = '<ViewFields>' + viewFieldsSchema.join('') + '</ViewFields>';
+      viewFieldsSchemaString = viewFieldsSchema.join('');            
+  }
+
+  v.viewFieldsSchemaString = viewFieldsSchemaString;
+  return v;
+
+}
+
+export function addViewGroupXMLString( v: IMyView, i: number, n: number, statusLog: IMyProgress[], setProgress : (progress : IMyProgress[]) => void ): [ IMyView, IMyProgress[] ] {
+
+  let viewGroupByXML = '';
+  if (v.groups != null) {
+    if ( v.groups.fields.length > 2) {
+        const err = 'You are trying to GroupBy more than 2 fields!: ' + v.groups.fields.length;
+        alert( err );
+        // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'GroupBy error: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 264' );
+        statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `> 2 GroupBy Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 198 ${err}` );
+
+    } else if (v.groups.fields != null && v.groups.fields.length > 0 ) {
+        if (v.groups.collapse === true ) { viewGroupByXML += ' Collapse="TRUE"'; }
+        if (v.groups.collapse === false ) { viewGroupByXML += ' Collapse="FALSE"'; }
+        if (v.groups.limit != null ) { viewGroupByXML += ' GroupLimit="' + v.groups.limit + '"'; }
+
+        viewGroupByXML = '<GroupBy' + viewGroupByXML + '>';
+
+        viewGroupByXML += v.groups.fields.map( thisField => {
+            return buildFieldOrderTag(thisField);
+        }).join('');
+
+        viewGroupByXML += '</GroupBy>';
+        //console.log('<OrderBy><FieldRef Name="Modified" Ascending="False" /></OrderBy>');
+        //console.log('viewGroupByXML', viewGroupByXML);
+    }
+  }
+
+  v.viewGroupByXML = viewGroupByXML;
+  return [ v, statusLog ];
+}
+
+export function addViewOrderByXMLString( v: IMyView, i: number, n: number, statusLog: IMyProgress[], setProgress : (progress : IMyProgress[]) => void ): [ IMyView, IMyProgress[] ] {
+
+  let viewOrderByXML = '';
+  if (v.orders != null) {
+      if ( v.orders.length > 2 ) {
+          const err = 'You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length;
+          alert( err );
+          // alert('You are trying to OrderBy more than 2 fields!: ' + v.groups.fields.length);
+          // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, '2 Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 299' );
+
+          statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `> 2 Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 299 ${err}` );
+      } else if ( v.orders.length === 0 ) {
+          const err = 'You have view.orders object with no fields to order by!';
+          alert( err );
+
+          // alert('You have view.orders object with no fields to order by!');
+          // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'No Order Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 303' );
+
+          statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `No Order Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 303 ${err}` );
+
+      } else {
+
+          viewOrderByXML += v.orders.map( thisField => {
+              return buildFieldOrderTag(thisField);
+          }).join('');
+      }
+
+  }
+
+  v.viewOrderByXML = viewOrderByXML;
+  return [ v, statusLog ];
+}
+
+export function addViewWhereXMLString( v: IMyView, i: number, n: number, statusLog: IMyProgress[], setProgress : (progress : IMyProgress[]) => void ): [ IMyView, IMyProgress[] ] {
+
+  let viewWhereXML = '';
+  if ( v.wheres != null && v.wheres.length > 0 ) {
+
+      //Get array of where items
+      const viewWhereArray = v.wheres.map( thisWhere => {
+          return buildFieldWhereTag(thisWhere);
+
+      });
+      //console.log('viewWhereArray', viewWhereArray);
+
+      //Go through each item and add the <Or> or <And> Tags around them
+      let hasPreviousAnd = false;
+      let previousAnd = '';
+
+      // for (let i in viewWhereArray ) {
+
+      // 2023-09-15:  Changed ( where, i ) to ( thisFieldWhere, i ) because it should be cleaner.
+      viewWhereArray.map ( ( thisFieldWhere, i ) => {
+
+        const thisClause = i === 0 ? '' : v.wheres[i].clause;
+        // const thisFieldWhere = viewWhereArray[i];
+
+        if ( viewWhereArray.length === 0 ) {
+            //You need to have something in here for it to work.
+            const err = `Field was skipped because there wasn't a valid 'Where' : ' ${v.wheres[i].field}`;
+            alert( err );
+            // alert('Field was skipped because there wasn\'t a valid \'Where\' : ' + v.wheres[i].field );
+            // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Invalid Where: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 347' );
+            statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `Invalid Where`, 'Checking' , `Error` , setProgress, `Add view ~ 347 ${err}` );
+
+        } else if ( viewWhereArray.length === 1 ) {
+            viewWhereXML = thisFieldWhere;
+
+        } else if ( hasPreviousAnd === true && thisClause === 'Or' ) {
+            //In UI, you can't have an OR after an AND... , it works but will not work editing the view through UI then.
+            const err = `Can't do 'Or' clause because for ${ thisFieldWhere } because there was already an 'And' clause here:  ${previousAnd}`;
+            alert( err );
+            // alert('Can\'t do \'Or\' clause because for ' + thisFieldWhere + ' because there was already an \'And\' clause here:  ' + previousAnd);
+            // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t do Or after And: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 355' );
+            statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `Can't do Or after And`, 'Checking' , `Error` , setProgress, `Add view ~ 355 ${err}` );
+        } else {
+            //console.log( 'thisClause, thisFieldWhere', thisClause, thisFieldWhere );
+            // '<' + thisOper.q + '>'
+
+            if ( thisClause != '' && thisFieldWhere != '' ){ //Valid clause found... wrap entire string in it
+                if ( viewWhereXML != ''){
+                    viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+                    viewWhereXML = '<' + thisClause + '>' + viewWhereXML + '</' + thisClause + '>';
+
+                } else {
+                    const err = `Can't wrap this in clause because there is not any existing field to compare to ${thisFieldWhere}`;
+                    alert( err );
+                    // alert('Can\'t wrap this in clause because there is not any existing field to compare to ' + thisFieldWhere );
+                    // setProgress(false, "E", iV, nV , 'darkred', 'ErrorBadge', v.Title, 'Can\'t Compare field: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Add view ~ 368' );
+                    statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkred', 'ErrorBadge', v.Title, `Can't Compare field`, 'Checking' , `Error` , setProgress, `Add view ~ 368 ${err}` );
+                    viewWhereXML = viewWhereXML + thisFieldWhere;  //Add new field to previous string;
+                }
+
+                //2021-06-11:  added where viewWhereArray.length === 3 for more complex views where there were 2 or's before the and
+            } else if ( i === 0 && thisFieldWhere != '' && ( viewWhereArray.length === 2 || viewWhereArray.length === 3) ) {
+                //Had to add this while testing TMTView:  VerifyNoStoryOrChapterView
+                viewWhereXML = thisFieldWhere;
+
+            }
+        }
+
+        if ( thisClause === 'And') { hasPreviousAnd = true ; previousAnd = thisFieldWhere; }
+      });
+  }
+
+  v.viewWhereXML = viewWhereXML;
+  return [ v, statusLog ];
+
+}
+export function addViewCompareErrorStr( v: IMyView, i: number, n: number, statusLog: IMyProgress[], setProgress : (progress : IMyProgress[]) => void ): [ IMyView, IMyProgress[] ] {
+
+  const { viewWhereXML, viewGroupByXML, viewOrderByXML, viewFieldsSchemaString } = v;
+  let errMess = '';
+  const actualWhere = getXMLObjectFromString( v.actualViewSchema, 'Where', false, true) ;
+  const actualGroupBy = getXMLObjectFromString( v.actualViewSchema, 'GroupBy', false, false) ;
+  const actualOrderBy = getXMLObjectFromString( v.actualViewSchema, 'OrderBy', false, true) ;
+  const actualFields = getXMLObjectFromString( v.actualViewSchema, 'ViewFields',false, true) ;
+
+  // if ( foundView === true && ( readOnly === true || listExistedB4 === true ) ) {  //Only compare if in read only because if not, it will just over-write, exception is first list which should be the default one.
+      if ( viewWhereXML !== actualWhere) {
+          errMess += '\n\nCurrent Where:\n' + actualWhere + '\n\nExpected Where:\n' + viewWhereXML;
+       }
+
+      if ( viewGroupByXML !== actualGroupBy) {
+          errMess += '\n\nCurrent GroupBy:\n' + actualGroupBy + '\n\nExpected GroupBy:\n' + viewGroupByXML;
+      }
+
+      if ( viewOrderByXML !== actualOrderBy) {
+          errMess += '\n\nCurrent OrderBy:\n' + actualOrderBy + '\n\nExpected OrderBy:\n' + viewOrderByXML;
+      } 
+
+      if ( viewFieldsSchemaString !== actualFields) {
+          errMess += '\n\nCurrent Fields:\n' + actualFields + '\n\nExpected Fields:\n' + viewFieldsSchemaString;
+      }
+
+      if ( errMess === '' ) {
+          // setProgress(false, "V", iV, nV , 'darkgreen', 'CheckMark', v.Title, 'Checked Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 429' );
+          statusLog = addMyProgress( statusLog, false, 'View', i, n , 'darkgreen', 'CheckMark', v.Title, `Checked Fields`, 'Checking' , `Finished` , setProgress, `Add view ~ 429 ` );
+      } else {
+          // setProgress(false, "E", iV, nV , 'darkorange', 'Warning12', v.Title, 'Unexpected Fields: ' + myList.title, 'View ' + iV + ' of ' + nV + ' : ' + v.Title, 'Compare View ~ 431' + errMess);
+          statusLog = addMyProgress( statusLog, false, 'E', i, n , 'darkorange', 'Warning12', v.Title, `Unexpected Fields`, 'Checking' , `Error` , setProgress, `Add view ~ 431 ${errMess}` );
+      }
+
+  // }
+  v.errMess = errMess;
+  return [ v, statusLog ];
 
 }
 
