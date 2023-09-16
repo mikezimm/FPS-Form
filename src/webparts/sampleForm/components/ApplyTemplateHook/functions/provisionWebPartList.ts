@@ -42,9 +42,9 @@ import { getFullUrlFromSlashSitesUrl } from '@mikezimm/fps-library-v2/lib/logic/
 
 import { addTheseItemsToList, addTheseItemsToListInBatch } from './listServices';
 
-import { addTheseFields } from './columnServices'; //Import view arrays for Time list
+import { addTheseFields } from './fields/columnServices'; //Import view arrays for Time list
 
-import { addTheseViews } from './viewServices'; //Import view arrays for Time list
+import { addTheseViews } from './views/viewServices'; //Import view arrays for Time list
 
 import { IAnyArray } from  './listServices';
 
@@ -333,10 +333,19 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
         alert(`Your  list is all ready to go!`);
     }
 
-    markComplete( [ ...fieldsResults, ...viewsResults, ...itemsResults ] );
+    const errorResults : IMyProgress[] = [];
+    fieldsResults.map( ( item ) => { if ( item.array === 'E' ) errorResults.push( item ) } );
+    fieldsResults = fieldsResults.filter( ( item ) =>  item.array !== 'E' );
 
-    return [ fieldsResults, viewsResults, itemsResults ];
+    viewsResults.map( ( item ) => { if ( item.array === 'E' ) errorResults.push( item ) } );
+    viewsResults = viewsResults.filter( ( item ) =>  item.array !== 'E' );
 
+    itemsResults.map( ( item ) => { if ( item.array === 'E' ) errorResults.push( item ) } );
+    itemsResults = itemsResults.filter( ( item ) =>  item.array !== 'E' );
+
+    markComplete( [ ...errorResults ,...fieldsResults, ...viewsResults, ...itemsResults ] );
+
+    return [ errorResults, fieldsResults, viewsResults, itemsResults ];
 
 }
 

@@ -7,6 +7,8 @@ import { defineTheListMaster } from "./defineTheListMaster";
 import { HarmonieFields } from "../Harmonie/columnsHarmonie";
 import { BUHarmonieViews } from "../Harmonie/viewsHarmonie";
 import { getFieldNamesFromArray, getViewTitlesFromArray } from "./getFieldInfo";
+import { ErrorFields } from '../ErrorVal/columnsErrors';
+import { AllErrorViews } from '../ErrorVal/viewsErrors';
 
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -26,6 +28,13 @@ export function getSpecificListDef( list: IListInfo, definedList: IDefinedListIn
 
       makeThisList.createTheseFields = HarmonieFields( definedList.listDefinition as 'Emails' );
       makeThisList.createTheseViews = BUHarmonieViews;
+      makeThisList.createTheseItems = [];
+      makeThisList.autoItemCreate = false;
+      break;
+    case 'ErrorChecks':
+
+      makeThisList.createTheseFields = ErrorFields( 'ErrorChecks' );
+      makeThisList.createTheseViews = AllErrorViews;
       makeThisList.createTheseItems = [];
       makeThisList.autoItemCreate = false;
       break;

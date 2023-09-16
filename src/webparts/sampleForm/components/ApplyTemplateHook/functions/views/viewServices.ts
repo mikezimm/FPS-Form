@@ -19,10 +19,10 @@ import "@pnp/sp/fields";
 import "@pnp/sp/views";
 import "@pnp/sp/fields/list";
 
-import { IMakeThisList, } from '../interfaces/ProvisionTypes';
+import { IMakeThisList, } from '../../interfaces/ProvisionTypes';
 
 import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces";
-import { addMyProgress, createProgressObject } from "./addMyProgress";
+import { addMyProgress, createProgressObject } from "../addMyProgress";
 
 export interface IViewLog extends IServiceLog {
     view?: string;
@@ -434,7 +434,7 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
  *                                                                     
  *                                                                     
  */
-        let errMess = '';
+
         // const actualWhere = getXMLObjectFromString( actualViewSchema, 'Where', false, true) ;
         // const actualGroupBy = getXMLObjectFromString( actualViewSchema, 'GroupBy', false, false) ;
         // const actualOrderBy = getXMLObjectFromString( actualViewSchema, 'OrderBy', false, true) ;
@@ -501,7 +501,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
      *                                                                                                  
      *                                                                                                  
      */
-
+    let errMess = v.errMess;
+    
         if ( v.foundView === false ) {
 
             /**
@@ -564,7 +565,8 @@ export async function addTheseViews( listExistedB4 : boolean, readOnly: boolean,
 
             let updateList = false;
             if ( readOnly === false && listExistedB4 === true && errMess !== '' ) { updateList = true; }
-            if ( listExistedB4 === false && errMess !== '' && iV === 1 ) { updateList = true; }  //This should be default view... update it if needed         
+            else if ( listExistedB4 === false && errMess !== '' && iV === 1 ) { updateList = true; }  //This should be default view... update it if needed         
+            else if ( listExistedB4 === false && errMess === '' && iV === 1 ) { updateList = true; }  //This should be default view... but it did find some 'errors' which are really just checks.         
 
             if ( updateList ) {
 

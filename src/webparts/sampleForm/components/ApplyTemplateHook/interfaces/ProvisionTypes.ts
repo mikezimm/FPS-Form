@@ -58,6 +58,7 @@ export type IListDefintionLogistics = 'Warehouse' | 'WarehouseAll' | 'Inventory'
 export const MfgProductNames: IListDefintionMfg[] = [ 'AB', 'SB', 'SW', 'IN', 'TE' , 'DU' ];
 
 export type IListDefintionTMT = 'Projects' | 'TrackMyTime';
+export type IListDefintionErrors = 'ErrorChecks' | 'ErrorViews' | 'ErrorColumns';
 export type IListDefintionTurnOver = 'AOA Turnover' | 'IBC Turnover' | 'TBD Turnover';
 export type IListDefintionPivot = 'OurTiles' | 'PivotTiles';
 export type IListDefintionPreConfig = 'Drilldown' | 'CarrotCharts' | 'GridCharts';
@@ -80,10 +81,10 @@ export const definedLists : IDefinedLists[] = ['TrackMyTime','Harmon.ie','Custom
  * First item in availLists array ( availLists[0] ) is default one so it should be the 'Pick list type' one.
  * 
  */
-export type IDefinedLists = 'No List Available' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Tasks' |  'Reports' |  'Turnover' |  
+export type IDefinedLists = 'No List Available' | 'ErrorChecks' | 'TrackMyTime' | 'Harmon.ie' | 'Customer Requirements' | 'Tasks' |  'Reports' |  'Turnover' |  
   'Socialiis' | 'PivotTiles' | 'Drilldown' | 'PreConfig' | 'Manufacturing' | 'Analytics' |   'Logistics' | 'Components';
 
-export type IDefinedChoice = 'Pick component Type' | IListDefintionTMT | IListDefintionHarmonie | IListDefintionCustReq | IListDefintionFinTasks |  IListDefintionReports |  IListDefintionTurnOver | IListDefintionPivot | IListDefintionPreConfig | IListDefintionLogistics | '';
+export type IDefinedChoice = 'Pick component Type' | IListDefintionErrors | IListDefintionTMT | IListDefintionHarmonie | IListDefintionCustReq | IListDefintionFinTasks |  IListDefintionReports |  IListDefintionTurnOver | IListDefintionPivot | IListDefintionPreConfig | IListDefintionLogistics | '';
 
 export interface IDefinedListInfo {
   listDefinition: IDefinedChoice;
@@ -103,13 +104,19 @@ const BUEmails: IDefinedListInfo = {
   templates: [ 101 ],
 }
 
+const ErrorTesting: IDefinedListInfo = {
+  listDefinition: `ErrorChecks`,
+  list: `ErrorChecks`,
+  templates: [ 101, 100 ],
+}
+
 
 export const DefinedListChoices: IDefinedListInfo[] = [
-  
+  ErrorTesting
 ];
 
 export const DefinedLibraryChoices: IDefinedListInfo[] = [
-  Emails , BUEmails,
+  Emails , BUEmails, ErrorTesting
 ];
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

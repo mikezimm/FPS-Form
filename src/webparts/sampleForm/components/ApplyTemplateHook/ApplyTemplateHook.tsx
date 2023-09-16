@@ -273,9 +273,10 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
     // Found from:  https://codesandbox.io/s/402pn5l989?file=/src/index.js:288-366
     await Promise.resolve().then(() => {
-      setFieldsX( listCreated[0] );
-      setViewsX( listCreated[1] );
-      setItemsX( listCreated[2] );
+      setErrorsX( listCreated[0] );
+      setFieldsX( listCreated[1] );
+      setViewsX( listCreated[2] );
+      setItemsX( listCreated[3] );
       setStatus( 'Finished' );
     });
 
@@ -421,7 +422,7 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
   const ProgressElement: JSX.Element = <Accordion 
     title = { `Provisioning Progress - Click for more details` }
     defaultIcon = 'Help'
-    showAccordion = { false }
+    showAccordion = { errorsX.length > 0 ? true : false }
     content = { ProgressPane }
     refreshId={ makeid(5) }
     contentStylesVis = {{ height: `auto` }}
