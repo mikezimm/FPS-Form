@@ -107,7 +107,7 @@ export const InvalidXMLType : IXMLField = {
   }
 };
 
-// NOTE:  It seems like you can actually create a text field longer than 255 this way but it will not let you update it in the UI later without fixing it.
+// NOTE:  You can actually create a text field longer than 255 ( with no error ) this way but it will not let you update it in the UI later without fixing it.
 export const InvalidXMLTextToLong : IXMLField = {
   fieldType: cText,
   name: 'InvalidXMLTextToLong',
