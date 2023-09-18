@@ -6,7 +6,7 @@ import { Dropdown } from 'office-ui-fabric-react/lib/Dropdown';
 import { ProgressIndicator } from 'office-ui-fabric-react/lib/ProgressIndicator';
 
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import { IListInfo } from "@pnp/sp/lists/types";
+import { IListInfo } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 
 import styles from './ApplyTemplateHoook.module.scss';
 import stylesTop from '../SampleForm.module.scss';
@@ -26,6 +26,9 @@ import { getSpecificListDef } from './templates/functions/getSpecificListDef';
 import { provisionTheList } from './functions/provisionWebPartList';
 
 import { IMyProgress, } from '@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces';
+import { ApplyTemplate_Rail_SaveTitle, } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/permissionsSave';
+import { saveAssist } from './functions/saveAssist';
+import { saveProvisioning } from './functions/saveProvisioning';
 
 require ('./ApplyTemplate.css');
 
@@ -213,9 +216,73 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
       console.log( 'setProgressNow Id: ', `${id} -  ${progress[0].id}` );
   }
 
-  const markComplete = () : void => {
+  const markComplete = ( listCreated: IMyProgress[][] ) : void => {
     // alert( 'Finished!' );
     setStatus( 'Finished' );
+
+    const history = {
+      count: listCreated[1].length + listCreated[2].length + listCreated[3].length,
+      errors: listCreated[0],
+      fields: listCreated[1],
+      views: listCreated[2],
+      items: listCreated[3],
+    };
+
+    let progressLast = null;
+    if ( listCreated[3].length > 0 ) {
+      progressLast = listCreated[3][ 0 ];
+    } else if ( listCreated[2].length > 0 ) {
+      progressLast = listCreated[2][ 0 ];
+    } else if ( listCreated[1].length > 0 ) {
+      progressLast = listCreated[1][ 0 ];
+    }
+
+    saveAssist(
+      makeList.webURL,
+      `Applied Template: v2.0.0.2 ${makeList.definedList} - ${makeList.listDefinition} to List: ${makeList.title}`,
+      makeList.listURL,
+      ['2. Provisioning'],
+      history,
+    );
+
+    saveProvisioning(
+      context as any,
+      `${ApplyTemplate_Rail_SaveTitle} - v2.0.0.2`,  // analyticsListRailsApply: string,
+      `${ApplyTemplate_Rail_SaveTitle} - v2.0.0.2`,  // Title: string, 
+      'Complete',
+      `${ApplyTemplate_Rail_SaveTitle} - v2.0.0.2`,  // panelVersionNumber: string, 
+      makeList,
+      targetList,
+      'AddTemplate',
+      progressLast,
+      history, // Add entire history
+
+    )
+//     import { saveAnalytics, ApplyTemplate_Rail_SaveTitle, ProvisionListsSaveTitle} from '@mikezimm/npmfunctions/dist/Services/Analytics/normal';
+
+// import { saveThisLogItem } from  '@mikezimm/npmfunctions/dist/Services/Logging/ErrorHandler';
+// import { getWebUrlFromLink, getUrlVars,  } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
+// import { getCurrentPageLink, makeListLink, makeSiteLink, } from '@mikezimm/npmfunctions/dist/Services/Logging/LogFunctions';
+
+// let theSite: any = this.props.theSite;
+// let ServerRelativeUrl = this.props.currentPage;
+// let pickedWeb = this.props.pickedWeb.ServerRelativeUrl + '|' + this.props.pickedWeb.guid + '|' + theSite.Url + '|' + theSite.Id ;
+
+// let idx = this.state.listNo;
+// let mapThisList: IMakeThisList = this.state.lists[ idx ];
+
+// saveAnalytics( this.props.analyticsWeb, strings.analyticsListRailsApply , //analyticsWeb, analyticsList,
+//     ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+//     `${ApplyTemplate_Rail_SaveTitle} - v2.0.0.2`, pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+//     this.props.theList.Title, null , 'Complete', //itemInfo1, itemInfo2, result, 
+//     mapThisList, this.props.railFunction, this.state.progress, this.state.history ); //richText, Setting, richText2, richText3
+
+// saveAssist( //strings.requestListSite, strings.requestListList , //analyticsWeb, analyticsList,
+//     ServerRelativeUrl, ServerRelativeUrl,//serverRelativeUrl, webTitle,
+//     `Applied Template: v2.0.0.2 ${mapThisList.definedList} - ${mapThisList.listDefinition} to List: ${mapThisList.title}` , this.props.pickedWeb, this.props.theList.listURL, //saveTitle, TargetSite, TargetList
+//     '', ['2. Provisioning'], '', //itemInfo1 ( Not used yet ), itemInfo2 ( Scope array ), result ( Not used yet ), 
+//     JSON.stringify(this.state.history), this.props.railFunction, null, null ); //richText, Setting, richText2, richText3
+
   }
 
   const resetState = async (): Promise<void> => {
@@ -370,8 +437,27 @@ const ApplyTemplateHook: React.FC<IApplyTemplateHookProps> = ( props ) => {
 
   const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 3em 15px 2em' }}>
     {/* { sourceButtonRow( null ) } */}
-    { makeList?.templateFields }
-    { makeList?.templateViews }
+    {/* { makeList?.templateFields } */}
+    {/* { makeList?.templateViews } */}
+    { makeList && makeList.createTheseFields ? <div>
+      <div className='items-title'>Fields to be added</div>
+      <div className={ 'template-items' }>
+        { makeList.createTheseFields.length === 0 ? 
+        <div>No fields defined for this template</div>:
+        makeList.createTheseFields.map( field => { return <div key={ field.Title }
+        title={ field.TypeDisplayName } >{ typeof field  === 'object' ? decodeURI( field.name ) : field }</div> })}
+      </div>
+    </div> : undefined }
+
+    { makeList && makeList.createTheseViews ? <div>
+      <div className='items-title'>Views to be added</div>
+      <div className={ 'template-items' }>
+        { makeList.createTheseViews.length === 0 ? 
+        <div>No views defined for this template</div>:
+        makeList.createTheseViews.map( view => { return <div key={ view.Title }
+        title={view.iFields.map( field=> { return typeof field  === 'object' ? decodeURI( field.name ) : field }  ).join(', ') } >{ typeof view  === 'object' ? view.Title : view }</div> })}
+      </div>
+    </div> : undefined }
   </div>;
 
   const accordionHeight: number = -100;

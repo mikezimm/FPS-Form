@@ -89,7 +89,7 @@ import { IMyProgress } from "@mikezimm/fps-library-v2/lib/common/interfaces/fps/
 export interface IProvisionListFunction {
 
   setProgress : (progress : IMyProgress[]) => void;
-  markComplete : (progress : IMyProgress[]) => void;
+  markComplete : ( history: IMyProgress[][] ) => void;
   makeThisList:  IMakeThisList;
   readOnly: boolean;
   doFields: boolean;
@@ -343,7 +343,7 @@ export async function provisionTheList( props: IProvisionListFunction ): Promise
     itemsResults.map( ( item ) => { if ( item.array === 'E' ) errorResults.push( item ) } );
     itemsResults = itemsResults.filter( ( item ) =>  item.array !== 'E' );
 
-    markComplete( [ ...errorResults ,...fieldsResults, ...viewsResults, ...itemsResults ] );
+    markComplete( [ errorResults , fieldsResults, viewsResults, itemsResults ] );
 
     return [ errorResults, fieldsResults, viewsResults, itemsResults ];
 

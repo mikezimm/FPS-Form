@@ -48,7 +48,7 @@ export function defineTheListMaster( list: Partial<IListInfo>, definedList: IDef
 
     createTheseItems: null,
     autoItemCreate: false,
-    listURL: `${webURL}/${list.BaseTemplate === 100 ? 'lists/' : ''} ${list.EntityTypeName}`,
+    listURL: `${webURL}/${list.BaseTemplate === 100 ? 'lists/' : ''}${list.EntityTypeName}`,
     confirmed: false, // Likely not needed... seems like this was used on PageProvisioning if anything... but can not see any use.
     // onCurrentSite: isListOnThisWeb, - Checked in EasyContents and this only seems to be used in defineTheMaster and no where else.
     webExists: true, // Likely can be removed if there is always a valid web url passed in from context or text box
