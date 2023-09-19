@@ -11,6 +11,7 @@ import ApplyTemplateHook from './ApplyTemplateHook/ApplyTemplateHook'
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { IDefinedListInfo } from './ApplyTemplateHook/interfaces/ProvisionTypes';
 import { ProvisionInstructions } from './Instructions';
+import FixerUpperHook from './FixerUpper/FixerUpperHook';
 
 export interface ISampleFormProps {
   context: WebPartContext;
@@ -85,6 +86,12 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
           context={ this.props.context }
           expandedState={ this.state.provisionTab === 'Label History' ? true : false }
         />
+        <FixerUpperHook 
+          context={ this.props.context }
+          expandedState={ true }
+        />
+
+
       </div>
 
     );
