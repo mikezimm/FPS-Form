@@ -89,6 +89,7 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
         <FixerUpperHook 
           context={ this.props.context }
           expandedState={ true }
+          
         />
 
 
