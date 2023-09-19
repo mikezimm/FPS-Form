@@ -171,7 +171,7 @@ function findUrls(ele: 'href' | 'src' , inputString: string): string[] {
   const regex = ele === 'href' ? /href="([^"]*)"/g : /src="([^"]*)"/g;
   const newStr = inputString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const hrefs = newStr.match(regex);
-  const cleanHrefs = hrefs.map( item => { return decodeURIComponent( item ) } )
+  const cleanHrefs = hrefs ? hrefs.map( item => { return decodeURIComponent( item ) } ) : null;
   return cleanHrefs;
 }
 
@@ -203,8 +203,8 @@ export function updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUppe
           checkedProps.push( fixer.prop );
           const hrefs = findUrls( 'href', item[ fixer.prop as 'Answer' ] );
           const srcs = findUrls( 'src', item[ fixer.prop as 'Answer' ] );
-          item.ReplaceOWizard.hrefs.push( ...hrefs );
-          item.ReplaceOWizard.srcs.push( ...srcs );
+          if ( hrefs ) item.ReplaceOWizard.hrefs.push( ...hrefs );
+          if ( srcs ) item.ReplaceOWizard.srcs.push( ...srcs );
         } 
       });
 
