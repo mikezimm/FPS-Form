@@ -17,7 +17,7 @@ import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecule
 
 import { ISourceSearch } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/Interfaces/ISourceSearch';
 import { getSourceItems } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/getSourceItems';
-import { createFixerUpperRowDanger, createFixerUpperRowText, exampleRowHeaders } from './Row';
+import { createFixerUpperRowFormat, createFixerUpperRowText, exampleRowHeaders } from './Row';
 import { IFixerUpperHookRead } from './IFixerUpperHookRead';
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
@@ -25,7 +25,7 @@ import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecule
 import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/molecules/FPSTiles/functions/Any/createErrorFPSTileItem';
 
 import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
-import { IReplacementObject, getFilteredItems, getFixerUpperSource, getVerifiedItems, summarizeVerifiedItems, updateItems, updateItemsAsync } from './updateListData';
+import { IReplacementObject, getFilteredItems, getFixerUpperSource, getLinkItems, summarizeItemLinks, updateItems, updateItemsAsync } from './updateListData';
 import { createVerifiedRow, verifiedRowHeaders } from './RowVerified';
 
 /***
@@ -40,16 +40,19 @@ import { createVerifiedRow, verifiedRowHeaders } from './RowVerified';
  */
 
 export type IFixerUpperMode = 'Test' | 'Real';  // Define what kinds of variants of the panel you want
-export type IFixerUpperShowThese = 'Actual' | 'Fixed' | 'Verified';  // Define what kinds of variants of the panel you want
+export type IFixerUpperShowThese = 'Actual' | 'Simulated' | 'Verified';  // Define what kinds of variants of the panel you want
 
-export type IFixerUpperRowType = 'Items' | 'Links';
-const RowButtons: IFixerUpperRowType[] = [ 'Items' , 'Links' ];
+export type IFixerUpperRowType = 'List Items' | 'Links';
+const RowButtons: IFixerUpperRowType[] = [ 'List Items' , 'Links' ];
 
-export type IFixerUpperDanger = 'Text' | 'RichText';
-const DangerButtons: IFixerUpperDanger[] = [ 'Text' , 'RichText' ];
+export type IFixerUpperFormat = 'HTML' | 'RichText';
+const FormatButtons: IFixerUpperFormat[] = [ 'HTML' , 'RichText' ];
 
 export type IFixerUpperData =  'Actual data' | 'Simulate Changes';
 const DataButtons: IFixerUpperData[] = [ 'Actual data', 'Simulate Changes' , ];
+
+export type IFixerUpperActions =  'Really update 1st Item' | 'Really update ALL Items';
+const ActionButtons: IFixerUpperActions[] = [ 'Really update 1st Item', 'Really update ALL Items' , ];
 
 export type IPanelOption = 'performance' | 'item';  // Define what kinds of variants of the panel you want
 
@@ -121,19 +124,20 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
 
   // Added for example when fetching items
   const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
-  const [ fixedSource, setFixedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
-  const [ verifiedSource, setVerifiedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  const [ simulatedSource, setSimulatedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  // const [ verifiedSource, setVerifiedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ linksSource, setLinksSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
-  const [ showThese, setShowThese ] = useState< IFixerUpperShowThese > ( 'Actual' );
+  // const [ showThese, setShowThese ] = useState< IFixerUpperShowThese > ( 'Actual' );
   const [ row, setRow ] = useState< number > ( 0 );
-  const [ danger, setDanger ] = useState< number > ( 0 );
+  const [ format, setFormat ] = useState< number > ( 0 );
   const [ data, setData ] = useState< number > ( 0 );
+  const [ action, setAction ] = useState< number > ( -1 );
 
 
-  const [ showContent, setShowContent ] = useState< IFixerUpperRowType > ( 'Items' );
+  // const [ showContent, setShowContent ] = useState< IFixerUpperRowType > ( 'List Items' );
 
   const [ updatedItems, setUpdatedItems ] = useState< IFixerUpperHookRead[] > ( null );
-  const [ verifiedItems, setVerifiedItems ] = useState< IFixerUpperHookRead[] > ( null );
+  const [ verifiedItems, setLinkItems ] = useState< IFixerUpperHookRead[] > ( null );
   
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [ fetchPerformance, setFetchPerformance ] = useState<IPerformanceOp>( null );
@@ -153,6 +157,25 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
    *                                                                                   
    */
 
+  const changeDataMode = ( dataText: IFixerUpperData ): void => {
+
+    const simItems: IFixerUpperHookRead[] = updateItems( 
+      stateSource.items as any[],
+      DataButtons[ data ],
+      5000
+     );
+
+     const sourceItemsForLinks = dataText === 'Actual data' ? stateSource.items as IFixerUpperHookRead[]: simItems;
+     const linkItems: IFixerUpperHookRead[] = getLinkItems( sourceItemsForLinks, );
+     const linkSummary = summarizeItemLinks( linkItems );
+     console.log( 'linkSummary:', linkSummary );
+
+    setSimulatedSource( { ...stateSource, ...{ items: simItems, refreshId: makeid(5) } } );
+    setLinksSource( { ...stateSource, ...{ items: linkSummary as any[], refreshId: makeid(5) } } );
+    setLinkItems( sourceItemsForLinks );
+
+  }
+
   useEffect(() => {
 
     if ( expandedState === true && fetched === false ) {
@@ -167,9 +190,18 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
           const search: ISourceSearch = null;
           results.items = addSearchMeta1(results.items, FixerUpperHookSourceProps, search);
         }
+        const linkItems: IFixerUpperHookRead[] = getLinkItems( 
+          results.items as IFixerUpperHookRead[]
+        );
 
+        const linkSummary = summarizeItemLinks( linkItems );
+        setData( 0 );
+        setRow( 0 );
+        setFormat( 0 );
         setFetched( results.loaded );
         setStateSource( results );
+        setLinkItems( linkItems );
+        setLinksSource( { ...results, ...{ items: linkSummary , refreshId: makeid (5) }});
         setProcPerformance( null ); // Add here if you want to also monitor some process performance
         setFetchPerformance( results.unifiedPerformanceOps.fetch );
       };
@@ -184,7 +216,36 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
 
   }, [ expandedState, fetched ] );
 
+  useEffect(() => {
 
+    if ( expandedState === true && fetched === true ) {
+      // const getItems = async (): Promise<void> => {
+
+      //   const results: IStateSource = await getSourceItems(FixerUpperHookSourceProps, false, true ) as IStateSource;
+
+      //   if (results.status !== 'Success') {
+      //     results.items = [ createErrorFPSTileItem( results, null ) ];
+
+      //   } else {
+      //     const search: ISourceSearch = null;
+      //     results.items = addSearchMeta1(results.items, FixerUpperHookSourceProps, search);
+      //   }
+
+      //   setFetched( results.loaded );
+      //   setStateSource( results );
+      //   setProcPerformance( null ); // Add here if you want to also monitor some process performance
+      //   setFetchPerformance( results.unifiedPerformanceOps.fetch );
+      // };
+
+      // eslint-disable-next-line no-void
+      void changeDataMode( DataButtons[ data ] );
+
+      return () => {
+        // this now gets called when the component unmounts
+      };
+    }
+
+  }, [ data ] );
   /***
    *     .d88b.  d8b   db       .o88b. db      d888888b  .o88b. db   dD .d8888. 
    *    .8P  Y8. 888o  88      d8P  Y8 88        `88'   d8P  Y8 88 ,8P' 88'  YP 
@@ -198,13 +259,15 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
 
 
   const toggleContent = ( ): void => {
-    verifyTheseItems( '')
     setRow( row === 1 ? 0 : 1 );
   }
 
+  const toggleData = ( ): void => {
+    setData( data === 1 ? 0 : 1 );
+  }
 
   const reloadData = ( ): void => {
-    setShowThese( 'Actual' );
+    // setShowThese( 'Actual' );
     setFetched( false );
 
   }
@@ -218,29 +281,17 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
     reloadData();
 
   }
-  const doThisAction =  ( mode: IFixerUpperMode, count: number ): void => {
+
+  const doThisAction =  ( dataMode: IFixerUpperData, count: number ): void => {
     const newItems: IFixerUpperHookRead[] = updateItems( 
       stateSource.items as any[],
-      mode,
+      dataMode,
       count
      );
 
-     setFixedSource( { ...stateSource, ...{ items: newItems, refreshId: makeid(5) } } );
+     setSimulatedSource( { ...stateSource, ...{ items: newItems, refreshId: makeid(5) } } );
      setUpdatedItems( newItems );
-     setShowThese( 'Fixed' );
-  }
-
-  const verifyTheseItems =  ( mode: IFixerUpperMode ): void => {
-    const newItems: IFixerUpperHookRead[] = getVerifiedItems( 
-      mode === 'Real' ? stateSource.items as IFixerUpperHookRead[] : fixedSource.items as IFixerUpperHookRead[],
-    );
-    const verifiedSumm = summarizeVerifiedItems( newItems );
-    console.log( 'verifiedSumm:', verifiedSumm );
-    setVerifiedSource( { ...stateSource, ...{ items: newItems as any[], refreshId: makeid(5) } } );
-    setLinksSource( { ...stateSource, ...{ items: verifiedSumm as any[], refreshId: makeid(5) } } );
-    setVerifiedItems( newItems );
-    setRow( 1 );
-    setShowThese( 'Verified' );
+    //  setShowThese( 'Simulated' );
   }
 
   const setNewPanelItem = ( command: string, Id: number, type: IPanelOption, item: IAnySourceItem ): void => {
@@ -275,78 +326,125 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
     selected: row,
     infoEle: ``,
     selectedClass: styles.isSelected,
+    disabled: stateSource.loaded !== true ? 'all' : [],
+
   }
 
-  const DangerButtonsProps: ISourceButtonRowProps = {
+  const FormatButtonsProps: ISourceButtonRowProps = {
     title: '',
     heading: <div>Render as</div>,
     rowCSS: { paddingTop: '10px' },
     buttonCSS: { marginRight: '10px' },
-    Labels: DangerButtons ,
-    onClick: stateSource.loaded !== true ? undefined : setDanger.bind( this ),
-    selected: danger,
+    Labels: FormatButtons ,
+    onClick: stateSource.loaded !== true ? undefined : setFormat.bind( this ),
+    selected: format,
     infoEle: ``,
     selectedClass: styles.isSelected,
+    disabled: stateSource.loaded !== true || row === 1 ?  'all' : [],
   }
 
   const DataButtonsProps: ISourceButtonRowProps = {
     title: '',
-    heading: <div>Apply Changes</div>,
+    heading: <div>View Simulated or Actual items</div>,
     rowCSS: { paddingTop: '10px' },
     buttonCSS: { marginRight: '10px' },
     Labels: DataButtons ,
-    onClick: setData.bind( this ),
-    selected: danger,
+    onClick: stateSource.loaded !== true ? undefined : setData.bind( this ),
+    selected: data,
     infoEle: ``,
     selectedClass: styles.isSelected,
+    disabled: stateSource.loaded !== true ? 'all' : [],
+  }
+
+  const ActionButtonsProps: ISourceButtonRowProps = {
+    title: '',
+    heading: <div style={{ color: 'red' }}>Make Permanent Changes</div>,
+    rowCSS: { paddingTop: '10px' },
+    buttonCSS: { marginRight: '10px' },
+    Labels: ActionButtons ,
+    onClick: setAction.bind( this ),
+    selected: action,
+    infoEle: ``,
+    selectedClass: styles.isSelected,
+    disabled: stateSource.loaded !== true || data === 0 || row === 1 ? 'all' : [],
   }
 
   const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 0px 5px 0px' }}>
     {/* { sourceButtonRow( null ) } */}
     <div>Items meeting FixerUpper Status:</div>
     <div>
-      { getFilteredItems( stateSource, 'Test' ).map( ( item ) => { return <span key={ item.Id }>{ item.Id }; </span> } ) }
+      { getFilteredItems( stateSource, DataButtons[ data ] ).map( ( item ) => { return <span key={ item.Id }>{ item.Id }; </span> } ) }
     </div>
     <div>
-      <button onClick={ () => { doThisAction( 'Test', 5000 ) }}>
+      {/* <button onClick={ () => { doThisAction( 'Simulate Changes', 5000 ) }}>
         Simulate now
       </button>
-      <button onClick={ () => { setShowThese( 'Actual' ) }}>
+      <button onClick={ () => { setData( 0 )}}>
         Show Actual
       </button>
       <button onClick={ () => { reloadData( ) }}>
         Reload new data
       </button>
-      <button onClick={ () => { doThisAction( 'Real', 1 ) }}>
+      <button onClick={ () => { doThisAction( 'Actual data', 1 ) }}>
         Test First Item
       </button>
-      <button onClick={ () => { verifyTheseItems( 'Test' ) }}>
-        Verify fixed items
+      <button onClick={ () => { setData( 1 ) }}>
+        Verify simulated items
       </button>
-      <button onClick={ () => { verifyTheseItems( 'Real' ) }}>
+      <button onClick={ () => { setData( 0 ) }}>
         Verify actual items
-      </button>
+      </button> */}
       <button onClick={ () => { void liveUpdate1Item( 1 ) }}>
         Really Fix first item
       </button>
     </div>
-    <div>
-      { sourceButtonRow( RowButtonProps ) }
-      { sourceButtonRow( DangerButtonsProps ) }
-      { sourceButtonRow( DataButtonsProps ) }
+    <div className={ styles.buttonCommands }>
+      <div>
+        { sourceButtonRow( DataButtonsProps ) }
+        <div style={{ fontSize: 'smaller'}}>Simulated allows you to mock up your items with your changes on screen but not actually update the data.</div>
+      </div>
+      <div>
+        { sourceButtonRow( RowButtonProps ) }
+        <div style={{ fontSize: 'smaller'}}>HTML shows the html code which can help in certain cases.</div>
+      </div>
+      <div>
+        { sourceButtonRow( FormatButtonsProps ) }
+        <div style={{ fontSize: 'smaller'}}>HTML shows the html code which can help in certain cases.</div>
+      </div>
+      <div>
+        { sourceButtonRow( ActionButtonsProps ) }
+        <div style={{ fontSize: 'smaller'}}>{ `Make live Mass Update changes - NOT REVERSABLE` }</div>
+      </div>
     </div>
   </div>;
 
-  const accordionHeight: number = 120;
+  const youAreSeeing: JSX.Element = <div style={{ padding: '5px 0px 15px 0px' }}>
+    <div style={{ fontSize: 'larger', fontWeight: '600' }}>You are currently seeing: </div>
+    <span style={{ paddingRight: row === 1 ? null : '2em' }}>{ row === 1 ? '' : 
+      data === 0 ? `Your actual list data ( ${ stateSource?.items?.length } items ).` : 
+      `Simulated items based on your proposed changes ( ${ simulatedSource?.items?.length } items ).` }
+    </span>
+    <span style={{ paddingRight: '2em' }}>Each row represents 
+      { row === 0 ? ` a single item in your list` : 
+      ` a Url ( either from link or image ) that was found by searching 
+      ${ data === 0 ? ` ALL Items in your list ( ${ stateSource?.items?.length } items ).`: 
+      `ONLY IN Items impacted by your proposed changes ( ${ simulatedSource?.items?.length } items ). Links shown reflect proposed changes.`}` }
+    </span>
+    <span style={{ paddingRight: row === 1 ? null : '2em' }}>{ row === 1 ? '' :  format === 0 ? `Rich Text is shown as html code` : `Rich Text is rendered as Rich Text`  }</span>
+  </div>
 
-  const SourcePagesHeader: JSX.Element = <Accordion 
-    title = { `More information about this tab`}
-    defaultIcon = 'Help'
-    showAccordion = { true }
-    content = { AccordionContent }
-    refreshId={ makeid(5) }
-    contentStylesVis = {{ height: `auto` }}
-  />;
+  const SourcePagesHeader: JSX.Element = <div>
+      <Accordion 
+        title = { `More information about this tab`}
+        defaultIcon = 'Help'
+        showAccordion = { true }
+        content = { AccordionContent }
+        refreshId={ makeid(5) }
+        contentStylesVis = {{ height: `auto` }}
+      />
+      { youAreSeeing }
+    </div>
+;
 
   /***
    *    .d8888.  .d88b.  db    db d8888b.  .o88b. d88888b d8888b.  .d8b.   d888b  d88888b .d8888. 
@@ -359,8 +457,9 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
    *                                                                                              
    */
 
-  let useSource: IStateSource = showThese === 'Fixed' ? fixedSource : showThese === 'Verified' ? verifiedSource : stateSource;
-  if ( showContent === 'Links' ) useSource = linksSource;
+  // let useSource: IStateSource = null; 
+  // DataButtons[ data ] === 'Simulate Changes' ? simulatedSource : showThese === 'Verified' ? verifiedSource : stateSource;
+  // if ( RowButtons[ row ] === 'Links' ) useSource = linksSource;
   
   let itemSource: IStateSource = JSON.parse(JSON.stringify( EmptyState ));
   let itemHeaders: string[] = [];
@@ -368,12 +467,12 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
 
   if ( row === 0 ) { // These are for Items
     itemHeaders = exampleRowHeaders;
-    itemSource = data === 1 ? fixedSource : stateSource;
-    itemRender = danger === 1 ? createFixerUpperRowDanger : createFixerUpperRowText;
+    itemSource = data === 0 ? stateSource : simulatedSource ;
+    itemRender = format === 1 ? createFixerUpperRowFormat : createFixerUpperRowText;
 
   } else if ( row === 1 ) { // These are for Links
     itemHeaders = verifiedRowHeaders;
-    itemSource = verifiedSource;
+    itemSource = linksSource;
     itemRender = createVerifiedRow;
 
   }
@@ -393,14 +492,14 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
     tableClassName= { 'anyTableClass' }
     tableHeaderClassName= { [  ].join( ' ' )  }
     selectedClass={ styles.isSelected }
-    
+
     renderRow={ itemRender }
 
     deepProps={ null }
 
     onParentCall={ setNewPanelItem }
     headingElement={ SourcePagesHeader }
-    ageSlider={ showContent === 'Items' ? true : false }
+    ageSlider={ RowButtons[ row ] === 'List Items' ? true : false }
     searchAgeOp={ 'show >' }
     searchAgeProp={ 'createdAge' }
   />;

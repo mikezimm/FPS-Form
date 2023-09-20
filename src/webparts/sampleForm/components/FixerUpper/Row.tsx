@@ -20,7 +20,7 @@ export function createFixerUpperRowText( props: ISourceRowRender ): JSX.Element 
   return createFixerUpperRow( false, props );
 }
 
-export function createFixerUpperRowDanger( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+export function createFixerUpperRowFormat( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
   return createFixerUpperRow( true, props );
 }
 

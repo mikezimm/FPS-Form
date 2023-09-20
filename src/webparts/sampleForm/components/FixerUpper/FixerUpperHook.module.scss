@@ -1,5 +1,13 @@
 @import '~@fluentui/react/dist/sass/References.scss';
 
+.buttonCommands {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  grid-column-gap: 2em;
+  grid-row-gap: 1em;
+}
+
 .exampleHook {
   button .enabled {
     background: "[theme:themePrimary, default:#0078d7]" !important;

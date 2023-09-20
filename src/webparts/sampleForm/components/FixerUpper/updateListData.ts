@@ -5,7 +5,7 @@ import { prepSourceColumns } from "@mikezimm/fps-library-v2/lib/pnpjs/SourceItem
 import { IFixerUpperHookRead } from './IFixerUpperHookRead';
 import { IStateSource } from "@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource";
 import { replaceHTMLEntities } from "@mikezimm/fps-library-v2/lib/logic/Strings/html";
-import { IFixerUpperMode } from "./FixerUpperHook";
+import { IFixerUpperData, IFixerUpperMode } from "./FixerUpperHook";
 import { IVerifiedSummary, IVerifiedType } from "./IVerifiedSummary";
 import { IReplaceOWizard } from "./IFixerUpperHookRead";
 
@@ -39,7 +39,7 @@ export function getFixerUpperSource(): ISourceProps {
 
 }
 
-export function getFilteredItems( stateSource: IStateSource, mode: IFixerUpperMode, count: number = 0  ) : IFixerUpperHookRead[] {
+export function getFilteredItems( stateSource: IStateSource, mode: IFixerUpperData, count: number = 0  ) : IFixerUpperHookRead[] {
 
 
   const finalItems: IFixerUpperHookRead[] = [];
@@ -59,8 +59,12 @@ export function getFilteredItems( stateSource: IStateSource, mode: IFixerUpperMo
 
 }
 
-//newItem = verifyLinks( item );
-export function getVerifiedItems( items: IFixerUpperHookRead[], ) : IFixerUpperHookRead[] {
+/**
+ * getLinkItems returns back a list of items that have either hrefs or src links in them.
+ * @param items 
+ * @returns 
+ */
+export function getLinkItems( items: IFixerUpperHookRead[], ) : IFixerUpperHookRead[] {
 
   const verifiedItems: IFixerUpperHookRead[] = [];
 
@@ -80,8 +84,12 @@ export function getVerifiedItems( items: IFixerUpperHookRead[], ) : IFixerUpperH
 }
 
 
-//newItem = verifyLinks( item );
-export function summarizeVerifiedItems( items: IFixerUpperHookRead[], ) : IVerifiedSummary[] {
+/**
+ * summarizeItemLinks takes a list of items and returns back a summary of all the links found in them.
+ * @param items 
+ * @returns 
+ */
+export function summarizeItemLinks( items: IFixerUpperHookRead[], ) : IVerifiedSummary[] {
 
   let verifiedSummaries: IVerifiedSummary[] = [];
 
@@ -258,7 +266,7 @@ const EmptyReplaceOWizard: IReplaceOWizard = {
 };
 
 
-export function shouldWeUpdate( item: IFixerUpperHookRead, mode: IFixerUpperMode, ): IFixerUpperHookRead {
+export function shouldWeUpdate( item: IFixerUpperHookRead, mode: IFixerUpperData, ): IFixerUpperHookRead {
 
   let shouldUpdate: any = false;
   let newItem: IFixerUpperHookRead = null;
@@ -267,7 +275,7 @@ export function shouldWeUpdate( item: IFixerUpperHookRead, mode: IFixerUpperMode
   FixerReplacements.map( fixer => {
     if ( item[ fixer.prop as 'Answer' ] && item[ fixer.prop as 'Answer' ].indexOf( fixer.orig ) > -1 ) {
       shouldUpdate = true;
-      if ( !newItem ) newItem = mode === 'Test' ? JSON.parse( JSON.stringify( item )) : { [fixer.prop] : item[ fixer.prop as 'Answer' ] } ;
+      if ( !newItem ) newItem = mode === 'Simulate Changes' ? JSON.parse( JSON.stringify( item )) : { [fixer.prop] : item[ fixer.prop as 'Answer' ] } ;
       const [ count, newText ] = globalReplace( newItem[ fixer.prop as 'Answer' ], fixer.orig, fixer.new );
       newItem[ fixer.prop as 'Answer' ] = newText;
 
@@ -317,7 +325,7 @@ function findUrls(ele: 'href' | 'src' , inputString: string): string[] {
 }
 
 // export async function  updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUpperMode, count: number = 0 ) : Promise<IFixerUpperHookRead[]> {
-export function updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUpperMode, count: number = 5000 ) : IFixerUpperHookRead[] {
+export function updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUpperData, count: number = 5000 ) : IFixerUpperHookRead[] {
   const fixedItems: any[] = [];
 
   finalItems.map( ( item: IFixerUpperHookRead ) => {
@@ -355,7 +363,7 @@ export function updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUppe
 
 // export async function  updateItems( finalItems: IFixerUpperHookRead[], mode: IFixerUpperMode, count: number = 0 ) : Promise<IFixerUpperHookRead[]> {
   export async function updateItemsAsync( sourceProps: ISourceProps, finalItems: IFixerUpperHookRead[], count: number = 5000 ) : Promise<IFixerUpperHookRead[]> {
-    const updateTheseItems: any[] = updateItems( finalItems, 'Real', count );
+    const updateTheseItems: any[] = updateItems( finalItems, 'Actual data', count );
     const updatedItems: any[] = [];
     if ( updateTheseItems.length > 0 ) {
       for (let item of updateTheseItems ) {
