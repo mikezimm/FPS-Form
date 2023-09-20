@@ -2,12 +2,12 @@ import { ISourceProps } from "@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/Int
 import { updateCommandItems } from "@mikezimm/fps-library-v2/lib/pnpjs/CommandItems/updateItem";
 import { createSeriesSort } from "@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/createOrderBy";
 import { prepSourceColumns } from "@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/prepSourceColumns";
-import { IFixerUpperHookRead } from "./Row";
+import { IFixerUpperHookRead } from './IFixerUpperHookRead';
 import { IStateSource } from "@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource";
+import { replaceHTMLEntities } from "@mikezimm/fps-library-v2/lib/logic/Strings/html";
 import { IFixerUpperMode } from "./FixerUpperHook";
-
-
-
+import { IVerifiedSummary, IVerifiedType } from "./IVerifiedSummary";
+import { IReplaceOWizard } from "./IFixerUpperHookRead";
 
 export function getFixerUpperSource(): ISourceProps {
 
@@ -65,6 +65,8 @@ export function getVerifiedItems( items: IFixerUpperHookRead[], ) : IFixerUpperH
   const verifiedItems: IFixerUpperHookRead[] = [];
 
   items.map( ( item: IFixerUpperHookRead ) => {
+
+    item.ReplaceOWizard = null; // Needed to reset on subsequent calls so it does not just keep adding to last verified count
     const newItem = verifyLinks( item, );
 
     if ( newItem.ReplaceOWizard.hrefs.length > 0 || newItem.ReplaceOWizard.srcs.length > 0 ) { 
@@ -74,6 +76,146 @@ export function getVerifiedItems( items: IFixerUpperHookRead[], ) : IFixerUpperH
   });
 
   return verifiedItems;
+
+}
+
+
+//newItem = verifyLinks( item );
+export function summarizeVerifiedItems( items: IFixerUpperHookRead[], ) : IVerifiedSummary[] {
+
+  let verifiedSummaries: IVerifiedSummary[] = [];
+
+  items.map( ( item: IFixerUpperHookRead ) => {
+
+    verifiedSummaries = addItemToSummary( 'hrefs', verifiedSummaries, item );
+    verifiedSummaries = addItemToSummary( 'srcs', verifiedSummaries, item );
+    // if ( item.ReplaceOWizard.hrefs.length ) { 
+    //   item.ReplaceOWizard.hrefs.map( link => {
+    //     // Find a Verified Summary if it already exists.
+    //     let idx = verifiedSummaries.length;
+    //     verifiedSummaries.map( ( summary: IVerifiedSummary, isummary: number ) => { 
+    //       if ( summary.find === link ) idx = isummary;
+    //     });
+    //     // Create new Verified Summary if it was not yet found.
+    //     if ( idx === verifiedSummaries.length ) {
+    //       verifiedSummaries.push({
+    //         find: link, hrefs: [], srcs: [], all: [], types: [],
+    //       });
+    //     }
+    //     verifiedSummaries[idx].hrefs.push( item );
+    //     verifiedSummaries[idx].all.push( item );
+    //     if ( verifiedSummaries[idx].types.indexOf( 'hrefs' ) === -1 ) verifiedSummaries[idx].types.push( 'hrefs' ) ;
+    //   })
+
+    // }
+
+  });
+
+  // Credit to bing chat :) - get Total sum of the counts of all the items
+  const found = verifiedSummaries.reduce((total, obj) => total + obj.linkCount, 0);
+  // Credit to bing chat :) - Sorts descending by total count
+  verifiedSummaries.sort((a, b) => b.linkCount - a.linkCount);
+  console.log( 'found total summarizable items:', found );
+
+  const complexSums: IVerifiedSummary[] = [];
+  verifiedSummaries.map( summary => { if ( summary.types.length > 1 ) complexSums.push( summary ) } );
+  console.log( 'found total summarizable: Comp', complexSums)
+
+  return verifiedSummaries;
+
+}
+
+export function addItemToSummary( check: IVerifiedType, verifiedSummaries: IVerifiedSummary[], item: IFixerUpperHookRead,  ): IVerifiedSummary[] {
+
+  if ( item.ReplaceOWizard[ check ].length > 0 ) {
+    // Go through each link in this item's check array ( either hrefs or srcs )
+    item.ReplaceOWizard[ check ].map( link => {
+
+      // Find a Verified Summary if it already exists.
+      let idx = verifiedSummaries.length;
+      verifiedSummaries.map( ( summary: IVerifiedSummary, isummary: number ) => { 
+        if ( summary.find === link ) idx = isummary;
+      });
+
+      // Create new Verified Summary if it was not yet found.
+      if ( idx === verifiedSummaries.length ) {
+        verifiedSummaries.push({
+          iCount: 0, linkCount: 0, find: link, types: [], hrefs: [], hrefsIds: [], hrefsCounts: [], srcs: [], srcsIds: [], srcsCounts: [], all: [], allIds: [], allCounts: [], FPSItem: null,
+        });
+      }
+
+      // update verifiedSummaries item
+      let itemIdxInChecksIds = verifiedSummaries[idx][ `${check}Ids` ].indexOf( item.Id );
+      if ( itemIdxInChecksIds < 0 ) { 
+        itemIdxInChecksIds = verifiedSummaries[idx][ `${check}Ids` ].length;
+        verifiedSummaries[idx][ `${check}Ids` ].push( item.Id );  // adds Item.Id this Verified's check Ids if not already there
+        verifiedSummaries[idx][ check ].push( item );
+        verifiedSummaries[idx][ `${check}Counts` ].push( 0 );
+      }
+
+      verifiedSummaries[idx][ `${check}Counts` ][ itemIdxInChecksIds ] ++;
+
+      let itemIdxInAllIds = verifiedSummaries[idx].allIds.indexOf( item.Id );
+      if ( verifiedSummaries[idx].allIds.indexOf( item.Id ) < 0 ) {   // adds Item.Id this Verified's all Ids if not already there
+        itemIdxInAllIds = verifiedSummaries[idx].allIds.length;
+        verifiedSummaries[idx].allIds.push( item.Id ); // Add item's Id to the allIds array
+        verifiedSummaries[idx].all.push( item ); // Add item to the all array
+        verifiedSummaries[idx].iCount ++;
+        verifiedSummaries[idx].allCounts.push( 0 );
+      }
+      verifiedSummaries[idx].allCounts[ itemIdxInAllIds ] ++;
+
+      verifiedSummaries[idx].linkCount ++;
+
+      // if ( verifiedSummaries[ idx ].find === link ) {
+      //   const testItem = `https&#58;//alva-hlpfsp01\.alv\.autoliv\.int/ALC/CSVtoExcel\.gif`;
+      //   if ( link === testItem ) {
+      //     console.log( 'Found Test Object', link, verifiedSummaries[ idx ] );
+      //   }
+      //   verifiedSummaries[ idx ].linkCount += 1;
+      //   if ( link === testItem ) {
+      //     console.log( 'verifiedSummaries[ idx ].linkCount', verifiedSummaries[ idx ].linkCount );
+      //   }
+      // }
+
+      // Adds either 'srcs' or 'hrefs' to the types array.
+      if ( verifiedSummaries[ idx ].types.indexOf( check ) === -1 ) verifiedSummaries[ idx ].types.push( check ) ;
+    });
+
+    // // Add the total count of all of this summary item found in this item's array of links counting for multiple instances
+    // item.ReplaceOWizard[ check ].map( link => { 
+    //   if ( verifiedSummaries[ idx ].find === link ) {
+    //     const testItem = "/sites/SP_GlobalItsSandboxRichText/Trainer Pics/Survey\\.png";
+    //     if ( link === testItem ) {
+    //       console.log( 'Found Test Object', link, verifiedSummaries[ idx ] );
+    //     }
+    //     verifiedSummaries[ idx ].linkCount += 1;
+    //     if ( link === testItem ) {
+    //       console.log( 'verifiedSummaries[ idx ].linkCount', verifiedSummaries[ idx ].linkCount );
+    //     }
+    //   }
+    // });
+
+    // verifiedSummaries[ idx ].linkCount += item.ReplaceOWizard[ check ].length;
+  }
+
+  verifiedSummaries.map( ( summary: IVerifiedSummary ) => {
+    const { types, find, allIds } = summary;
+    const meta = [
+      ...types,
+      find,
+      allIds.join( ', ')
+    ]
+    const FPSItem = {
+      Search: {
+        searchText: meta.join( ' ||| '),
+        searchTextLC: meta.join( ' ||| ').toLocaleLowerCase(),
+        meta: meta,
+    }}
+    summary.FPSItem = FPSItem as any;
+  } );
+
+  return verifiedSummaries;
 
 }
 
@@ -108,17 +250,6 @@ const FixerReplacements: IReplacementObject[] = [
     new: ``,
   }
 ]
-
-export interface IReplaceOWizard {
-  changes: IReplaceOWizardHistory[],
-  hrefs: string[];
-  srcs: string[];
-}
-
-export interface IReplaceOWizardHistory {
-  count: number;
-  replace: IReplacementObject;
-}
 
 const EmptyReplaceOWizard: IReplaceOWizard = {
   changes: [],
@@ -168,10 +299,20 @@ export function shouldWeUpdate( item: IFixerUpperHookRead, mode: IFixerUpperMode
 }
 
 function findUrls(ele: 'href' | 'src' , inputString: string): string[] {
+  // this regex finds either hrefs or srcs
   const regex = ele === 'href' ? /href="([^"]*)"/g : /src="([^"]*)"/g;
+  // this regex replaces some other characters.... not exactly sure what though any more.
   const newStr = inputString.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const hrefs = newStr.match(regex);
-  const cleanHrefs = hrefs ? hrefs.map( item => { return decodeURIComponent( item ) } ) : null;
+  // This finds an array of href or src links and then removes the href or src part and the trailing quote, puts into array:  cleanHrefs
+  const cleanHrefs = hrefs ? hrefs.map( item => { 
+    // replace the leading src=" and final quote"
+    let tempLink = decodeURIComponent( item ).replace( `${ele}="`, '' ).replace(/"$/, '');
+    // Found through testing that at this point, there was a \\. where every . should have been.
+    tempLink = replaceHTMLEntities( tempLink ).replace( `\\.`, `.` );
+    return tempLink;
+
+  } ) : null;
   return cleanHrefs;
 }
 

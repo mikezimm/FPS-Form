@@ -7,31 +7,24 @@ import { getHighlightedText } from '@mikezimm/fps-library-v2/lib/components/atom
 import { ISourceRowRender } from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/ISourceRowRender';
 
 import styles from './RowStyles.module.scss';
-import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent';
-import { ISimpleLink } from '@mikezimm/fps-library-v2/lib/logic/Links/Interfaces';
-import { IReplaceOWizard, IReplaceOWizardHistory, } from './updateListData';
+import { IReplaceOWizardHistory } from "./IFixerUpperHookRead";
+import { IFixerUpperHookRead } from './IFixerUpperHookRead';
 
 require ('@mikezimm/fps-styles/dist/fpsGeneralCSS.css');
 const noWrap = `fps-gen-text-ellipse`; // From fps-stiles fpsGeneralCSS.css
 const noWrapX = ``; // From fps-stiles fpsGeneralCSS.css
 
-export interface IFixerUpperHookRead extends IAnySourceItem {
-  ID: number;
-  Title: string;
-  Question: string;
-  Answer: string;
-  Category: string;
-  Link_x002f_URL: ISimpleLink;
-  Role: string;
-  Deliverable_x0020_type: string;
-  Modified: string;
-  Editor: any;
-  ReplaceOWizard: IReplaceOWizard;
-}
-
 export const exampleRowHeaders: string[] =[ 'ID', 'Title', 'Question', 'Answer', 'Category', 'Link', 'Role', 'Replacement', ];
 
-export function createFixerUpperRow( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+export function createFixerUpperRowText( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return createFixerUpperRow( false, props );
+}
+
+export function createFixerUpperRowDanger( props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
+  return createFixerUpperRow( true, props );
+}
+
+export function createFixerUpperRow( danger: boolean, props: ISourceRowRender ): JSX.Element { // eslint-disable-line @typescript-eslint/no-explicit-any
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { item, onClick, searchText, onParentCall } = props; // details, showItemType, onOpenPanel
 
@@ -39,13 +32,13 @@ export function createFixerUpperRow( props: ISourceRowRender ): JSX.Element { //
 
   const { Title, Id, Created, Author, Modified, Editor, Question, Answer, Category, Link_x002f_URL, Role, Deliverable_x0020_type, ReplaceOWizard } = thisItem; // , BannerImageUrl, PromotedState
 
-  const created = thisItem?.FPSItem?.Stamp?.created;
-  const CreateDate = created ? created.dayYYYYMMDD : '';
-  const CreateAge = created ? created.age.toFixed( 1 ) : '';
+  // const created = thisItem?.FPSItem?.Stamp?.created;
+  // const CreateDate = created ? created.dayYYYYMMDD : '';
+  // const CreateAge = created ? created.age.toFixed( 1 ) : '';
 
-  const modified = thisItem?.FPSItem?.Stamp?.modified;
-  const ModifiedDate = modified ? modified.dayYYYYMMDD : '';
-  const ModifiedAge = modified ? modified.age.toFixed( 1 ) : '';
+  // const modified = thisItem?.FPSItem?.Stamp?.modified;
+  // const ModifiedDate = modified ? modified.dayYYYYMMDD : '';
+  // const ModifiedAge = modified ? modified.age.toFixed( 1 ) : '';
 
   // Link_x002f_URL', 'Role', 'Deliverable_x0020_type'
 
@@ -54,7 +47,10 @@ export function createFixerUpperRow( props: ISourceRowRender ): JSX.Element { //
     <td title={ null } onClick= { () => props.onParentCall( 'Item', item.Id, '', item ) }  >{ Id }</td>
     <td className = { noWrapX } title={ Title } >{ getHighlightedText( Title, searchText ) }</td>
     <td className = { noWrapX } title={ Title } >{ getHighlightedText( Question, searchText ) }</td>
-    <td className = { styles.cellRich } title={ Title } >{ getHighlightedText( Answer, searchText ) }</td>
+
+    { !danger ? <td className = { styles.cellRich } title={ Title } >{ getHighlightedText( Answer, searchText ) }</td> :
+    <td className = { null } title={ Title } ><div className = { styles.addScrolls } dangerouslySetInnerHTML={{ __html: Answer }} /></td> }
+
     <td className = { noWrapX} title={ Title } >{ getHighlightedText( Category, searchText ) }</td>
     {/* <td className = { noWrapX } title={ Title } >{ getHighlightedText( Link_x002f_URL.Description, searchText ) }</td> */}
     <td className = { noWrapX } title={ Title } >Add Link column here</td>

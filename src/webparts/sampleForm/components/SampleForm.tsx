@@ -59,40 +59,40 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
       }) }
     </Pivot>;
 
+   const TemplateElement: JSX.Element =       <div>
+      <h2>React Component to: 1. Provision lists, 2. Request labels and 3. Apply template</h2>
+      { PivotElement }
+      {/* <MockApplyHook /> */}
+      { this.state.provisionTab === 'Instructions' ? ProvisionInstructions() : undefined }
+      <ListProvisionHook 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        context={ this.props.context as any }
+        labelItems={ LabelExportJSON }
+        updateParentLists={ this.updateCreatedLibraries.bind( this ) }
+        expandedState= { this.state.provisionTab === 'Create Library' ? true : false }
+      />
+      <ApplyTemplateHook 
+        listExists= { true }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        context={ this.props.context as any }
+        propsRefreshId={ useLists && useLists.length > 0 ? useLists[0].refreshId : '' }
+        expandedState={ this.state.provisionTab === 'Apply Template' ? useLists && useLists[0] && useLists[0].status === 'Success' ? true : 'Nudge' : false }
+        targetList={ useLists && useLists.length > 0 ? useLists[0].item : null }
+        updateSelectedTemplate={ this.updateSelectedTemplate.bind( this ) }
+        selectedTemplate={ this.state.selectedTemplate }
+      />
+      <RequestsHook 
+        context={ this.props.context }
+        expandedState={ this.state.provisionTab === 'Label History' ? true : false }
+      />
+    </div>
+
     return (
       <div>
-        <h2>React Component to: 1. Provision lists, 2. Request labels and 3. Apply template</h2>
-        { PivotElement }
-        {/* <MockApplyHook /> */}
-        { this.state.provisionTab === 'Instructions' ? ProvisionInstructions() : undefined }
-        <ListProvisionHook 
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          context={ this.props.context as any }
-          labelItems={ LabelExportJSON }
-          updateParentLists={ this.updateCreatedLibraries.bind( this ) }
-          expandedState= { this.state.provisionTab === 'Create Library' ? true : false }
-        />
-        <ApplyTemplateHook 
-          listExists= { true }
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          context={ this.props.context as any }
-          propsRefreshId={ useLists && useLists.length > 0 ? useLists[0].refreshId : '' }
-          expandedState={ this.state.provisionTab === 'Apply Template' ? useLists && useLists[0] && useLists[0].status === 'Success' ? true : 'Nudge' : false }
-          targetList={ useLists && useLists.length > 0 ? useLists[0].item : null }
-          updateSelectedTemplate={ this.updateSelectedTemplate.bind( this ) }
-          selectedTemplate={ this.state.selectedTemplate }
-        />
-        <RequestsHook 
-          context={ this.props.context }
-          expandedState={ this.state.provisionTab === 'Label History' ? true : false }
-        />
         <FixerUpperHook 
           context={ this.props.context }
           expandedState={ true }
-          
         />
-
-
       </div>
 
     );

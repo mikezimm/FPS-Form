@@ -8,7 +8,7 @@ import styles from './FixerUpperHook.module.scss';
 import { PanelType } from 'office-ui-fabric-react/lib/Panel';
 
 import { makeid } from '@mikezimm/fps-library-v2/lib/logic/Strings/guids';
-import { sourceButtonRow } from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/sourceButtonRow';
+import { sourceButtonRow, ISourceButtonRowProps } from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/sourceButtonRow';
 import Accordion from '@mikezimm/fps-library-v2/lib/components/molecules/Accordion/Accordion';
 import SourcePages from '@mikezimm/fps-library-v2/lib/components/molecules/SourcePage/SourcePages';
 
@@ -17,14 +17,16 @@ import { IAnySourceItem } from '@mikezimm/fps-library-v2/lib/components/molecule
 
 import { ISourceSearch } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/Interfaces/ISourceSearch';
 import { getSourceItems } from '@mikezimm/fps-library-v2/lib/pnpjs/SourceItems/getSourceItems';
-import { IFixerUpperHookRead, createFixerUpperRow, exampleRowHeaders } from './Row';
+import { createFixerUpperRowDanger, createFixerUpperRowText, exampleRowHeaders } from './Row';
+import { IFixerUpperHookRead } from './IFixerUpperHookRead';
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 import { IPerformanceOp } from '@mikezimm/fps-library-v2/lib/components/molecules/Performance/IPerformance';
 import { addSearchMeta1 } from '@mikezimm/fps-library-v2/lib/components/molecules/SearchPage/functions/addSearchMeta1';
 import { createErrorFPSTileItem } from '@mikezimm/fps-library-v2/lib/components/molecules/FPSTiles/functions/Any/createErrorFPSTileItem';
 
 import { CustomPanel } from '@mikezimm/fps-library-v2/lib/components/molecules/SourceList/Custom/CustomPanel';
-import { IReplacementObject, getFilteredItems, getFixerUpperSource, getVerifiedItems, updateItems, updateItemsAsync } from './updateListData';
+import { IReplacementObject, getFilteredItems, getFixerUpperSource, getVerifiedItems, summarizeVerifiedItems, updateItems, updateItemsAsync } from './updateListData';
+import { createVerifiedRow, verifiedRowHeaders } from './RowVerified';
 
 /***
  *     .o88b.  .d88b.  d8b   db .d8888. d888888b  .d8b.  d8b   db d888888b .d8888. 
@@ -39,6 +41,15 @@ import { IReplacementObject, getFilteredItems, getFixerUpperSource, getVerifiedI
 
 export type IFixerUpperMode = 'Test' | 'Real';  // Define what kinds of variants of the panel you want
 export type IFixerUpperShowThese = 'Actual' | 'Fixed' | 'Verified';  // Define what kinds of variants of the panel you want
+
+export type IFixerUpperRowType = 'Items' | 'Links';
+const RowButtons: IFixerUpperRowType[] = [ 'Items' , 'Links' ];
+
+export type IFixerUpperDanger = 'Text' | 'RichText';
+const DangerButtons: IFixerUpperDanger[] = [ 'Text' , 'RichText' ];
+
+export type IFixerUpperData =  'Actual data' | 'Simulate Changes';
+const DataButtons: IFixerUpperData[] = [ 'Actual data', 'Simulate Changes' , ];
 
 export type IPanelOption = 'performance' | 'item';  // Define what kinds of variants of the panel you want
 
@@ -112,7 +123,15 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
   const [ stateSource, setStateSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ fixedSource, setFixedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ verifiedSource, setVerifiedSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
+  const [ linksSource, setLinksSource ] = useState< IStateSource > ( JSON.parse(JSON.stringify( EmptyState )));
   const [ showThese, setShowThese ] = useState< IFixerUpperShowThese > ( 'Actual' );
+  const [ row, setRow ] = useState< number > ( 0 );
+  const [ danger, setDanger ] = useState< number > ( 0 );
+  const [ data, setData ] = useState< number > ( 0 );
+
+
+  const [ showContent, setShowContent ] = useState< IFixerUpperRowType > ( 'Items' );
+
   const [ updatedItems, setUpdatedItems ] = useState< IFixerUpperHookRead[] > ( null );
   const [ verifiedItems, setVerifiedItems ] = useState< IFixerUpperHookRead[] > ( null );
   
@@ -177,6 +196,13 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
    *                                                                            
    */
 
+
+  const toggleContent = ( ): void => {
+    verifyTheseItems( '')
+    setRow( row === 1 ? 0 : 1 );
+  }
+
+
   const reloadData = ( ): void => {
     setShowThese( 'Actual' );
     setFetched( false );
@@ -204,13 +230,16 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
      setShowThese( 'Fixed' );
   }
 
-  const verifyTheseItems =  ( ): void => {
+  const verifyTheseItems =  ( mode: IFixerUpperMode ): void => {
     const newItems: IFixerUpperHookRead[] = getVerifiedItems( 
-      stateSource.items as IFixerUpperHookRead[],
+      mode === 'Real' ? stateSource.items as IFixerUpperHookRead[] : fixedSource.items as IFixerUpperHookRead[],
     );
-
-    setVerifiedSource( { ...stateSource, ...{ items: newItems, refreshId: makeid(5) } } );
-    setUpdatedItems( newItems );
+    const verifiedSumm = summarizeVerifiedItems( newItems );
+    console.log( 'verifiedSumm:', verifiedSumm );
+    setVerifiedSource( { ...stateSource, ...{ items: newItems as any[], refreshId: makeid(5) } } );
+    setLinksSource( { ...stateSource, ...{ items: verifiedSumm as any[], refreshId: makeid(5) } } );
+    setVerifiedItems( newItems );
+    setRow( 1 );
     setShowThese( 'Verified' );
   }
 
@@ -225,8 +254,6 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
   }
 
 
-
-
   /***
    *    d88888b db      d88888b .88b  d88. d88888b d8b   db d888888b .d8888. 
    *    88'     88      88'     88'YbdP`88 88'     888o  88 `~~88~~' 88'  YP 
@@ -237,6 +264,42 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
    *                                                                         
    *                                                                         
    */
+
+  const RowButtonProps: ISourceButtonRowProps = {
+    title: '',
+    heading: <div>Row type</div>,
+    rowCSS: { paddingTop: '10px' },
+    buttonCSS: { marginRight: '10px' },
+    Labels: RowButtons ,
+    onClick: stateSource.loaded !== true ? undefined : toggleContent.bind( this ),
+    selected: row,
+    infoEle: ``,
+    selectedClass: styles.isSelected,
+  }
+
+  const DangerButtonsProps: ISourceButtonRowProps = {
+    title: '',
+    heading: <div>Render as</div>,
+    rowCSS: { paddingTop: '10px' },
+    buttonCSS: { marginRight: '10px' },
+    Labels: DangerButtons ,
+    onClick: stateSource.loaded !== true ? undefined : setDanger.bind( this ),
+    selected: danger,
+    infoEle: ``,
+    selectedClass: styles.isSelected,
+  }
+
+  const DataButtonsProps: ISourceButtonRowProps = {
+    title: '',
+    heading: <div>Apply Changes</div>,
+    rowCSS: { paddingTop: '10px' },
+    buttonCSS: { marginRight: '10px' },
+    Labels: DataButtons ,
+    onClick: setData.bind( this ),
+    selected: danger,
+    infoEle: ``,
+    selectedClass: styles.isSelected,
+  }
 
   const AccordionContent: JSX.Element = <div className={ 'yourClassName' }style={{ cursor: 'default', padding: '5px 0px 5px 0px' }}>
     {/* { sourceButtonRow( null ) } */}
@@ -257,12 +320,20 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
       <button onClick={ () => { doThisAction( 'Real', 1 ) }}>
         Test First Item
       </button>
-      <button onClick={ () => { verifyTheseItems( ) }}>
+      <button onClick={ () => { verifyTheseItems( 'Test' ) }}>
+        Verify fixed items
+      </button>
+      <button onClick={ () => { verifyTheseItems( 'Real' ) }}>
         Verify actual items
       </button>
       <button onClick={ () => { void liveUpdate1Item( 1 ) }}>
         Really Fix first item
       </button>
+    </div>
+    <div>
+      { sourceButtonRow( RowButtonProps ) }
+      { sourceButtonRow( DangerButtonsProps ) }
+      { sourceButtonRow( DataButtonsProps ) }
     </div>
   </div>;
 
@@ -288,29 +359,48 @@ const FixerUpperHook: React.FC<IFixerUpperHookProps> = ( props ) => {
    *                                                                                              
    */
 
+  let useSource: IStateSource = showThese === 'Fixed' ? fixedSource : showThese === 'Verified' ? verifiedSource : stateSource;
+  if ( showContent === 'Links' ) useSource = linksSource;
+  
+  let itemSource: IStateSource = JSON.parse(JSON.stringify( EmptyState ));
+  let itemHeaders: string[] = [];
+  let itemRender: any = null;
+
+  if ( row === 0 ) { // These are for Items
+    itemHeaders = exampleRowHeaders;
+    itemSource = data === 1 ? fixedSource : stateSource;
+    itemRender = danger === 1 ? createFixerUpperRowDanger : createFixerUpperRowText;
+
+  } else if ( row === 1 ) { // These are for Links
+    itemHeaders = verifiedRowHeaders;
+    itemSource = verifiedSource;
+    itemRender = createVerifiedRow;
+
+  }
+
   const itemsElement = <SourcePages
     // source={ SourceInfo }
     primarySource={ FixerUpperHookSourceProps }
     itemsPerPage={ 20 }
     pageWidth={ 1000 }
     topButtons={ stateSource.meta1 ? stateSource.meta1 : [] }
-    stateSource={ showThese === 'Fixed' ? fixedSource : showThese === 'Verified' ? verifiedSource : stateSource }
+    stateSource={ itemSource }
     startQty={ 20 }
     showItemType={ false }
     debugMode={ null }
 
-    tableHeaderElements={ exampleRowHeaders }
+    tableHeaderElements={ itemHeaders }
     tableClassName= { 'anyTableClass' }
     tableHeaderClassName= { [  ].join( ' ' )  }
     selectedClass={ styles.isSelected }
-
-    renderRow={ createFixerUpperRow }
+    
+    renderRow={ itemRender }
 
     deepProps={ null }
 
     onParentCall={ setNewPanelItem }
     headingElement={ SourcePagesHeader }
-    ageSlider={ true }
+    ageSlider={ showContent === 'Items' ? true : false }
     searchAgeOp={ 'show >' }
     searchAgeProp={ 'createdAge' }
   />;
