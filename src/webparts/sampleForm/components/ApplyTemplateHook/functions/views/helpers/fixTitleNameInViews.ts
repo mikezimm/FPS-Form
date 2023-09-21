@@ -1,5 +1,5 @@
 import { IViewField } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/viewTypes';
-import { IMakeThisList } from '../../../interfaces/ProvisionTypes';
+import { IMakeThisList } from "@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/IMakeThisList";
 
 /**
  * Swap Title Placeholder with either Name or Title

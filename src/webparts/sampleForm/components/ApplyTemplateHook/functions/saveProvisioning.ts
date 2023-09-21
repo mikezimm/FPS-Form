@@ -28,7 +28,7 @@ import { WebPartContextCopy_15_2 } from '@mikezimm/fps-library-v2/lib/common/int
 import { AnalyticsWeb } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/Interfaces/constants';
 import { EasyContentsRailsApply } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/Interfaces/EasyContents';
 import { getTheCurrentTime } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/permissionsSave';
-import { IMakeThisList } from '../interfaces/ProvisionTypes';
+import { IMakeThisList } from "@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/IMakeThisList";
 import { IListInfo } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 
  /***
@@ -147,7 +147,7 @@ export function saveProvisioning(
   if ( progress ) saveObject.zzzRichText2 = JSON.stringify( progress );
   if ( history ) saveObject.zzzRichText3 = JSON.stringify( history );
   if ( Setting ) saveObject.Setting = typeof Setting === 'string' ? Setting : JSON.stringify( Setting );
-  if ( performance ) saveObject.performance = JSON.stringify( performance );
+  if ( performance ) saveObject.performance = performance;
 
   saveObject.TargetList = {
     'Url': makeList.listURL,

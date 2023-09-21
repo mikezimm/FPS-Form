@@ -1,6 +1,7 @@
 
 // import * as React from 'react';
-import { IDefinedListInfo, IMakeThisList } from "../../interfaces/ProvisionTypes";
+import { IDefinedListInfo } from "../../interfaces/ProvisionTypes";
+import { IMakeThisList } from "@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/IMakeThisList";
 
 import { IListInfo } from '@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/listTypes';
 import { defineTheListMaster } from "./defineTheListMaster";

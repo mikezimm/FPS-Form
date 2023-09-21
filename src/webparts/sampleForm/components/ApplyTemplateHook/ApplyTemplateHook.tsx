@@ -21,12 +21,13 @@ import { getExpandColumns } from '@mikezimm/fps-library-v2/lib/pnpjs/Lists/getVX
 
 import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSource';
 
-import { DefinedLibraryChoices, DefinedListChoices, IDefinedListInfo, IMakeThisList, } from './interfaces/ProvisionTypes';
+import { DefinedLibraryChoices, DefinedListChoices, IDefinedListInfo, } from './interfaces/ProvisionTypes';
+import { IMakeThisList } from "@mikezimm/fps-library-v2/lib/components/molecules/Provisioning/interfaces/IMakeThisList";
 import { getSpecificListDef } from './templates/functions/getSpecificListDef';
 import { provisionTheList } from './functions/provisionWebPartList';
 
 import { IMyProgress, } from '@mikezimm/fps-library-v2/lib/common/interfaces/fps/IMyInterfaces';
-import { ApplyTemplate_Rail_SaveTitle, } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/permissionsSave';
+import { ApplyTemplate_Rail_SaveTitle, } from '@mikezimm/fps-library-v2/lib/pnpjs/Logging/RailConstants';
 import { saveAssist } from './functions/saveAssist';
 import { saveProvisioning } from './functions/saveProvisioning';
 
