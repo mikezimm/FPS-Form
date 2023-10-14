@@ -34,7 +34,7 @@ export function createExampleRow( props: ISourceRowRender ): JSX.Element { // es
   const ModifiedDate = modified ? modified.dayYYYYMMDD : '';
   const ModifiedAge = modified ? modified.age.toFixed( 1 ) : '';
 
-  const row = <tr className={ styles.requestsRow } onClick = { () => onClick( Id, 'generic', item ) }>
+  const row = <tr className={ styles.requestsRow } onClick = { ( event ) => onClick( Id, 'generic', item, event ) }>
 
     <td title={ null } onClick= { () => props.onParentCall( 'Item', item.Id, '', item ) }  >{ Id }</td>
     <td className = { noWrap } title={ Title } >{ getHighlightedText( Title, searchText ) }</td>

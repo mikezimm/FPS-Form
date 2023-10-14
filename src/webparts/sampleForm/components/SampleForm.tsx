@@ -12,14 +12,15 @@ import { IStateSource } from '@mikezimm/fps-library-v2/lib/pnpjs/Common/IStateSo
 import { IDefinedListInfo } from './ApplyTemplateHook/interfaces/ProvisionTypes';
 import { ProvisionInstructions } from './Instructions';
 import FixerUpperHook from './FixerUpper/FixerUpperHook';
+import HubCategories from './Categories/Categories';
 
 export interface ISampleFormProps {
   context: WebPartContext;
 }
 
-export type IProvTab = 'Instructions' | 'Create Library' | 'Apply Template' | 'Label History'
+export type IProvTab = 'Instructions' | 'Create Library' | 'Apply Template' | 'Label History' | 'HubCategories';
 
-export const provTabs: IProvTab[] = [ 'Instructions', 'Create Library', 'Apply Template', 'Label History' ];
+export const provTabs: IProvTab[] = [ 'HubCategories', 'Instructions', 'Create Library', 'Apply Template', 'Label History' ];
 
 export interface ISampleFormState {
   provisionedLists: IStateSource[];
@@ -59,11 +60,16 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
       }) }
     </Pivot>;
 
-   const TemplateElement: JSX.Element =       <div>
+    const MockBannerProps = {
+      FPSUser: { Title: this.props.context.pageContext.user.displayName },
+      context: { pageContext: { site: {  serverRelativeUrl: this.props.context.pageContext.site.serverRelativeUrl }}}
+    }
+
+   const TemplateElement: JSX.Element = <div>
       <h2>React Component to: 1. Provision lists, 2. Request labels and 3. Apply template</h2>
       { PivotElement }
       {/* <MockApplyHook /> */}
-      { this.state.provisionTab === 'Instructions' ? ProvisionInstructions() : undefined }
+      {/* { this.state.provisionTab === 'Instructions' ? ProvisionInstructions() : undefined }
       <ListProvisionHook 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         context={ this.props.context as any }
@@ -84,13 +90,14 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
       <RequestsHook 
         context={ this.props.context }
         expandedState={ this.state.provisionTab === 'Label History' ? true : false }
-      />
+      /> */}
     </div>
 
     return (
       <div>
-        <FixerUpperHook 
-          context={ this.props.context }
+        <HubCategories 
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          bannerProps={ MockBannerProps as any }
           expandedState={ true }
         />
       </div>

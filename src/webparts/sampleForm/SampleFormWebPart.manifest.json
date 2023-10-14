@@ -18,8 +18,8 @@
   "preconfiguredEntries": [{
     "groupId": "5c03119e-3074-46fd-976b-c60198311f70", // Advanced
     "group": { "default": "Advanced" },
-    "title": { "default": "Sample React Component for applying Retention-Labels to Libraries" },
-    "description": { "default": "Label Provisioning sandbox component" },
+    "title": { "default": "FPS Form Testing" },
+    "description": { "default": "FPS Form Testing" },
     "officeFabricIconFontName": "Page",
     "properties": {
       "description": "Sample Form"

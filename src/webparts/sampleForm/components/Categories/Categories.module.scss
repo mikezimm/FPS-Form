@@ -1,0 +1,35 @@
+
+.allCategories {
+  .ARegexCat {
+
+    h2 {
+      text-decoration: underline;
+    }
+
+    // Applies when an h2 element has a li.regMatch element
+    h2:has(li.regMatch) {
+      color: green;
+      font-weight: 600;
+      font-size: x-large;
+    }
+
+    h2:has(li.regNull) {
+      color: black;
+    }
+
+    li {
+      color: blue;
+
+    }
+    li.regMatch {
+      color: green;
+      font-weight: 600;
+      font-size: large;
+    }
+
+    li.regNull {
+      color: black;
+    }
+
+  }
+}

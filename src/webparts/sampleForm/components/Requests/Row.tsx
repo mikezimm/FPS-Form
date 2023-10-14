@@ -28,15 +28,15 @@ export function createRequestsRow( props: ISourceRowRender ): JSX.Element { // e
 
   const noWrap = `fps-gen-text-ellipse`;
 
-  const row = <tr className={ styles.requestsRow } onClick = { () => onClick( Id, 'generic', item ) }>
+  const row = <tr className={ styles.requestsRow } onClick = { ( event ) => onClick( Id, 'generic', item, event ) }>
 
     <td title={ null } onClick= { () => props.onParentCall( 'Item', item.Id, '', item ) }  >{ Id }</td>
     {/* <td className = { noWrap } title={ null } >{ getHighlightedText( Title, searchText ) }</td> */}
-    <td className = { noWrap } title={ null } onClick= { () => { props.onPropFilter( 'Label', Label, ) }} >{ getHighlightedText( Label, searchText ) }</td>
+    <td className = { noWrap } title={ null } onClick= { ( event ) => { props.onPropFilter( 'Label', Label, event ) }} >{ getHighlightedText( Label, searchText ) }</td>
     <td className = { noWrap } title={ LibraryTitle } onClick= { () => {  window.open( LibraryLink.Url ,'_blank') }} >{ getHighlightedText( LibraryTitle, searchText ) }</td>
     <td className = { noWrap } title={ WebUrl } onClick= { () => {  window.open( WebUrl ,'_blank') }} >{ getHighlightedText( WebUrl, searchText ) }</td>
     <td className = { noWrap } title={ Created } >{ CreateDate } -{ CreateAge } days</td>
-    <td className = { noWrap } title={ null } onClick= { () => { props.onPropFilter( 'Status', Status, ) }}  >{ getHighlightedText( Status, searchText ) }</td>
+    <td className = { noWrap } title={ null } onClick= { ( event ) => { props.onPropFilter( 'Status', Status, event) }}  >{ getHighlightedText( Status, searchText ) }</td>
     <td className = { noWrap } title={ null } >{ CompleteTime }</td>
 
   </tr>;
