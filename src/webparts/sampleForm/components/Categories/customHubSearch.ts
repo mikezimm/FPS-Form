@@ -1,8 +1,9 @@
 import { IAnySourceItem } from "@mikezimm/fps-library-v2/lib/components/molecules/AnyContent/IAnyContent";
 import { check4This } from "../../fpsReferences";
 
-export interface IEasySearch {
-  Customer?: RegExp [];
+export interface IEasyRegex {
+  Customer1?: RegExp [];
+  Customer2?: RegExp [];
   Facilities?: RegExp [];
   Products?: RegExp [];
   Global?: RegExp [];
@@ -11,34 +12,44 @@ export interface IEasySearch {
   Asia?: RegExp [];
   IT?: RegExp [];
   Functions?: RegExp [];
+  WoW?: RegExp [];
   FPSUse?: RegExp [];  // Optional to be passed in
 }
 
-const Customer: RegExp [] = [
+const Customer1: RegExp [] = [
   /\bGM\b/g,
   /\bVW\b/g,
   /\bVolkswagon\b/gi,
   /\bBMW\b/g,
-  /\bBU\b/g,
+  /\bSTLA\b/g,
   /\bFord\b/gi,
   /\bNissan\b/gi,
   /\bFCA\b/gi,
   /\bStellantis\b/gi,
   /\bMercedes\b/gi,
-  /\bSales\b/gi,
   /\bHonda\b/gi,
+];
+
+const Customer2: RegExp [] = [
+  /\bBU\b/g,
+  /\bSales\b/gi,
   /\bBusiness\b/gi,
   /\bBSG\b/g,
-  /\bCustomer\b/g,
+  /\bQuotes?\b/g,
+  /\bCustomers?\b/g,
+  /\bProgram ?Management\b/g,
+  
 ];
 
 const Facilities: RegExp[] = [
   /\bFacility\b/g,
-  /\bFacility\b|^Facility\b/gi,
+  /\bFacilities\b/g,
+  // /\bFacility\b|^Facility\b/gi,
 ];
 
 const Products: RegExp[] = [
-  /\bTextiles?\b|^Textiles?\b/gi,
+  // /\bTextiles?\b|^Textiles?\b/gi,
+  /\bTextiles?\b/gi,
   /\bAB\b/g,
   /\bSB\b/g,
   /\bSW\b/g,
@@ -65,7 +76,7 @@ const AAM: RegExp[] = [
   /\bASA\b/g,
   /\bNA\b/g,
 ];
-  
+
 const AEU: RegExp[] = [
   /\bAEU\b/g,
   /\bÄEU\b/g,
@@ -86,7 +97,7 @@ const Asia: RegExp[] = [
 const IT: RegExp[] = [
   /\bSharePoint\b/g,
   /\bHub ?Connections\b/g,
-  /\bService ?Delivery/gi,
+  /\bService ?Delivery\b/gi,
   /\bUTS\b/g,
   /\bIT\b/g,
   /\bSample\b/g,
@@ -98,26 +109,47 @@ const Functions: RegExp[] = [
   /\bSCM\b/gi, // For some reason was not finding The SCM Hub
   /\bFinance\b/g,
   /\bQuality\b/g,
+  /\bCompliance\b/gi,
+  /\bLegal\b/gi,
+  /\bOperations\b/gi,
+  /\bManagement\b/gi,
+  /\bSustainability\b/gi,
+  /\bCommunications?\b/gi,
+  /\bHuman ?Resource?\b/gi,
 ];
 
-export const EasySearch:  IEasySearch = {
-  Customer: Customer,
+const WoW: RegExp[] = [
+  /\bVEVAs?\b/g,
+  /\bQ5\b/g,
+  /\bPolicy\b/gi,
+  /\bPolicies\b/gi,
+  /\bStrategies\b/gi,
+  /\bStrategy\b/gi,
+  /\bInnovations?\b/gi,
+  /\bStandards?\b/gi,
+  /\b1P1Ps?\b/g,
+];
+
+export const EasySearch:  IEasyRegex = {
   Facilities: Facilities,
-  Products: Products,
   Global: Global,
   AAM: AAM,
   AEU: AEU,
   Asia: Asia,
   IT: IT,
+  WoW: WoW,
   Functions: Functions,
+  Customer1: Customer1,
+  Customer2: Customer2,
+  Products: Products,
 
 }
 
 export function addCustomHubSearch( items: IAnySourceItem[], keys: string[] ) : IAnySourceItem[] {
 
   Object.keys( EasySearch ).map( key => {
-    items = addHubMeta( items, keys, EasySearch[ key as 'Customer' ], key as 'Customer' );
-  })
+    items = addHubMeta( items, keys, EasySearch[ key as 'Customer1' ], key as 'Customer' );
+  });
 
   // items = addHubMeta( items, keys, Customer, 'Customer' );
 

@@ -13,6 +13,7 @@ import { IDefinedListInfo } from './ApplyTemplateHook/interfaces/ProvisionTypes'
 import { ProvisionInstructions } from './Instructions';
 import FixerUpperHook from './FixerUpper/FixerUpperHook';
 import HubCategories from './Categories/Categories';
+import { EasySearch } from './Categories/customHubSearch';
 
 export interface ISampleFormProps {
   context: WebPartContext;
@@ -99,6 +100,9 @@ export default class SampleForm extends React.Component<ISampleFormProps, ISampl
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           bannerProps={ MockBannerProps as any }
           expandedState={ true }
+          EasySearch={ EasySearch }
+          text1={ { label: `Title`, value: `This is a GM DAB Quality Strategy`} }
+          text2={ { label: `Description`, value: `located at Facility ÄEU and Quote Korea`} }
         />
       </div>
 

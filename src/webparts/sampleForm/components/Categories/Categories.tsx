@@ -3,11 +3,10 @@ import stylesC from './Categories.module.scss';
 import { ICategoriesProps, ICategoriesState } from './ICategoriesProps';
 
 import { ILoadPerformance, } from "../../fpsReferences";
-import { EasySearch } from './customHubSearch';
 import { highlightStringBetweenB } from './highlightRegex';
 
 // export default class FpsCore1152Banner extends React.Component<ICategoriesProps, IFpsCore1152BannerState> {
-export default class HubCategories extends React.Component<ICategoriesProps, ICategoriesState> {
+export default class Categories extends React.Component<ICategoriesProps, ICategoriesState> {
 
   private _performance: ILoadPerformance = null;
 
@@ -25,9 +24,10 @@ export default class HubCategories extends React.Component<ICategoriesProps, ICa
   public constructor(props:ICategoriesProps){
     super(props);
 
+    const { text1, text2 } = this.props;
     this.state = {
-      testTitle: 'This is some text that has some BU IT Text',
-      testDescription: '',
+      text1: text1 ? text1.value : '',
+      text2: text2 ? text2.value : '',
       testString: '',
       searchText: '',
       topSearch: [],
@@ -62,23 +62,25 @@ export default class HubCategories extends React.Component<ICategoriesProps, ICa
   }
 
   public render(): React.ReactElement<ICategoriesProps> {
-    const { testTitle, testDescription } = this.state;
+    const { EasySearch, } = this.props;
+    const { text1, text2, } = this.state;
 
-    const testString = `${ testTitle } --- ${ testDescription }`;
+    const testString = `${ text1 } --- ${ text2 }`;
 
     console.log( 'HubCategories ~ render' );
 
     if ( this.props.expandedState !== true ) return ( <div>{}</div> );
-
-    const EasySearchElement: JSX.Element = <div>
+    const MatchedRegex: RegExp[] = [];
+    const EasySearchElement: JSX.Element = <div className={ stylesC.regArrays }>
       { Object.keys( EasySearch ).map( key => {
         return <div key={ key }className={ stylesC.ARegexCat }>
           <h2 >{ key }</h2>
           <ul>
             {
-              EasySearch[ key as 'Customer' ].map( reg => {
+              EasySearch[ key as 'Customer1' ].map( reg => {
                 const wasFound: boolean = testString.match( reg ) ? true : false;
-                const highlighted = wasFound === false ? `${reg}` : highlightStringBetweenB( `${reg}` );
+                if ( wasFound === true ) MatchedRegex.push( reg );
+                const highlighted = wasFound === false ? highlightStringBetweenB( `${reg}`, false ) : highlightStringBetweenB( `${reg}`, true );
                 // console.log( `render highlighted type = ${ typeof highlighted }`, `${reg}`);
                 return <li className = { wasFound === true ? stylesC.regMatch : stylesC.regNull } key={ `${reg}` }>{ highlighted }</li>
               })
@@ -88,6 +90,13 @@ export default class HubCategories extends React.Component<ICategoriesProps, ICa
       })
       }
     </div>
+
+    // eslint-disable-next-line @rushstack/security/no-unsafe-regexp
+    const combinedRegex = new RegExp(MatchedRegex.map(r => r.source).join('|'), 'g');
+    const stringToSearch = testString;
+    const matches = stringToSearch.match(combinedRegex);
+
+    console.log( 'HubCategories ~ render matches', matches );
 
     // [ styles.Categories, bannerProps.bannerPillShape === true ? styles.bannerPillShapeSideMargin : '', ${hasTeamsContext ? styles.teams : '' ].join(' ')
     return (

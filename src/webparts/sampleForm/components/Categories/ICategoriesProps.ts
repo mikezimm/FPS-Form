@@ -1,12 +1,20 @@
 
 import { IWebpartBannerProps } from '../../fpsReferences';
+import { IEasyRegex } from './customHubSearch';
 
 export type IDefSourceType = 'lists...' | '' | '' | '' | '' | '*';
+
+export interface ICategoryInfo {
+  label: string;
+  value: string;
+}
 
 export interface ICategoriesProps {
   bannerProps: IWebpartBannerProps;
   expandedState: boolean;
-  testSite?: string;
+  EasySearch: IEasyRegex;
+  text1?: ICategoryInfo;
+  text2?: ICategoryInfo;
 }
 
 /**
@@ -14,8 +22,8 @@ export interface ICategoriesProps {
  */
 export interface ICategoriesState {
   testString: string;
-  testTitle: string;
-  testDescription: string;
+  text1?: string;
+  text2?: string;
 
   searchText: string;
   topSearch: number[];

@@ -1,6 +1,15 @@
 
 .allCategories {
+
+  .regArrays {
+    display: flex;
+    gap: 2em;
+    flex-wrap: wrap;
+  }
+
   .ARegexCat {
+
+
 
     h2 {
       text-decoration: underline;
@@ -13,23 +22,36 @@
       font-size: x-large;
     }
 
+    li {
+      margin: 3px 0px;
+    }
+
     h2:has(li.regNull) {
       color: black;
     }
 
-    li {
-      color: blue;
-
-    }
     li.regMatch {
       color: green;
       font-weight: 600;
       font-size: large;
+      margin: 5px 0px;
+      span {
+        span:nth-child(2) {
+          padding: 0px 5px;
+          // margin: 15px 10px;
+          background: yellow;
+        }
+      }
     }
 
     li.regNull {
       color: black;
+      span {
+        span:nth-child(2) {
+          padding: 0px 3px;
+          font-weight: 700;
+        }
+      }
     }
-
   }
 }
